@@ -1,0 +1,153 @@
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+.splash {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  color: #ffffff;
+  text-align: center;
+}
+
+.bg-gradient {
+  background: radial-gradient(
+      circle at 50% 35%,
+      #067216 0%,
+      #10141b 55%,
+      #0a0d12 100%
+    );
+}
+
+
+.splash-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 3.2s ease-in-out infinite;
+}
+
+.ring-outer {
+  width: 320px;
+  height: 320px;
+  animation-delay: 0.2s;
+}
+
+.ring-inner {
+  width: 220px;
+  height: 220px;
+  border-color: rgba(255, 255, 255, 0.14);
+  animation-delay: 0s;
+}
+
+.splash-logo {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.logo-img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.splash-name {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.splash-tagline {
+  position: relative;
+  z-index: 2;
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.muted {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+
+.anim-fade-scale {
+  animation: fade-scale 0.9s ease-out both;
+}
+
+.anim-fade-in {
+  opacity: 0;
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.delay-2 {
+  animation-delay: 0.4s;
+}
+
+.delay-3 {
+  animation-delay: 0.7s;
+}
+
+@keyframes fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+  100% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}

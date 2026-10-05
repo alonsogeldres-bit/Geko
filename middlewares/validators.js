@@ -37,7 +37,7 @@ const validateLogin = (req, res, next) => {
   next();
 };
 
-const validateCompleteRegister = (req, res, next) => {
+const validateCompleteRegistration = (req, res, next) => {
   const { apellido, nombre_usuario, numero } = req.body;
 
   if (!apellido || !nombre_usuario || !numero) {
@@ -60,4 +60,4 @@ const validateCompleteRegister = (req, res, next) => {
   next();
 };
 
-module.exports = { validateRegister, validateLogin, validateCompleteRegister };
+module.exports = { validateRegister, validateLogin, validateCompleteRegistration };

@@ -1,4 +1,15 @@
 
+/* ===========================================
+   Modelo de usuarios.
+   NOTA DE CONVENCION: los identificadores de este archivo
+   (nombre, apellido, numero, nombre_usuario, contrasena_hash,
+   id_usuario, id_rol...) son NOMBRES DE COLUMNA de la tabla
+   `usuarios`, que esta en espanol en el esquema. Se mantienen
+   tal cual a proposito: renombrarlos aqui dejaria el SQL sin
+   coincidencia con la tabla y la aplicacion caeria.
+   Todo lo demas del proyecto esta en ingles.
+   =========================================== */
+
 const pool = require('../config/db');
 
 const ID_ROL_ADMIN = 1;

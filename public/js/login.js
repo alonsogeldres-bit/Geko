@@ -61,13 +61,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // En un fallo del proveedor la contraseña no es el problema,
   // por eso aquí solo se ofrece reintentar, no recuperar contraseña.
   var ERRORES_SSO = {
-    sso_no_configurado: "El acceso con Google todavía no está disponible. Inténtalo más tarde.",
-    sso_denegado: "Google no autorizó el acceso a tu cuenta.",
-    sso_cancelado: "Cancelaste el inicio de sesión con Google.",
+    sso_not_configured: "El acceso con Google todavía no está disponible. Inténtalo más tarde.",
+    sso_denied: "Google no autorizó el acceso a tu cuenta.",
+    sso_cancelled: "Cancelaste el inicio de sesión con Google.",
     sso_error: "No pudimos completar el inicio de sesión con Google.",
-    sso_estado: "La solicitud de acceso no es válida o expiró.",
-    sso_correo: "Google no entregó un correo verificado para esa cuenta.",
-    sso_registro: "Tu sesión de registro expiró. Vuelve a entrar con Google.",
+    sso_state: "La solicitud de acceso no es válida o expiró.",
+    sso_email: "Google no entregó un correo verificado para esa cuenta.",
+    sso_registration: "Tu sesión de registro expiró. Vuelve a entrar con Google.",
   };
 
   function leerErrorDeUrl() {

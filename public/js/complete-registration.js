@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("[completar-registro.js] Script cargado y DOM listo");
+  console.log("[complete-registration.js] Script cargado y DOM listo");
 
   var formCompletar = document.getElementById("form-completar");
   var alertBox = document.getElementById("auth-alert");
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var btnCompletar = document.getElementById("btn-completar");
 
   if (!formCompletar) {
-    console.error("[completar-registro.js] No se encontró el formulario #form-completar");
+    console.error("[complete-registration.js] No se encontró el formulario #form-completar");
     return;
   }
 
@@ -37,9 +37,9 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     clearAlert();
 
-    var apellido = document.getElementById("perfil-apellido").value.trim();
-    var nombre_usuario = document.getElementById("perfil-username").value.trim();
-    var numero = document.getElementById("perfil-phone").value.trim();
+    var apellido = document.getElementById("profile-lastname").value.trim();
+    var nombre_usuario = document.getElementById("profile-username").value.trim();
+    var numero = document.getElementById("profile-phone").value.trim();
 
     if (!apellido || !nombre_usuario || !numero) {
       showAlert("Completa todos los campos.");
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setLoading(true);
 
-    fetch("/completar-registro", {
+    fetch("/complete-registration", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

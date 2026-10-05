@@ -19,8 +19,8 @@ const redirectIfAuth = (req, res, next) => {
 };
 
 const requirePendingRegistration = (req, res, next) => {
-  if (!req.session.oauth_registro) {
-    return res.redirect('/login?error=sso_registro');
+  if (!req.session.oauthRegistration) {
+    return res.redirect('/login?error=sso_registration');
   }
   next();
 };

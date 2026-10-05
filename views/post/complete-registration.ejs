@@ -28,13 +28,13 @@
         <div class="auth-sso-identity" role="group" aria-label="Identidad detectada">
           <img
             class="auth-sso-avatar"
-            src="<%= datos.foto || '/assets/geko.png' %>"
+            src="<%= data.foto || '/assets/geko.png' %>"
             alt=""
             width="36"
             height="36"
           />
           <div class="auth-sso-data">
-            <span class="auth-sso-correo"><%= datos.correo %></span>
+            <span class="auth-sso-correo"><%= data.correo %></span>
           </div>
         </div>
 
@@ -50,23 +50,23 @@
           </div>
         </div>
 
-        <form id="form-completar" class="auth-form" action="/completar-registro" method="POST">
+        <form id="form-completar" class="auth-form" action="/complete-registration" method="POST">
 
-          <input type="hidden" name="correo" value="<%= datos.correo %>" />
+          <input type="hidden" name="correo" value="<%= data.correo %>" />
 
-          <label class="auth-label" for="perfil-nombre">Nombre</label>
+          <label class="auth-label" for="profile-name">Nombre</label>
           <input
             type="text"
-            id="perfil-nombre"
+            id="profile-name"
             class="auth-input"
-            value="<%= datos.nombre %>"
+            value="<%= data.nombre %>"
             disabled
           />
 
-          <label class="auth-label" for="perfil-apellido">Apellido</label>
+          <label class="auth-label" for="profile-lastname">Apellido</label>
           <input
             type="text"
-            id="perfil-apellido"
+            id="profile-lastname"
             name="apellido"
             class="auth-input"
             placeholder="Tu apellido"
@@ -74,10 +74,10 @@
             required
           />
 
-          <label class="auth-label" for="perfil-username">Nombre de usuario</label>
+          <label class="auth-label" for="profile-username">Nombre de usuario</label>
           <input
             type="text"
-            id="perfil-username"
+            id="profile-username"
             name="nombre_usuario"
             class="auth-input"
             placeholder="usuario123"
@@ -85,10 +85,10 @@
             required
           />
 
-          <label class="auth-label" for="perfil-phone">Número de teléfono</label>
+          <label class="auth-label" for="profile-phone">Número de teléfono</label>
           <input
             type="tel"
-            id="perfil-phone"
+            id="profile-phone"
             name="numero"
             class="auth-input"
             placeholder="+56 9 1234 5678"
@@ -111,6 +111,6 @@
 
   </div>
 
-  <script src="/js/completar-registro.js" defer></script>
+  <script src="/js/complete-registration.js" defer></script>
 </body>
 </html>

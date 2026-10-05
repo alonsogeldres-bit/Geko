@@ -49,15 +49,15 @@ const ocultado = (v) => (v ? `${String(v).slice(0, 6)}...(${String(v).length} ch
     ok('Google configurado');
     console.log(`           redirect_uri: ${sso.google.redirectUri}`);
   } else {
-    fail('Google SIN configurar -> /auth/google devolvera error=sso_no_configurado');
+    fail('Google NOT configured -> /auth/google returns error=sso_not_configured');
     console.log('           Pasos: https://console.cloud.google.com');
     console.log('           1) Crear proyecto  2) APIs y servicios > Credentials');
     console.log('           3) Create Credentials > OAuth client ID > Web application');
     console.log(`           4) Redirect URI: ${sso.google.redirectUri}`);
   }
 
-  const avisoApple = sso.appleAviso();
-  avisoApple ? warn(`Apple ID: ${avisoApple}`) : ok('Apple configurado');
+  const appleNotice = sso.appleNotice();
+  appleNotice ? warn(`Apple ID: ${appleNotice}`) : ok('Apple configurado');
   line();
 
   console.log('\n=== 4. Resultado ===');

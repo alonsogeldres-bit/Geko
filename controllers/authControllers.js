@@ -4,7 +4,7 @@ const UserModel = require('../models/userModels');
 const sso = require('../config/sso');
 
 const showLogin = (req, res) =>
-  res.render('post/login', { proveedores: sso.proveedoresHabilitados() });
+  res.render('post/login', { providers: sso.enabledProviders() });
 
 const showRegister = (req, res) => {
   res.render('post/register');
@@ -66,38 +66,44 @@ const login = async (req, res) => {
 };
 
 /* ===========================================
-   AUTENTICACIÓN SOCIAL (Opción B)
-   Google entrega correo verificado. Si el correo ya existe en
-   `usuarios` se inicia sesión directo; si no, se pide solo lo
-   que OAuth NO entrega (teléfono y nombre de usuario) y se crea
-   la cuenta. Sin modificar el esquema de la base de datos.
+   SOCIAL LOGIN (Option B)
+   Google returns a verified email. If it already exists in
+   `usuarios`, the user is logged in directly. If not, only the
+   fields OAuth cannot deliver are requested (phone and username)
+   and the account is created. No database schema changes.
+
+   NOTE: field names below such as nombre, apellido, numero,
+   nombre_usuario and correo are COLUMN names in the `usuarios`
+   table. They stay in Spanish on purpose; renaming them would
+   break the SQL. Everything in this codebase that is not a
+   database column is in English.
    =========================================== */
 
-const iniciarSesion = (req, res, usuario, destino) => {
+const startSession = (req, res, user, destination) => {
   req.session.regenerate((err) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ success: false, message: 'Error del servidor.' });
+      return res.status(500).json({ success: false, message: 'Server error.' });
     }
 
     req.session.usuario = {
-      id_usuario: usuario.id_usuario,
-      id_rol: usuario.id_rol,
-      nombre: usuario.nombre
+      id_usuario: user.id_usuario,
+      id_rol: user.id_rol,
+      nombre: user.nombre
     };
 
-    res.redirect(destino);
+    res.redirect(destination);
   });
 };
 
 const redirectToGoogle = async (req, res) => {
   try {
     if (!sso.isGoogleConfigured()) {
-      return res.redirect('/login?error=sso_no_configurado');
+      return res.redirect('/login?error=sso_not_configured');
     }
 
     const state = sso.createState();
-    req.session.oauth_state = state;
+    req.session.oauthState = state;
 
     res.redirect(sso.googleAuthorizationUrl(state));
   } catch (err) {
@@ -111,92 +117,92 @@ const googleCallback = async (req, res) => {
     const { code, state, error } = req.query;
 
     if (error) {
-      return res.redirect('/login?error=sso_denegado');
+      return res.redirect('/login?error=sso_denied');
     }
     if (!code) {
       return res.redirect('/login?error=sso_error');
     }
-    if (!sso.isValidState(state, req.session.oauth_state)) {
-      return res.redirect('/login?error=sso_estado');
+    if (!sso.isValidState(state, req.session.oauthState)) {
+      return res.redirect('/login?error=sso_state');
     }
 
-    delete req.session.oauth_state;
+    delete req.session.oauthState;
 
     const tokens = await sso.exchangeCodeForTokens(code);
-    const perfil = await sso.fetchGoogleProfile(tokens.access_token);
+    const profile = await sso.fetchGoogleProfile(tokens.access_token);
 
-    if (!perfil.correo || !perfil.correoVerificado) {
-      return res.redirect('/login?error=sso_correo');
+    if (!profile.correo || !profile.correoVerificado) {
+      return res.redirect('/login?error=sso_email');
     }
 
-    const usuario = await UserModel.findByEmail(perfil.correo);
+    const user = await UserModel.findByEmail(profile.correo);
 
-    if (usuario) {
-      return iniciarSesion(req, res, usuario, '/profile');
+    if (user) {
+      return startSession(req, res, user, '/profile');
     }
 
-    req.session.oauth_registro = {
-      idProveedor: perfil.idProveedor,
-      nombre: perfil.nombre,
-      apellido: perfil.apellido,
-      correo: perfil.correo,
-      foto: perfil.foto
+    req.session.oauthRegistration = {
+      idProveedor: profile.idProveedor,
+      nombre: profile.nombre,
+      apellido: profile.apellido,
+      correo: profile.correo,
+      foto: profile.foto
     };
 
-    res.redirect('/completar-registro');
+    res.redirect('/complete-registration');
   } catch (err) {
     console.error(err);
     res.redirect('/login?error=sso_error');
   }
 };
 
-const showCompleteRegister = async (req, res) => {
-  const datos = req.session.oauth_registro || {};
-  res.render('post/completar-registro', { datos });
+const showCompleteRegistration = async (req, res) => {
+  const data = req.session.oauthRegistration || {};
+  res.render('post/complete-registration', { data });
 };
 
-const completeRegister = async (req, res) => {
+const completeRegistration = async (req, res) => {
   try {
-    const pendiente = req.session.oauth_registro;
-    if (!pendiente) {
-      return res.status(401).json({ success: false, message: 'La sesión de registro expiró. Vuelve a iniciar sesión con Google.' });
+    const pending = req.session.oauthRegistration;
+    if (!pending) {
+      return res.status(401).json({ success: false, message: 'Registration session expired. Sign in with Google again.' });
     }
 
     const { apellido, nombre_usuario, numero } = req.body;
 
     if (await UserModel.existsByUsername(nombre_usuario)) {
-      return res.status(409).json({ success: false, message: 'Ese nombre de usuario ya está en uso.' });
+      return res.status(409).json({ success: false, message: 'That username is already taken.' });
     }
     if (await UserModel.existsByPhone(numero)) {
-      return res.status(409).json({ success: false, message: 'Ese número ya está registrado.' });
+      return res.status(409).json({ success: false, message: 'That phone number is already registered.' });
     }
 
-    const nombre = pendiente.nombre || nombre_usuario;
+    const nombre = pending.nombre || nombre_usuario;
 
-    // `usuarios.contrasena_hash` es NOT NULL. Se guarda un hash de un
-    // valor aleatorio: la cuenta queda inutilizable por contraseña,
-    // que es justo lo deseado para un acceso de tipo social.
+    // `usuarios.contrasena_hash` is NOT NULL but Google provides no
+    // password. A bcrypt hash of random bytes is stored, which leaves
+    // the account intentionally unusable via password.
     const contrasena_hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
 
     const result = await UserModel.create({
       nombre,
       apellido,
       nombre_usuario,
-      correo: pendiente.correo,
+      correo: pending.correo,
       numero,
       contrasena_hash
     });
 
-    delete req.session.oauth_registro;
+    delete req.session.oauthRegistration;
 
-    iniciarSesion(req, res, {
+    startSession(req, res, {
       id_usuario: result.insertId,
       id_rol: UserModel.ID_ROL_CLIENTE,
       nombre
     }, '/profile');
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Error del servidor.' });
+    res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
 
@@ -208,6 +214,6 @@ module.exports = {
   login,
   redirectToGoogle,
   googleCallback,
-  showCompleteRegister,
-  completeRegister
+  showCompleteRegistration,
+  completeRegistration
 };

@@ -10,6 +10,10 @@ const showRegister = (req, res) => {
   res.render('post/register');
 };
 
+const showForgotPassword = async (req, res) => {
+  res.render('post/forgot-password');
+};
+
 const showProfile = (req, res) => res.render('post/profile', { usuario: req.session.usuario });
 
 const register = async (req, res) => {
@@ -210,6 +214,7 @@ module.exports = {
   showLogin,
   showRegister,
   showProfile,
+  showForgotPassword,
   register,
   login,
   redirectToGoogle,

@@ -11,6 +11,9 @@ router.post('/register', validateRegister, authController.register);
 router.post('/login', validateLogin, authController.login);           
 
 
+// Password recovery
+router.get('/forgot-password', authController.showForgotPassword);
+
 // Social login (Google) and two-step registration
 router.get('/auth/google', authController.redirectToGoogle);
 router.get('/auth/google/callback', authController.googleCallback);

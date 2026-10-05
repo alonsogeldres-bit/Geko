@@ -58,12 +58,20 @@ document.addEventListener("DOMContentLoaded", function () {
       })
     })
       .then(function (res) {
+        // El alta responde con redirect a /profile, no con JSON.
+        // fetch sigue la redireccion, asi que un 200 aqui ya es exito.
+        if (res.redirected || res.url.indexOf("/profile") !== -1) {
+          return { success: true };
+        }
+
         return res.json().then(function (data) {
           return { status: res.status, data: data };
+        }, function () {
+          return { status: res.status, data: null };
         });
       })
       .then(function (r) {
-        if (r.data && r.data.success) {
+        if (r.success || (r.data && r.data.success)) {
           window.location.href = "/profile";
           return;
         }

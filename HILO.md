@@ -218,6 +218,10 @@ npm run doctor     # revisa .env, MySQL, Google y Gmail
 npm run dev        # nodemon
 ```
 
+> **¿Estás en una máquina nueva o nunca configuraste esto?**
+> Lee **`TUTO.md`** primero: tiene el paso a paso completo para crear `.env`
+> desde cero, generar `SESSION_SECRET` y sacar las claves de Google.
+
 `npm run doctor` es la primera cosa que hay que ejecutar si algo falla: dice
 exactamente qué falta y en qué paso.
 
@@ -309,6 +313,7 @@ inventar clases nuevas.
 ## 12. Si retomas desde aquí
 
 1. `git pull` y `npm run doctor`. Si el doctor pasa MySQL y Google, el entorno está bien.
+   Si es tu primera vez en esta máquina o falta `.env`, sigue **`TUTO.md`**.
 2. Lo único que bloquea el cierre de la historia de login es
    **la contraseña de aplicación de Gmail** (sección 7.1). Es una tarea de 5
    minutos del cliente, no de código.

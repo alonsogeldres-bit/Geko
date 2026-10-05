@@ -23,8 +23,10 @@
         <h1 class="auth-title">Iniciar sesión</h1>
 
         <!-- ============ AUTENTICACIÓN SOCIAL (SSO) ============ -->
+        <% if (proveedores.google || proveedores.apple) { %>
         <div class="auth-sso" role="group" aria-label="Opciones de inicio de sesión con proveedores">
 
+          <% if (proveedores.google) { %>
           <a href="/auth/google"
              class="btn btn-social btn-social-google"
              data-sso="google"
@@ -37,7 +39,9 @@
             </svg>
             <span>Iniciar sesión con Google</span>
           </a>
+          <% } %>
 
+          <% if (proveedores.apple) { %>
           <a href="/auth/apple"
              class="btn btn-social btn-social-apple"
              data-sso="apple"
@@ -47,10 +51,14 @@
             </svg>
             <span>Iniciar sesión con Apple ID</span>
           </a>
+          <% } %>
 
         </div>
+        <% } %>
 
+        <% if (proveedores.google || proveedores.apple) { %>
         <p class="auth-divider"><span>o continúa con tu correo</span></p>
+        <% } %>
 
         <!-- ============ ALERTA (criterio: manejo de errores) ============ -->
         <div id="auth-alert"

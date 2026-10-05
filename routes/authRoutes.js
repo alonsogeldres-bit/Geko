@@ -10,6 +10,7 @@ router.get('/profile', requireAuth, authController.showProfile);
 router.post('/register', validateRegister, authController.register); 
 router.post('/login', validateLogin, authController.login);           
 
+
 // Autenticación social (Google) y alta con paso intermedio
 router.get('/auth/google', authController.redirectToGoogle);
 router.get('/auth/google/callback', authController.googleCallback);

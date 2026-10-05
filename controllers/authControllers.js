@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
 const sso = require('../config/sso');
 
-const showLogin = (req, res) => res.render('post/login');
+const showLogin = (req, res) =>
+  res.render('post/login', { proveedores: sso.proveedoresHabilitados() });
 
 const showRegister = (req, res) => {
   res.render('post/register');

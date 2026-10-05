@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Registrarme</title>
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+<body>
+
+  <div class="auth bg-gradient">
+
+    <header class="auth-nav">
+      <div class="logo-brand">
+        <img src="/assets/geko.png" alt="GEKO" class="logo-img-small" width="34" height="34" />
+        <span class="auth-brand">GEKO</span>
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <div class="auth-card anim-fade-scale">
+
+        <h1 class="auth-title">Crear cuenta</h1>
+
+        <form id="form-register" class="auth-form" action="/register" method="POST">
+          <label class="auth-label" for="register-name">Nombre</label>
+          <input
+            type="text"
+            id="register-name"
+            name="nombre"
+            class="auth-input"
+            placeholder="Tu nombre"
+            required
+          />
+
+          <label class="auth-label" for="register-lastname">Apellido</label>
+          <input
+            type="text"
+            id="register-lastname"
+            name="apellido"
+            class="auth-input"
+            placeholder="Tu apellido"
+            required
+          />
+
+          <label class="auth-label" for="register-username">Nombre de usuario</label>
+          <input
+            type="text"
+            id="register-username"
+            name="nombre_usuario"
+            class="auth-input"
+            placeholder="usuario123"
+            required
+          />
+
+          <label class="auth-label" for="register-email">Correo electrónico</label>
+          <input
+            type="email"
+            id="register-email"
+            name="correo"
+            class="auth-input"
+            placeholder="tucorreo@ejemplo.com"
+            required
+          />
+
+          <label class="auth-label" for="register-phone">Número de teléfono</label>
+          <input
+            type="tel"
+            id="register-phone"
+            name="numero"
+            class="auth-input"
+            placeholder="+56 9 1234 5678"
+            required
+          />
+
+          <label class="auth-label" for="register-password">Contraseña</label>
+          <input
+            type="password"
+            id="register-password"
+            name="contrasena"
+            class="auth-input"
+            placeholder="••••••••"
+            required
+          />
+
+          <label class="auth-label" for="register-confirm">Confirmar contraseña</label>
+          <input
+            type="password"
+            id="register-confirm"
+            name="confirm"
+            class="auth-input"
+            placeholder="••••••••"
+            required
+          />
+
+          <button type="submit" class="btn btn-lg btn-primary auth-submit">
+            Crear cuenta
+          </button>
+        </form>
+
+        <p class="auth-error" id="auth-error"></p>
+        <p class="auth-success" id="auth-success"></p>
+
+        <div class="auth-nav-links">
+          <span class="auth-nav-text">¿Ya tienes cuenta?</span>
+          <a href="/login" class="btn btn-outline auth-nav-btn">Iniciar sesión</a>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="/js/register.js" defer></script>
+</body>
+</html>

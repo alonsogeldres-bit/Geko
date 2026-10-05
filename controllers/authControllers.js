@@ -5,6 +5,10 @@ const showLogin = (req, res) => {
   res.render('post/login');
 };
 
+const showRegister = (req, res) => {
+  res.render('post/register');
+};
+
 const showProfile = (req, res) => {
   res.render('post/profile');
 };
@@ -78,4 +82,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { showLogin, showProfile, register, login };
+module.exports = { showLogin, showRegister, showProfile, register, login };

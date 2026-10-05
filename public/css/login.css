@@ -325,6 +325,50 @@ body {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* ---------- Identidad detectada (registro social) ---------- */
+
+.auth-subtitle {
+  margin: -12px 0 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.auth-sso-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 22px;
+}
+
+.auth-sso-avatar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.auth-sso-data {
+  min-width: 0;
+}
+
+.auth-sso-correo {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---------- Fila de formulario ---------- */
 
 .auth-row {

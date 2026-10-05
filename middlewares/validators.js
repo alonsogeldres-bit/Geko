@@ -37,4 +37,27 @@ const validateLogin = (req, res, next) => {
   next();
 };
 
-module.exports = { validateRegister, validateLogin };
+const validateCompleteRegister = (req, res, next) => {
+  const { apellido, nombre_usuario, numero } = req.body;
+
+  if (!apellido || !nombre_usuario || !numero) {
+    return res.status(400).json({ success: false, message: 'Completa todos los campos.' });
+  }
+
+  const numeroRegex = /^[\d\s+]{8,20}$/;
+  if (!numeroRegex.test(numero)) {
+    return res.status(400).json({ success: false, message: 'El número de teléfono no es válido.' });
+  }
+
+  if (nombre_usuario.length < 3 || nombre_usuario.length > 50) {
+    return res.status(400).json({ success: false, message: 'El nombre de usuario debe tener entre 3 y 50 caracteres.' });
+  }
+
+  if (apellido.length > 50) {
+    return res.status(400).json({ success: false, message: 'El apellido no puede superar los 50 caracteres.' });
+  }
+
+  next();
+};
+
+module.exports = { validateRegister, validateLogin, validateCompleteRegister };

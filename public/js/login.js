@@ -58,24 +58,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ---------- Errores que llegan por redirect (fallo de SSO) ----------
 
+  // En un fallo del proveedor la contraseña no es el problema,
+  // por eso aquí solo se ofrece reintentar, no recuperar contraseña.
+  var ERRORES_SSO = {
+    sso_no_configurado: "El acceso con Google todavía no está disponible. Inténtalo más tarde.",
+    sso_denegado: "Google no autorizó el acceso a tu cuenta.",
+    sso_cancelado: "Cancelaste el inicio de sesión con Google.",
+    sso_error: "No pudimos completar el inicio de sesión con Google.",
+    sso_estado: "La solicitud de acceso no es válida o expiró.",
+    sso_correo: "Google no entregó un correo verificado para esa cuenta.",
+    sso_registro: "Tu sesión de registro expiró. Vuelve a entrar con Google.",
+  };
+
   function leerErrorDeUrl() {
     var params = new URLSearchParams(window.location.search);
     var error = params.get("error");
     if (!error) return;
 
-    var mensajes = {
-      sso_cancelado: "Cancelaste el inicio de sesión con el proveedor.",
-      sso_denegado: "El proveedor no autorizó el acceso a tu cuenta.",
-      sso_error: "No pudimos completar el inicio de sesión social.",
-      sno_cuenta: "Esa cuenta no está registrada en GEKO.",
-    };
-
-    var mensaje = mensajes[error] || "Ocurrió un problema al iniciar sesión.";
-    if (error === "sno_cuenta") {
-      showAlert(mensaje, "error", {});
-    } else {
-      mostrarError(mensaje);
-    }
+    showAlert(
+      ERRORES_SSO[error] || "Ocurrió un problema al iniciar sesión.",
+      "error",
+      { reintentar: true }
+    );
 
     window.history.replaceState({}, "", window.location.pathname);
   }

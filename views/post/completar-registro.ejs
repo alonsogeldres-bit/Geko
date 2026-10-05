@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Completa tu registro</title>
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+<body>
+
+  <div class="auth bg-gradient">
+
+    <header class="auth-nav">
+      <div class="logo-brand">
+        <img src="/assets/geko.png" alt="GEKO" class="logo-img-small" width="34" height="34" />
+        <span class="auth-brand">GEKO</span>
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <div class="auth-card anim-fade-scale">
+
+        <h1 class="auth-title">Completa tu registro</h1>
+        <p class="auth-subtitle">
+          Te identificamos con Google. Solo faltan estos datos para crear tu cuenta.
+        </p>
+
+        <div class="auth-sso-identity" role="group" aria-label="Identidad detectada">
+          <img
+            class="auth-sso-avatar"
+            src="<%= datos.foto || '/assets/geko.png' %>"
+            alt=""
+            width="36"
+            height="36"
+          />
+          <div class="auth-sso-data">
+            <span class="auth-sso-correo"><%= datos.correo %></span>
+          </div>
+        </div>
+
+        <div id="auth-alert"
+             class="auth-alert"
+             data-variant="error"
+             role="alert"
+             aria-live="assertive"
+             hidden>
+          <span class="auth-alert-icon" aria-hidden="true">!</span>
+          <div class="auth-alert-body">
+            <p class="auth-alert-msg" id="auth-alert-msg"></p>
+          </div>
+        </div>
+
+        <form id="form-completar" class="auth-form" action="/completar-registro" method="POST">
+
+          <input type="hidden" name="correo" value="<%= datos.correo %>" />
+
+          <label class="auth-label" for="perfil-nombre">Nombre</label>
+          <input
+            type="text"
+            id="perfil-nombre"
+            class="auth-input"
+            value="<%= datos.nombre %>"
+            disabled
+          />
+
+          <label class="auth-label" for="perfil-apellido">Apellido</label>
+          <input
+            type="text"
+            id="perfil-apellido"
+            name="apellido"
+            class="auth-input"
+            placeholder="Tu apellido"
+            autocomplete="family-name"
+            required
+          />
+
+          <label class="auth-label" for="perfil-username">Nombre de usuario</label>
+          <input
+            type="text"
+            id="perfil-username"
+            name="nombre_usuario"
+            class="auth-input"
+            placeholder="usuario123"
+            autocomplete="username"
+            required
+          />
+
+          <label class="auth-label" for="perfil-phone">Número de teléfono</label>
+          <input
+            type="tel"
+            id="perfil-phone"
+            name="numero"
+            class="auth-input"
+            placeholder="+56 9 1234 5678"
+            autocomplete="tel"
+            required
+          />
+
+          <button type="submit" class="btn btn-lg btn-primary auth-submit" id="btn-completar">
+            <span class="btn-label">Crear mi cuenta</span>
+          </button>
+
+        </form>
+
+        <div class="auth-nav-links">
+          <a href="/login" class="btn btn-outline auth-nav-btn">Volver al inicio de sesión</a>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="/js/completar-registro.js" defer></script>
+</body>
+</html>

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authControllers');
 const { requireAuth, redirectIfAuth, requirePendingRegistration } = require('../middlewares/authMiddlewares');
-const { validateRegister, validateLogin, validateCompleteRegistration } = require('../middlewares/validators'); 
+const { validateRegister, validateLogin, validateCompleteRegistration, validateForgotPassword, validateResetPassword } = require('../middlewares/validators'); 
 
 router.get('/login', redirectIfAuth, authController.showLogin);
 router.get('/register', redirectIfAuth, authController.showRegister);
@@ -13,6 +13,9 @@ router.post('/login', validateLogin, authController.login);
 
 // Password recovery
 router.get('/forgot-password', authController.showForgotPassword);
+router.post('/forgot-password', validateForgotPassword, authController.forgotPassword);
+router.get('/reset-password', authController.showResetPassword);
+router.post('/reset-password', validateResetPassword, authController.resetPassword);
 
 // Social login (Google) and two-step registration
 router.get('/auth/google', authController.redirectToGoogle);

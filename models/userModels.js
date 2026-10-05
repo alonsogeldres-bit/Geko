@@ -44,6 +44,15 @@ const create = async ({ nombre, apellido, nombre_usuario, correo, numero, contra
   return result;
 };
 
+/** Updates contrasena_hash for one user. Used by password recovery. */
+const updatePassword = async (id_usuario, contrasena_hash) => {
+  const [result] = await pool.query(
+    'UPDATE usuarios SET contrasena_hash = ? WHERE id_usuario = ?',
+    [contrasena_hash, id_usuario]
+  );
+  return result.affectedRows;
+};
+
 module.exports = {
   ID_ROL_ADMIN,
   ID_ROL_CLIENTE,
@@ -52,4 +61,5 @@ module.exports = {
   existsByUsername,
   existsByPhone,
   create,
+  updatePassword,
 };

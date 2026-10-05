@@ -44,6 +44,7 @@ const ocultado = (v) => (v ? `${String(v).slice(0, 6)}...(${String(v).length} ch
 
   console.log('\n=== 3. Autenticacion social ===');
   const sso = require('../config/sso');
+const mailer = require('../config/mailer');
 
   if (sso.isGoogleConfigured()) {
     ok('Google configurado');
@@ -60,7 +61,21 @@ const ocultado = (v) => (v ? `${String(v).slice(0, 6)}...(${String(v).length} ch
   appleNotice ? warn(`Apple ID: ${appleNotice}`) : ok('Apple configurado');
   line();
 
-  console.log('\n=== 4. Resultado ===');
+  console.log('\n=== 4. Recuperacion de contrasena (Gmail) ===');
+  const mailResult = await mailer.verifyTransport();
+  if (mailResult.ok) {
+    ok(`Gmail SMTP responde con ${mailer.mail.user}`);
+  } else {
+    warn(`Correo no disponible -> ${mailResult.reason}`);
+    console.log('           Pasos:');
+    console.log('           1) Activar verificacion en 2 pasos en la cuenta de Google');
+    console.log('           2) Crear contrasena de aplicacion en myaccount.google.com/apppasswords');
+    console.log('           3) MAIL_USER=cuenta  MAIL_APP_PASSWORD=clave de 16 caracteres');
+    console.log('           4) MAIL_ENABLED=true');
+  }
+  line();
+
+  console.log('\n=== 5. Resultado ===');
   const listo = dbOk && process.env.SESSION_SECRET && sso.isGoogleConfigured();
   if (listo) {
     console.log('  Todo listo. Arranca con: npm run dev\n');
@@ -69,6 +84,7 @@ const ocultado = (v) => (v ? `${String(v).slice(0, 6)}...(${String(v).length} ch
     if (!dbOk) console.log('    - Levantar MySQL y revisar credenciales en .env');
     if (!process.env.SESSION_SECRET) console.log('    - Definir SESSION_SECRET en .env');
     if (!sso.isGoogleConfigured()) console.log('    - Crear credenciales OAuth de Google y pegarlas en .env');
+    if (!mailer.isMailConfigured()) console.log('    - Crear contrasena de aplicacion de Gmail para /forgot-password');
     console.log('');
   }
   process.exit(0);

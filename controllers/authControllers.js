@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
 const sso = require('../config/sso');
+const mailer = require('../config/mailer');
+const recovery = require('../config/recovery');
 
 const showLogin = (req, res) =>
   res.render('post/login', { providers: sso.enabledProviders() });
@@ -10,8 +12,91 @@ const showRegister = (req, res) => {
   res.render('post/register');
 };
 
-const showForgotPassword = async (req, res) => {
+const showForgotPassword = (req, res) => {
   res.render('post/forgot-password');
+};
+
+/* Message sent whether or not the account exists, so the form
+   cannot be used to find out which emails are registered. */
+const NEUTRAL_MESSAGE =
+  'Si ese correo está registrado en GEKO, te enviamos un enlace para crear una nueva contraseña.';
+
+const forgotPassword = async (req, res) => {
+  const correo = String(req.body.correo || '').trim().toLowerCase();
+
+  if (!mailer.isMailConfigured()) {
+    console.warn(`[recuperación] correo no enviado: ${mailer.mailNotice()}`);
+    return res.json({ success: true, message: NEUTRAL_MESSAGE, delivery: 'disabled' });
+  }
+
+  try {
+    const user = await UserModel.findByEmail(correo);
+
+    if (user) {
+      const token = recovery.createToken(user.id_usuario);
+      const resetUrl = recovery.buildResetUrl(token);
+
+      await mailer.sendMail({
+        to: correo,
+        subject: 'Recupera tu contraseña de GEKO',
+        text: [
+          'Hola,',
+          '',
+          'Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.',
+          '',
+          resetUrl,
+          '',
+          `El enlace vence en ${recovery.TTL_MINUTES} minutos.`,
+          'Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.',
+        ].join('\n'),
+        html: [
+          '<p>Hola,</p>',
+          '<p>Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.</p>',
+          `<p><a href="${resetUrl}">Crear una nueva contraseña</a></p>`,
+          `<p style="color:#666">El enlace vence en ${recovery.TTL_MINUTES} minutos.</p>`,
+          '<p style="color:#666">Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.</p>',
+        ].join(''),
+      });
+    }
+
+    return res.json({ success: true, message: NEUTRAL_MESSAGE });
+  } catch (error) {
+    console.error('[recuperación] error al enviar:', error.message);
+    return res.json({ success: true, message: NEUTRAL_MESSAGE });
+  }
+};
+
+const showResetPassword = (req, res) => {
+  const { valid, idUsuario, reason } = recovery.verifyToken(req.query.token);
+
+  if (!valid) {
+    return res.render('post/reset-password', { valid: false, reason, token: '' });
+  }
+
+  res.render('post/reset-password', { valid: true, reason: '', token: req.query.token });
+};
+
+const resetPassword = async (req, res) => {
+  const { valid, idUsuario, reason } = recovery.verifyToken(req.body.token);
+
+  if (!valid) {
+    return res.status(400).json({ success: false, message: reason });
+  }
+
+  try {
+    const hash = await bcrypt.hash(req.body.contrasena, 10);
+    const affected = await UserModel.updatePassword(idUsuario, hash);
+
+    if (!affected) {
+      return res.status(400).json({ success: false, message: 'La cuenta ya no existe.' });
+    }
+
+    req.session.destroy(() => {});
+    return res.json({ success: true, message: 'Tu contraseña fue actualizada. Ya puedes iniciar sesión.' });
+  } catch (error) {
+    console.error('[recuperación] error al guardar:', error.message);
+    return res.status(500).json({ success: false, message: 'No pudimos actualizar tu contraseña.' });
+  }
 };
 
 const showProfile = (req, res) => res.render('post/profile', { usuario: req.session.usuario });
@@ -215,6 +300,9 @@ module.exports = {
   showRegister,
   showProfile,
   showForgotPassword,
+  forgotPassword,
+  showResetPassword,
+  resetPassword,
   register,
   login,
   redirectToGoogle,

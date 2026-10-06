@@ -86,7 +86,7 @@ const validateResetPassword = (req, res, next) => {
     return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres.' });
   }
 
-  if (contrasena.length > 72) {
+  if (contrasena.length > 10) {
     return res.status(400).json({ success: false, message: 'La contraseña no puede superar los 72 caracteres.' });
   }
 

@@ -18,4 +18,11 @@ const redirectIfAuth = (req, res, next) => {
   next();
 };
 
-module.exports = { requireAuth, requireAdmin, redirectIfAuth };
+const requirePendingRegistration = (req, res, next) => {
+  if (!req.session.oauthRegistration) {
+    return res.redirect('/login?error=sso_registration');
+  }
+  next();
+};
+
+module.exports = { requireAuth, requireAdmin, redirectIfAuth, requirePendingRegistration };

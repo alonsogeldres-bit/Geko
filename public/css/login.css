@@ -212,6 +212,52 @@ body {
   margin-top: 10px;
 }
 
+/* ---------- Título ---------- */
+
+.auth-title {
+  margin: 0 0 24px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: #ffffff;
+}
+
+/* ---------- Navegación entre vistas ---------- */
+
+.auth-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-nav-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.auth-nav-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+/* ---------- Botón outline ---------- */
+
+.btn-outline {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 /* ---------- Botones (reutilizado de welcome) ---------- */
 
 .btn {
@@ -259,10 +305,261 @@ body {
 }
 
 
+/* ===========================================
+   LOGIN - Autenticación social (SSO)
+   =========================================== */
+
+.auth-sso {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-social {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.btn-social:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.btn-social-apple {
+  background: #000000;
+  border-color: #000000;
+}
+
+.btn-social-apple:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.btn-social-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ---------- Separador ---------- */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Identidad detectada (registro social) ---------- */
+
+.auth-subtitle {
+  margin: -12px 0 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.auth-sso-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 22px;
+}
+
+.auth-sso-avatar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.auth-sso-data {
+  min-width: 0;
+}
+
+.auth-sso-correo {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Fila de formulario ---------- */
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.auth-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-check input {
+  width: 15px;
+  height: 15px;
+  accent-color: #22c55e;
+  cursor: pointer;
+}
+
+.auth-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7cffb0;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Alerta de error / estado ---------- */
+
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 18px 0 0;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 128, 128, 0.35);
+  background: rgba(255, 128, 128, 0.1);
+}
+
+.auth-alert[hidden] {
+  display: none;
+}
+
+.auth-alert-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0a0d12;
+  background: #ff8080;
+}
+
+.auth-alert-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.auth-alert-msg {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #ffd9d9;
+}
+
+.auth-alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.auth-alert-actions[hidden] {
+  display: none;
+}
+
+.auth-alert-action {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth-alert-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.auth-alert[data-variant="success"] {
+  border-color: rgba(124, 255, 176, 0.35);
+  background: rgba(124, 255, 176, 0.1);
+}
+
+.auth-alert[data-variant="success"] .auth-alert-icon {
+  background: #7cffb0;
+}
+
+.auth-alert[data-variant="success"] .auth-alert-msg {
+  color: #d6ffe8;
+}
+
+.auth-alert[data-variant="info"] {
+  border-color: rgba(124, 156, 255, 0.35);
+  background: rgba(124, 156, 255, 0.1);
+}
+
+.auth-alert[data-variant="info"] .auth-alert-icon {
+  background: #7c9cff;
+}
+
+.auth-alert[data-variant="info"] .auth-alert-msg {
+  color: #dbe4ff;
+}
+
+/* ---------- Botón ocupado ---------- */
+
+.auth-submit[disabled],
+.btn-social.is-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 @media (max-width: 480px) {
   .auth-card {
     padding: 24px;
   }
+.auth-row {
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* ---------- Casillas de aceptación ---------- */
@@ -315,4 +612,5 @@ body {
 
 .auth-submit:disabled:hover {
   transform: none;
+}
 }

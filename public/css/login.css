@@ -331,16 +331,6 @@ body {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
-.btn-social-apple {
-  background: #000000;
-  border-color: #000000;
-}
-
-.btn-social-apple:hover {
-  background: #1a1a1a;
-  border-color: #1a1a1a;
-}
-
 .btn-social-icon {
   flex: 0 0 auto;
   width: 18px;

@@ -11,13 +11,8 @@ const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
 const GOOGLE_SCOPE = 'openid email profile';
 
-// Apple requires a paid membership (Apple Developer Program, 99 USD/year),
-// so it can be turned off without deleting the code already written.
-const APPLE_ENABLED = (process.env.APPLE_ENABLED || 'false').toLowerCase() === 'true';
-const APPLE_AUTH_URL = 'https://appleid.apple.com/auth/authorize';
-const APPLE_TOKEN_URL = 'https://appleid.apple.com/auth/token';
-
-const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+// Se quitan las barras finales para que BASE_URL=http://localhost:6767/ no genere "//ruta".
+const baseUrl = (process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/+$/, '');
 
 const google = {
   clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -25,33 +20,11 @@ const google = {
   redirectUri: process.env.GOOGLE_REDIRECT_URI || `${baseUrl}/auth/google/callback`,
 };
 
-const apple = {
-  clientId: process.env.APPLE_CLIENT_ID || '',
-  teamId: process.env.APPLE_TEAM_ID || '',
-  keyId: process.env.APPLE_KEY_ID || '',
-  privateKey: (process.env.APPLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-  redirectUri: process.env.APPLE_REDIRECT_URI || `${baseUrl}/auth/apple/callback`,
-};
-
 const isGoogleConfigured = () => Boolean(google.clientId && google.clientSecret);
-
-const isAppleConfigured = () =>
-  APPLE_ENABLED &&
-  Boolean(apple.clientId && apple.teamId && apple.keyId && apple.privateKey);
-
-/** Apple requires a paid membership. Returns null when it is ready. */
-const appleNotice = () => {
-  if (isAppleConfigured()) return null;
-  if (!APPLE_ENABLED) {
-    return 'Apple ID está desactivado. Requiere membresía de Apple Developer Program (99 USD/año).';
-  }
-  return 'Apple ID está habilitado pero le faltan credenciales en .env.';
-};
 
 /** Which provider buttons should be rendered in the login view. */
 const enabledProviders = () => ({
   google: isGoogleConfigured(),
-  apple: isAppleConfigured(),
 });
 
 // ---------- CSRF state ----------
@@ -129,11 +102,7 @@ const fetchGoogleProfile = async (accessToken) => {
 
 module.exports = {
   google,
-  apple,
-  APPLE_ENABLED,
   isGoogleConfigured,
-  isAppleConfigured,
-  appleNotice,
   enabledProviders,
   createState,
   isValidState,

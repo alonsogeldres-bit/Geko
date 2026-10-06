@@ -5,8 +5,10 @@ const { requireAuth, redirectIfAuth } = require('../middlewares/authMiddlewares'
 const { validateRegister, validateLogin } = require('../middlewares/validators'); 
 
 router.get('/login', redirectIfAuth, authController.showLogin);
+router.get('/terms', authController.showTerminos);
 router.get('/profile', requireAuth, authController.showProfile);
 router.post('/register', validateRegister, authController.register); 
-router.post('/login', validateLogin, authController.login);           
+router.post('/login', validateLogin, authController.login);     
+router.get('/politic', authController.showPrivacidad);      
 
 module.exports = router;

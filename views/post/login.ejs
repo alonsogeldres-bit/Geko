@@ -1,144 +1,154 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEKO - Iniciar sesión</title>
-  <link rel="stylesheet" href="/css/login.css" />
-</head>
-<body>
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GEKO - Iniciar sesión</title>
+    <link rel="stylesheet" href="/css/login.css" />
+  </head>
+  <body>
 
-  <div class="auth bg-gradient">
+    <div class="auth bg-gradient">
 
-    <header class="auth-nav">
-      <div class="logo-brand">
-        <img src="/assets/geko.png" alt="GEKO" class="logo-img-small" width="34" height="34" />
-        <span class="auth-brand">GEKO</span>
-      </div>
-    </header>
-
-    <main class="auth-main">
-      <div class="auth-card anim-fade-scale">
-
-        <div class="auth-tabs">
-          <button type="button" class="auth-tab active" id="tab-login">
-            Iniciar sesión
-          </button>
-          <button type="button" class="auth-tab" id="tab-register">
-            Registrarme
-          </button>
+      <header class="auth-nav">
+        <div class="logo-brand">
+          <img src="/assets/geko.png" alt="GEKO" class="logo-img-small" width="34" height="34" />
+          <span class="auth-brand">GEKO</span>
         </div>
+      </header>
 
-        <form id="form-login" class="auth-form">
-          <label class="auth-label" for="login-email">Correo electrónico</label>
-          <input
-            type="email"
-            id="login-email"
-            name="correo"
-            class="auth-input"
-            placeholder="tucorreo@ejemplo.com"
-            required
-          />
+      <main class="auth-main">
+        <div class="auth-card anim-fade-scale">
 
-          <label class="auth-label" for="login-password">Contraseña</label>
-          <input
-            type="password"
-            id="login-password"
-            name="contrasena"
-            class="auth-input"
-            placeholder="••••••••"
-            required
-          />
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab active" id="tab-login">
+              Iniciar sesión
+            </button>
+            <button type="button" class="auth-tab" id="tab-register">
+              Registrarme
+            </button>
+          </div>
 
-          <button type="submit" class="btn btn-lg btn-primary auth-submit">
-            Iniciar sesión
-          </button>
-        </form>
+          <form id="form-login" class="auth-form">
+            <label class="auth-label" for="login-email">Correo electrónico</label>
+            <input
+              type="email"
+              id="login-email"
+              name="correo"
+              class="auth-input"
+              placeholder="tucorreo@ejemplo.com"
+              required
+            />
 
-        <form id="form-register" class="auth-form hidden">
-          <label class="auth-label" for="register-name">Nombre</label>
-          <input
-            type="text"
-            id="register-name"
-            name="nombre"
-            class="auth-input"
-            placeholder="Tu nombre"
-            required
-          />
+            <label class="auth-label" for="login-password">Contraseña</label>
+            <input
+              type="password"
+              id="login-password"
+              name="contrasena"
+              class="auth-input"
+              placeholder="••••••••"
+              required
+            />
 
-          <label class="auth-label" for="register-lastname">Apellido</label>
-          <input
-            type="text"
-            id="register-lastname"
-            name="apellido"
-            class="auth-input"
-            placeholder="Tu apellido"
-            required
-          />
+            <button type="submit" class="btn btn-lg btn-primary auth-submit">
+              Iniciar sesión
+            </button>
+          </form>
 
-          <label class="auth-label" for="register-username">Nombre de usuario</label>
-          <input
-            type="text"
-            id="register-username"
-            name="nombre_usuario"
-            class="auth-input"
-            placeholder="usuario123"
-            required
-          />
+          <form id="form-register" class="auth-form hidden">
+            <label class="auth-label" for="register-name">Nombre</label>
+            <input
+              type="text"
+              id="register-name"
+              name="nombre"
+              class="auth-input"
+              placeholder="Tu nombre"
+              required
+            />
 
-          <label class="auth-label" for="register-email">Correo electrónico</label>
-          <input
-            type="email"
-            id="register-email"
-            name="correo"
-            class="auth-input"
-            placeholder="tucorreo@ejemplo.com"
-            required
-          />
+            <label class="auth-label" for="register-lastname">Apellido</label>
+            <input
+              type="text"
+              id="register-lastname"
+              name="apellido"
+              class="auth-input"
+              placeholder="Tu apellido"
+              required
+            />
 
-          <label class="auth-label" for="register-phone">Número de teléfono</label>
-          <input
-            type="tel"
-            id="register-phone"
-            name="numero"
-            class="auth-input"
-            placeholder="+56 9 1234 5678"
-            required
-          />
+            <label class="auth-label" for="register-username">Nombre de usuario</label>
+            <input
+              type="text"
+              id="register-username"
+              name="nombre_usuario"
+              class="auth-input"
+              placeholder="usuario123"
+              required
+            />
 
-          <label class="auth-label" for="register-password">Contraseña</label>
-          <input
-            type="password"
-            id="register-password"
-            name="contrasena"
-            class="auth-input"
-            placeholder="••••••••"
-            required
-          />
+            <label class="auth-label" for="register-email">Correo electrónico</label>
+            <input
+              type="email"
+              id="register-email"
+              name="correo"
+              class="auth-input"
+              placeholder="tucorreo@ejemplo.com"
+              required
+            />
 
-          <label class="auth-label" for="register-confirm">Confirmar contraseña</label>
-          <input
-            type="password"
-            id="register-confirm"
-            name="confirm"
-            class="auth-input"
-            placeholder="••••••••"
-            required
-          />
+            <label class="auth-label" for="register-phone">Número de teléfono</label>
+            <input
+              type="tel"
+              id="register-phone"
+              name="numero"
+              class="auth-input"
+              placeholder="+56 9 1234 5678"
+              required
+            />
 
-          <button type="submit" class="btn btn-lg btn-primary auth-submit">
+            <label class="auth-label" for="register-password">Contraseña</label>
+            <input
+              type="password"
+              id="register-password"
+              name="contrasena"
+              class="auth-input"
+              placeholder="••••••••"
+              required
+            />
+
+            <label class="auth-label" for="register-confirm">Confirmar contraseña</label>
+            <input
+              type="password"
+              id="register-confirm"
+              name="confirm"
+              class="auth-input"
+              placeholder="••••••••"
+              required
+            />
+
+                      <label class="auth-check" for="accept-terms">
+            <input type="checkbox" id="accept-terms" />
+          <span>Acepto los <a href="/terms">Términos y Condiciones</a> <em>(obligatorio)</em></span>
+          </label>
+
+          <label class="auth-check" for="accept-privacy">
+            <input type="checkbox" id="accept-privacy" />
+          <span>Acepto la <a href="/politic">Política de Privacidad</a> <em>(opcional)</em></span>
+          </label>
+
+          <button type="submit" class="btn btn-lg btn-primary auth-submit" id="register-submit" disabled>
             Crear cuenta
           </button>
-        </form>
+          </form>
 
-        <p class="auth-error" id="auth-error"></p>
-        <p class="auth-success" id="auth-success"></p>
+          <p class="auth-error" id="auth-error"></p>
+          <p class="auth-success" id="auth-success"></p>
 
-      </div>
-    </main>
+        </div>
+      </main>
 
-  </div>
+    </div>
 
-  <script src="/js/login.js"></script>
-</body>
-</html>
+    <script src="/js/login.js"></script>
+  </body>
+  </html>

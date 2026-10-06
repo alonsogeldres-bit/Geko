@@ -167,6 +167,50 @@ body {
   color: #7cffb0;
   min-height: 16px;
 }
+/* ---------- Enlace de términos y condiciones ---------- */
+
+.auth-terms {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.auth-terms strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.auth-terms-arrow {
+  font-size: 16px;
+  color: #4ade80;
+  transition: transform 0.2s ease;
+}
+
+.auth-terms:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(74, 222, 128, 0.5);
+  color: #ffffff;
+}
+
+.auth-terms:hover .auth-terms-arrow {
+  transform: translateX(4px);
+}
+
+
+.auth-terms + .auth-terms {
+  margin-top: 10px;
+}
 
 /* ---------- Botones (reutilizado de welcome) ---------- */
 
@@ -219,4 +263,56 @@ body {
   .auth-card {
     padding: 24px;
   }
+}
+
+/* ---------- Casillas de aceptación ---------- */
+
+.auth-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.auth-check input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: #4ade80;
+  cursor: pointer;
+}
+
+.auth-check a {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-check a:hover {
+  color: #4ade80;
+  border-color: #4ade80;
+}
+
+.auth-check em {
+  font-style: normal;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---------- Botón deshabilitado ---------- */
+
+.auth-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.auth-submit:disabled:hover {
+  transform: none;
 }

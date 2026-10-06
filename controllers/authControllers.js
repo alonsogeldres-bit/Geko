@@ -5,10 +5,18 @@ const showLogin = (req, res) => res.render('post/login');
 
 const showProfile = (req, res) => res.render('post/profile', { usuario: req.session.usuario });
 
+const showTerminos = (req, res) => res.render('post/terms');
+
+const showPrivacidad = (req, res) => res.render('post/politic');
+
+
 const register = async (req, res) => {
   try {
-    const { nombre, apellido, nombre_usuario, correo, numero, contrasena } = req.body;
+    const { nombre, apellido, nombre_usuario, correo, numero, contrasena, acepta_terminos, acepta_privacidad } = req.body;
 
+    if (acepta_terminos !== true) {
+      return res.status(400).json({ success: false, message: 'Debes aceptar los Términos y Condiciones.' });
+    }
     if (await UserModel.existsByEmail(correo)) {
       return res.status(409).json({ success: false, message: 'Ese correo ya está registrado.' });
     }
@@ -60,4 +68,5 @@ const login = async (req, res) => {
 
 
 
-module.exports = { showLogin, showProfile, register, login, };
+
+module.exports = { showLogin, showProfile, register, login, showTerminos, showPrivacidad };

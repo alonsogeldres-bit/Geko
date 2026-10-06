@@ -1,0 +1,175 @@
+/* ===========================================
+   TERMS - Estilos (se apoya en login.css)
+   =========================================== */
+
+.terms-card {
+  max-width: 780px;
+  padding: 40px;
+}
+
+/* ---------- Botón volver ---------- */
+
+.terms-back {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  margin-bottom: 28px;
+}
+
+.terms-back:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Título ---------- */
+
+.terms-title {
+  margin: 0 0 32px;
+  padding-bottom: 20px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Secciones ---------- */
+
+.terms-heading {
+  margin: 28px 0 8px;
+  padding-left: 14px;
+  border-left: 3px solid #4ade80;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.terms-heading:first-of-type {
+  margin-top: 0;
+}
+
+.terms-text {
+  margin: 0;
+  padding-left: 17px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .terms-card {
+    padding: 24px;
+  }
+
+  .terms-title {
+    font-size: 24px;
+  }
+}
+
+/* ===========================================
+   TERMS / POLITIC - Estilos (se apoya en login.css)
+   =========================================== */
+
+.terms-card {
+  max-width: 780px;
+  padding: 40px;
+}
+
+/* ---------- Botón volver ---------- */
+
+.terms-back {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  margin-bottom: 28px;
+}
+
+.terms-back:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Título ---------- */
+
+.terms-title {
+  margin: 0 0 12px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.terms-updated {
+  margin: 0 0 28px;
+  padding-bottom: 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Introducción ---------- */
+
+.terms-intro {
+  margin: 0 0 28px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Secciones ---------- */
+
+.terms-heading {
+  margin: 28px 0 8px;
+  padding-left: 14px;
+  border-left: 3px solid #4ade80;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.terms-text {
+  margin: 0;
+  padding-left: 17px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.terms-text + .terms-text {
+  margin-top: 10px;
+}
+
+/* ---------- Enlace final ---------- */
+
+.terms-link {
+  display: inline-block;
+  margin-top: 36px;
+  padding-top: 20px;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  font-weight: 600;
+  color: #4ade80;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.terms-link:hover {
+  opacity: 0.8;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .terms-card {
+    padding: 24px;
+  }
+
+  .terms-title {
+    font-size: 24px;
+  }
+}

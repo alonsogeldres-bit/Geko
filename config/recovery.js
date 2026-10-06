@@ -1,12 +1,6 @@
 const crypto = require('crypto');
 require('dotenv').config();
 
-/* ===========================================
-   CONFIG - Password recovery tokens
-   Signed with HMAC using SESSION_SECRET. No database table is
-   needed, so the schema stays untouched. Tokens are stateless:
-   they cannot be revoked, they only expire.
-   =========================================== */
 
 const TTL_MINUTES = Number(process.env.RECOVERY_TOKEN_TTL_MINUTES) || 15;
 

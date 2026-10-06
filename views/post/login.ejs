@@ -20,16 +20,50 @@
     <main class="auth-main">
       <div class="auth-card anim-fade-scale">
 
-        <div class="auth-tabs">
-          <button type="button" class="auth-tab active" id="tab-login">
-            Iniciar sesión
-          </button>
-          <button type="button" class="auth-tab" id="tab-register">
-            Registrarme
-          </button>
+        <div id="auth-alert"
+             class="auth-alert"
+             data-variant="error"
+             role="alert"
+             aria-live="assertive"
+             hidden>
+          <span class="auth-alert-icon" aria-hidden="true">!</span>
+          <div class="auth-alert-body">
+            <p class="auth-alert-msg" id="auth-alert-msg"></p>
+            <div class="auth-alert-actions" id="auth-alert-actions" hidden>
+              <a href="#" class="auth-alert-action" id="auth-alert-retry">Reintentar acceso</a>
+              <a href="/forgot-password" class="auth-alert-action" id="auth-alert-recover">Recuperar contraseña</a>
+            </div>
+          </div>
         </div>
 
-        <% if (providers.google || providers.apple) { %>
+        <!-- ================= FORMULARIO DE LOGIN ================= -->
+        <form id="form-login" class="auth-form" action="/login" method="POST">
+
+          <label class="auth-label" for="login-email">Correo electrónico</label>
+          <input type="email" id="login-email" name="correo" class="auth-input" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
+
+          <label class="auth-label" for="login-password">Contraseña</label>
+          <input type="password" id="login-password" name="contrasena" class="auth-input" placeholder="••••••••" autocomplete="current-password" required />
+
+          <div class="auth-row">
+            <label class="auth-check">
+              <input type="checkbox" name="recordar" id="login-recordar" />
+              <span>Recordarme</span>
+            </label>
+            <a href="/forgot-password" class="auth-link">Recuperar contraseña</a>
+          </div>
+
+          <button type="submit" class="btn btn-lg btn-primary auth-submit" id="btn-login">
+            <span class="btn-label">Iniciar sesión</span>
+          </button>
+        </form>
+
+        <!-- ================= SSO (Google / Apple) =================
+             Fuera de cualquier formulario, así no queda oculto por "hidden" -->
+        <% if (providers && (providers.google || providers.apple)) { %>
+
+        <p class="auth-divider"><span>o continúa con</span></p>
+
         <div class="auth-sso" role="group" aria-label="Opciones de inicio de sesión con proveedores">
 
           <% if (providers.google) { %>
@@ -62,47 +96,7 @@
         </div>
         <% } %>
 
-        <% if (providers.google || providers.apple) { %>
-        <p class="auth-divider"><span>o continúa con tu correo</span></p>
-        <% } %>
-
-        <div id="auth-alert"
-             class="auth-alert"
-             data-variant="error"
-             role="alert"
-             aria-live="assertive"
-             hidden>
-          <span class="auth-alert-icon" aria-hidden="true">!</span>
-          <div class="auth-alert-body">
-            <p class="auth-alert-msg" id="auth-alert-msg"></p>
-            <div class="auth-alert-actions" id="auth-alert-actions" hidden>
-              <a href="#" class="auth-alert-action" id="auth-alert-retry">Reintentar acceso</a>
-              <a href="/forgot-password" class="auth-alert-action" id="auth-alert-recover">Recuperar contraseña</a>
-            </div>
-          </div>
-        </div>
-
-        <form id="form-login" class="auth-form" action="/login" method="POST">
-
-          <label class="auth-label" for="login-email">Correo electrónico</label>
-          <input type="email" id="login-email" name="correo" class="auth-input" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
-
-          <label class="auth-label" for="login-password">Contraseña</label>
-          <input type="password" id="login-password" name="contrasena" class="auth-input" placeholder="••••••••" autocomplete="current-password" required />
-
-          <div class="auth-row">
-            <label class="auth-check">
-              <input type="checkbox" name="recordar" id="login-recordar" />
-              <span>Recordarme</span>
-            </label>
-            <a href="/forgot-password" class="auth-link">Recuperar contraseña</a>
-          </div>
-
-          <button type="submit" class="btn btn-lg btn-primary auth-submit" id="btn-login">
-            <span class="btn-label">Iniciar sesión</span>
-          </button>
-        </form>
-
+        <!-- ================= FORMULARIO DE REGISTRO (oculto) ================= -->
         <form id="form-register" class="auth-form hidden">
           <label class="auth-label" for="register-name">Nombre</label>
           <input type="text" id="register-name" name="nombre" class="auth-input" placeholder="Tu nombre" required />
@@ -125,16 +119,6 @@
           <label class="auth-label" for="register-confirm">Confirmar contraseña</label>
           <input type="password" id="register-confirm" name="confirm" class="auth-input" placeholder="••••••••" required />
 
-          <label class="auth-check" for="accept-terms">
-            <input type="checkbox" id="accept-terms" />
-            <span>Acepto los <a href="/terms">Términos y Condiciones</a> <em>(obligatorio)</em></span>
-          </label>
-
-          <label class="auth-check" for="accept-privacy">
-            <input type="checkbox" id="accept-privacy" />
-            <span>Acepto la <a href="/politic">Política de Privacidad</a> <em>(opcional)</em></span>
-          </label>
-
           <button type="submit" class="btn btn-lg btn-primary auth-submit" id="register-submit" disabled>
             Crear cuenta
           </button>
@@ -155,4 +139,4 @@
 
   <script src="/js/login.js" defer></script>
 </body>
-</html>
+</html> 

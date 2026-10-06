@@ -58,6 +58,7 @@ app.get('/', (req, res) => {
 
 app.use('/splash', postRouter);
 app.use('/', authRoutes)
+app.use('/auth', authRoutes)
 
 // Levantar el servidor
 app.listen(port, () => {

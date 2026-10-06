@@ -71,6 +71,29 @@ body {
   font-size: 0.85rem;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.9;
+}
+
 /* ---------- Main ---------- */
 
 .profile-main {

@@ -5,6 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
   var errorEl = document.getElementById("auth-error");
   var successEl = document.getElementById("auth-success");
 
+  var acceptTerms = document.getElementById("accept-terms");
+  var acceptPrivacy = document.getElementById("accept-privacy");
+  var registerSubmit = document.getElementById("register-submit");
+
+  // El botón solo se habilita si se aceptan los términos
+  acceptTerms.addEventListener("change", function () {
+    registerSubmit.disabled = !acceptTerms.checked;
+  });
+
   if (!formRegister) {
     console.error("[register.js] No se encontró el formulario #form-register");
     return;
@@ -40,10 +49,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    if (!acceptTerms.checked) {
+      errorEl.textContent = "Debes aceptar los Términos y Condiciones.";
+      return;
+    }
+
     fetch("/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: nombre, apellido: apellido, nombre_usuario: nombre_usuario, correo: correo, numero: numero, contrasena: contrasena }),
+      body: JSON.stringify({ nombre: nombre, apellido: apellido, nombre_usuario: nombre_usuario, correo: correo, numero: numero, contrasena: contrasena, acepta_terminos: acceptTerms.checked, acepta_privacidad: acceptPrivacy.checked }),
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {

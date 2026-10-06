@@ -8,6 +8,7 @@ const recovery = require('../config/recovery');
 const showLogin = (req, res) =>
   res.render('post/login', { providers: sso.enabledProviders() });
 
+
 const showRegister = (req, res) => {
   res.render('post/register');
 };
@@ -15,6 +16,8 @@ const showRegister = (req, res) => {
 const showForgotPassword = (req, res) => {
   res.render('post/forgot-password');
 };
+
+
 
 /* Message sent whether or not the account exists, so the form
    cannot be used to find out which emails are registered. */
@@ -162,19 +165,19 @@ const login = async (req, res) => {
   }
 };
 
-/* ===========================================
-   SOCIAL LOGIN (Option B)
-   Google returns a verified email. If it already exists in
-   `usuarios`, the user is logged in directly. If not, only the
-   fields OAuth cannot deliver are requested (phone and username)
-   and the account is created. No database schema changes.
+const logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('[logout] error al destruir la sesión:', err);
+      return res.status(500).json({ success: false, message: 'No pudimos cerrar tu sesión.' });
+    }
 
-   NOTE: field names below such as nombre, apellido, numero,
-   nombre_usuario and correo are COLUMN names in the `usuarios`
-   table. They stay in Spanish on purpose; renaming them would
-   break the SQL. Everything in this codebase that is not a
-   database column is in English.
-   =========================================== */
+    // Borra la cookie de sesión del navegador (nombre por defecto de express-session).
+    res.clearCookie('connect.sid');
+    res.redirect('/login');
+  });
+};
+
 
 const startSession = (req, res, user, destination) => {
   req.session.regenerate((err) => {
@@ -305,6 +308,7 @@ const completeRegistration = async (req, res) => {
 
 module.exports = {
   showLogin,
+  showTerminos,
   showRegister,
   showProfile,
   showForgotPassword,
@@ -313,6 +317,7 @@ module.exports = {
   resetPassword,
   register,
   login,
+  logout,
   showTerminos,
   showPrivacidad,
   redirectToGoogle,

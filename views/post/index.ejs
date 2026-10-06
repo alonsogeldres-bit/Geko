@@ -49,10 +49,12 @@
             <div><span class="dot"></span><span class="plan-name">Plan <%= user.plan %></span></div>
             <p class="plan-sub">Desbloquea la IA con Premium</p>
           </div>
-          <a class="logout" href="#">
+          <form action="/logout" method="POST">
+          <button type="submit" class="logout">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
             Cerrar sesión
-          </a>
+          </button>
+          </form>
         </div>
       </aside>
 

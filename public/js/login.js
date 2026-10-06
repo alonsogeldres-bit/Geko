@@ -237,4 +237,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
   leerErrorDeUrl();
 });
-});

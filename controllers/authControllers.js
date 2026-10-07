@@ -19,53 +19,57 @@ const showForgotPassword = (req, res) => {
 
 
 
-/* Message sent whether or not the account exists, so the form
-   cannot be used to find out which emails are registered. */
-const NEUTRAL_MESSAGE =
-  'Si ese correo está registrado en GEKO, te enviamos un enlace para crear una nueva contraseña.';
+const MSG_ENVIADO = 'El correo fue enviado con éxito. Revisa tu bandeja de entrada y la carpeta de spam.';
+const MSG_INEXISTENTE = 'El correo es inexistente.';
+const MSG_ERROR_ENVIO = 'No pudimos enviar el correo. Inténtalo de nuevo en unos minutos.';
 
 const forgotPassword = async (req, res) => {
   const correo = String(req.body.correo || '').trim().toLowerCase();
 
-  if (!mailer.isMailConfigured()) {
-    console.warn(`[recuperación] correo no enviado: ${mailer.mailNotice()}`);
-    return res.json({ success: true, message: NEUTRAL_MESSAGE, delivery: 'disabled' });
-  }
-
   try {
     const user = await UserModel.findByEmail(correo);
 
-    if (user) {
-      const token = recovery.createToken(user.id_usuario);
-      const resetUrl = recovery.buildResetUrl(token);
+    if (!user) {
+      return res.status(404).json({ success: false, message: MSG_INEXISTENTE });
+    }
 
-      await mailer.sendMail({
-        to: correo,
-        subject: 'Recupera tu contraseña de GEKO',
-        text: [
-          'Hola,',
-          '',
-          'Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.',
-          '',
-          resetUrl,
-          '',
-          `El enlace vence en ${recovery.TTL_MINUTES} minutos.`,
-          'Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.',
-        ].join('\n'),
-        html: [
-          '<p>Hola,</p>',
-          '<p>Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.</p>',
-          `<p><a href="${resetUrl}">Crear una nueva contraseña</a></p>`,
-          `<p style="color:#666">El enlace vence en ${recovery.TTL_MINUTES} minutos.</p>`,
-          '<p style="color:#666">Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.</p>',
-        ].join(''),
+    if (!mailer.isMailConfigured()) {
+      console.warn(`[recuperación] correo no enviado: ${mailer.mailNotice()}`);
+      return res.status(503).json({
+        success: false,
+        message: 'El envío de correos no está disponible por ahora.',
       });
     }
 
-    return res.json({ success: true, message: NEUTRAL_MESSAGE });
+    const token = recovery.createToken(user.id_usuario);
+    const resetUrl = recovery.buildResetUrl(token);
+
+    await mailer.sendMail({
+      to: correo,
+      subject: 'Recupera tu contraseña de GEKO',
+      text: [
+        'Hola,',
+        '',
+        'Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.',
+        '',
+        resetUrl,
+        '',
+        `El enlace vence en ${recovery.TTL_MINUTES} minutos.`,
+        'Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.',
+      ].join('\n'),
+      html: [
+        '<p>Hola,</p>',
+        '<p>Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.</p>',
+        `<p><a href="${resetUrl}">Crear una nueva contraseña</a></p>`,
+        `<p style="color:#666">El enlace vence en ${recovery.TTL_MINUTES} minutos.</p>`,
+        '<p style="color:#666">Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.</p>',
+      ].join(''),
+    });
+
+    return res.json({ success: true, message: MSG_ENVIADO });
   } catch (error) {
-    console.error('[recuperación] error al enviar:', error.message);
-    return res.json({ success: true, message: NEUTRAL_MESSAGE });
+    console.error('[recuperación] error:', error.message);
+    return res.status(500).json({ success: false, message: MSG_ERROR_ENVIO });
   }
 };
 

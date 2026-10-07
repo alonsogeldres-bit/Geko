@@ -38,10 +38,14 @@ const validateLogin = (req, res, next) => {
 };
 
 const validateCompleteRegistration = (req, res, next) => {
-  const { apellido, nombre_usuario, numero } = req.body;
+  const { nombre, apellido, nombre_usuario, numero } = req.body;
 
-  if (!apellido || !nombre_usuario || !numero) {
+  if (!nombre || !apellido || !nombre_usuario || !numero) {
     return res.status(400).json({ success: false, message: 'Completa todos los campos.' });
+  }
+
+  if (nombre.trim().length < 2 || nombre.trim().length > 50) {
+    return res.status(400).json({ success: false, message: 'El nombre debe tener entre 2 y 50 caracteres.' });
   }
 
   const numeroRegex = /^[\d\s+]{8,20}$/;

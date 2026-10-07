@@ -58,9 +58,12 @@
           <input
             type="text"
             id="profile-name"
+            name="nombre"
             class="auth-input"
             value="<%= data.nombre %>"
-            disabled
+            placeholder="Tu nombre"
+            autocomplete="given-name"
+            required
           />
 
           <label class="auth-label" for="profile-lastname">Apellido</label>

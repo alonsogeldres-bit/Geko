@@ -170,7 +170,7 @@ const completeRegistration = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Registration session expired. Sign in with Google again.' });
     }
 
-    const { apellido, nombre_usuario, numero } = req.body;
+    const { nombre, apellido, nombre_usuario, numero } = req.body;
 
     if (await UserModel.existsByUsername(nombre_usuario)) {
       return res.status(409).json({ success: false, message: 'That username is already taken.' });
@@ -179,7 +179,7 @@ const completeRegistration = async (req, res) => {
       return res.status(409).json({ success: false, message: 'That phone number is already registered.' });
     }
 
-    const nombre = pending.nombre || nombre_usuario;
+    const nombreFinal = (nombre || pending.nombre || nombre_usuario || '').trim();
 
     // `usuarios.contrasena_hash` is NOT NULL but Google provides no
     // password. A bcrypt hash of random bytes is stored, which leaves
@@ -187,7 +187,7 @@ const completeRegistration = async (req, res) => {
     const contrasena_hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
 
     const result = await UserModel.create({
-      nombre,
+      nombre: nombreFinal,
       apellido,
       nombre_usuario,
       correo: pending.correo,
@@ -198,12 +198,12 @@ const completeRegistration = async (req, res) => {
     delete req.session.oauthRegistration;
 
     // Sin await: el correo no retrasa ni bloquea el registro.
-    sendWelcomeEmail({ to: pending.correo, nombre, metodo: 'google' });
+    sendWelcomeEmail({ to: pending.correo, nombre: nombreFinal, metodo: 'google' });
 
     startSession(req, res, {
       id_usuario: result.insertId,
       id_rol: UserModel.ID_ROL_CLIENTE,
-      nombre
+      nombre: nombreFinal
     }, '/profile');
   } catch (err) {
     console.error(err);

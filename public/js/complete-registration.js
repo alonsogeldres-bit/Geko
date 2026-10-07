@@ -37,11 +37,12 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     clearAlert();
 
+    var nombre = document.getElementById("profile-name").value.trim();
     var apellido = document.getElementById("profile-lastname").value.trim();
     var nombre_usuario = document.getElementById("profile-username").value.trim();
     var numero = document.getElementById("profile-phone").value.trim();
 
-    if (!apellido || !nombre_usuario || !numero) {
+    if (!nombre || !apellido || !nombre_usuario || !numero) {
       showAlert("Completa todos los campos.");
       return;
     }
@@ -52,6 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        nombre: nombre,
         apellido: apellido,
         nombre_usuario: nombre_usuario,
         numero: numero

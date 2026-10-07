@@ -60,12 +60,7 @@ app.use('/splash', postRouter);
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 
-// Levantar el servidor solo cuando se ejecuta en local (node app.js).
-// En Vercel la app se exporta y se ejecuta como función serverless.
-if (require.main === module) {
-    app.listen(port, () => {
-        console.log(`Servidor arriba en http://localhost:${port}`);
-    });
-}
-
-module.exports = app;
+// Levantar el servidor
+app.listen(port, () => {
+    console.log(`Servidor arriba en http://localhost:${port}`);
+});

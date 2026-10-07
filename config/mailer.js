@@ -1,13 +1,6 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-/* ===========================================
-   CONFIG - Correo saliente
-   -------------------------------------------
-   1) Si existe BREVO_API_KEY -> envía por HTTPS (puerto 443) con la API de Brevo.
-      Funciona en Render gratis, que bloquea los puertos SMTP 25/465/587.
-   2) Si no existe -> usa Gmail SMTP como antes (sigue sirviendo en local).
-   =========================================== */
 
 const SMTP_HOST = 'smtp.gmail.com';
 const SMTP_PORT = 465;

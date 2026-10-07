@@ -3,12 +3,10 @@ require('dotenv').config();
 
 /* ===========================================
    CONFIG - Outgoing email (Gmail SMTP)
-   Only the transport and the sender identity.
-   No SQL, no business logic.
    =========================================== */
 
 const SMTP_HOST = 'smtp.gmail.com';
-const SMTP_PORT = 587;
+const SMTP_PORT = 465; // <--- Cambiado de 587 a 465
 
 const MAIL_ENABLED = (process.env.MAIL_ENABLED || 'false').toLowerCase() === 'true';
 
@@ -20,10 +18,8 @@ const mail = {
 
 const isMailConfigured = () => MAIL_ENABLED && Boolean(mail.user && mail.appPassword);
 
-/** Sender shown on the "From" line, e.g. "GEKO <no-reply@gmail.com>". */
 const sender = () => `"${mail.fromName}" <${mail.user}>`;
 
-/** Returns a short human-readable reason when email cannot be sent. */
 const mailNotice = () => {
   if (isMailConfigured()) return null;
   if (!MAIL_ENABLED) return 'El envío de correo está desactivado (MAIL_ENABLED=false).';
@@ -39,9 +35,8 @@ const getTransport = () => {
   transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
-    secure: false,
-    requireTLS: true,
-    family: 4, // <-- Se fuerza el uso de IPv4 para solucionar el error ENETUNREACH en Render
+    secure: true, // <--- Cambiado a true para el puerto 465 (SSL)
+    family: 4,   // <--- Mantiene la preferencia IPv4 en Render
     auth: {
       user: mail.user,
       pass: mail.appPassword,
@@ -51,7 +46,6 @@ const getTransport = () => {
   return transporter;
 };
 
-/** Opens a connection to Gmail to prove the credentials work. */
 const verifyTransport = async () => {
   if (!isMailConfigured()) {
     return { ok: false, reason: mailNotice() };
@@ -64,7 +58,6 @@ const verifyTransport = async () => {
   }
 };
 
-/** Sends one email. Throws if the transport fails. */
 const sendMail = async ({ to, subject, text, html }) => {
   if (!isMailConfigured()) {
     throw new Error(mailNotice());

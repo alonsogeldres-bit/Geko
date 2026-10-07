@@ -4,6 +4,7 @@ const UserModel = require('../models/userModels');
 const sso = require('../config/sso');
 const mailer = require('../config/mailer');
 const recovery = require('../config/recovery');
+const { sendWelcomeEmail } = require('../config/welcomeMail');
 const { startSession } = require('./authControllers');
 
 const MSG_ENVIADO = 'El correo fue enviado con éxito. Revisa tu bandeja de entrada y la carpeta de spam.';
@@ -195,6 +196,9 @@ const completeRegistration = async (req, res) => {
     });
 
     delete req.session.oauthRegistration;
+
+    // Sin await: el correo no retrasa ni bloquea el registro.
+    sendWelcomeEmail({ to: pending.correo, nombre, metodo: 'google' });
 
     startSession(req, res, {
       id_usuario: result.insertId,

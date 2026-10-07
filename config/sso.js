@@ -87,8 +87,6 @@ const fetchGoogleProfile = async (accessToken) => {
 
   const profile = await response.json();
 
-  // NOTE: correo, nombre, apellido and foto are COLUMN names in the
-  // `usuarios` table, so the returned keys stay in Spanish to match.
   return {
     idProveedor: profile.sub || '',
     correo: (profile.email || '').trim().toLowerCase(),

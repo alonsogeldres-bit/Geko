@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
 const sso = require('../config/sso');
+const { sendWelcomeEmail } = require('../config/welcomeMail');
 
 const showLogin = (req, res) =>
   res.render('post/login', { providers: sso.enabledProviders() });
@@ -34,6 +35,9 @@ const register = async (req, res) => {
 
     const contrasena_hash = await bcrypt.hash(contrasena, 10);
     await UserModel.create({ nombre, apellido, nombre_usuario, correo, numero, contrasena_hash });
+
+    // Sin await: el correo no retrasa ni bloquea el registro.
+    sendWelcomeEmail({ to: correo, nombre, metodo: 'registro' });
 
     res.status(201).json({ success: true, message: 'Cuenta creada correctamente.' });
   } catch (err) {

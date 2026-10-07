@@ -1,0 +1,167 @@
+:root {
+  --verde-claro: #6dffa6;
+  --verde-medio: #1a6b00;
+  --verde-oscuro: #052e16;
+  --vidrio: rgba(255, 255, 255, 0.06);
+  --borde: rgba(255, 255, 255, 0.15);
+  --texto: #ffffff;
+  --texto-suave: rgba(255, 255, 255, 0.7);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  color: var(--texto);
+  background:
+    radial-gradient(circle at 50% 35%, var(--verde-medio) 0%, #0d4d1a 40%, var(--verde-oscuro) 80%),
+    var(--verde-oscuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.planes {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Tarjeta base */
+.plan {
+  flex: 1 1 320px;
+  max-width: 400px;
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
+  padding: 36px 32px;
+  background: var(--vidrio);
+  border: 1px solid var(--borde);
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.plan:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.plan h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+}
+
+/* Lista de características */
+.plan ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1; /* empuja el botón hacia abajo */
+}
+
+.plan li {
+  position: relative;
+  padding-left: 30px;
+  color: var(--texto-suave);
+  font-size: 1rem;
+}
+
+.plan li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  background: var(--verde-claro);
+  border-radius: 50%;
+}
+
+/* Botón */
+.btn-obtener {
+  display: block;
+  margin-top: 32px;
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+  background: #ffffff;
+  border-radius: 14px;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-obtener:hover {
+  background: #e9ffe9;
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(109, 255, 166, 0.25);
+}
+
+/* Plan gratis: botón más discreto */
+.plan-gratis .btn-obtener {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+}
+
+.plan-gratis .btn-obtener:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+/* Plan premium: destacado */
+.plan-premium {
+  position: relative;
+  border-color: var(--verde-claro);
+  background: rgba(109, 255, 166, 0.08);
+  box-shadow: 0 0 40px rgba(109, 255, 166, 0.2);
+}
+
+.plan-premium::after {
+  content: "Recomendado";
+  position: absolute;
+  top: -14px;
+  right: 24px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--verde-oscuro);
+  background: var(--verde-claro);
+  border-radius: 999px;
+}
+
+.plan-premium:hover {
+  box-shadow: 0 20px 50px rgba(109, 255, 166, 0.3);
+}
+
+/* Móvil */
+@media (max-width: 680px) {
+  .plan {
+    max-width: 100%;
+    min-height: auto;
+  }
+}

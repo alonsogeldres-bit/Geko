@@ -41,6 +41,7 @@ const getTransport = () => {
     port: SMTP_PORT,
     secure: false,
     requireTLS: true,
+    family: 4, // <-- Se fuerza el uso de IPv4 para solucionar el error ENETUNREACH en Render
     auth: {
       user: mail.user,
       pass: mail.appPassword,

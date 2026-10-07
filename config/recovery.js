@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const TTL_MINUTES = Number(process.env.RECOVERY_TOKEN_TTL_MINUTES) || 15;
 
-const baseUrl = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`; 
+const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`; 
 const secret = () => {
   const value = process.env.SESSION_SECRET;
   if (!value) {

@@ -1,8 +1,39 @@
+/**
+ * Valida una fecha de nacimiento en formato YYYY-MM-DD (el que envía <input type="date">).
+ * Devuelve un mensaje de error, o null si es válida.
+ */
+const validarFechaNacimiento = (valor) => {
+  const MSG_INVALIDA = 'Ingresa una fecha de nacimiento válida.';
+
+  if (typeof valor !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+    return MSG_INVALIDA;
+  }
+
+  const [anio, mes, dia] = valor.split('-').map(Number);
+  const fecha = new Date(Date.UTC(anio, mes - 1, dia));
+
+  // Descarta fechas inexistentes como 2024-02-31.
+  if (fecha.getUTCFullYear() !== anio || fecha.getUTCMonth() !== mes - 1 || fecha.getUTCDate() !== dia) {
+    return MSG_INVALIDA;
+  }
+
+  const hoy = new Date();
+  const hoyUTC = Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate());
+
+  if (fecha.getTime() > hoyUTC) {
+    return 'La fecha de nacimiento no puede ser futura.';
+  }
+  if (anio < hoy.getUTCFullYear() - 120) {
+    return MSG_INVALIDA;
+  }
+
+  return null;
+};
 
 const validateRegister = (req, res, next) => {
-  const { nombre, apellido, nombre_usuario, correo, numero, contrasena } = req.body;
+  const { nombre, apellido, nombre_usuario, correo, numero, contrasena, fecha_nacimiento } = req.body;
 
-  if (!nombre || !apellido || !nombre_usuario || !correo || !numero || !contrasena) {
+  if (!nombre || !apellido || !nombre_usuario || !correo || !numero || !contrasena || !fecha_nacimiento) {
     return res.status(400).json({ success: false, message: 'Completa todos los campos.' });
   }
 
@@ -24,6 +55,11 @@ const validateRegister = (req, res, next) => {
     return res.status(400).json({ success: false, message: 'El nombre de usuario debe tener entre 3 y 50 caracteres.' });
   }
 
+  const errorFecha = validarFechaNacimiento(fecha_nacimiento);
+  if (errorFecha) {
+    return res.status(400).json({ success: false, message: errorFecha });
+  }
+
   next(); 
 };
 
@@ -38,9 +74,9 @@ const validateLogin = (req, res, next) => {
 };
 
 const validateCompleteRegistration = (req, res, next) => {
-  const { nombre, apellido, nombre_usuario, numero } = req.body;
+  const { nombre, apellido, nombre_usuario, numero, fecha_nacimiento } = req.body;
 
-  if (!nombre || !apellido || !nombre_usuario || !numero) {
+  if (!nombre || !apellido || !nombre_usuario || !numero || !fecha_nacimiento) {
     return res.status(400).json({ success: false, message: 'Completa todos los campos.' });
   }
 
@@ -59,6 +95,11 @@ const validateCompleteRegistration = (req, res, next) => {
 
   if (apellido.length > 50) {
     return res.status(400).json({ success: false, message: 'El apellido no puede superar los 50 caracteres.' });
+  }
+
+  const errorFecha = validarFechaNacimiento(fecha_nacimiento);
+  if (errorFecha) {
+    return res.status(400).json({ success: false, message: errorFecha });
   }
 
   next();

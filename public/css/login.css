@@ -604,3 +604,8 @@ body {
   transform: none;
 }
 }
+
+/* Calendario legible sobre el fondo oscuro */
+.auth-input[type="date"] {
+  color-scheme: dark;
+}

@@ -170,7 +170,7 @@ const completeRegistration = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Registration session expired. Sign in with Google again.' });
     }
 
-    const { nombre, apellido, nombre_usuario, numero } = req.body;
+    const { nombre, apellido, nombre_usuario, numero, fecha_nacimiento } = req.body;
 
     if (await UserModel.existsByUsername(nombre_usuario)) {
       return res.status(409).json({ success: false, message: 'That username is already taken.' });
@@ -192,7 +192,8 @@ const completeRegistration = async (req, res) => {
       nombre_usuario,
       correo: pending.correo,
       numero,
-      contrasena_hash
+      contrasena_hash,
+      fecha_nacimiento
     });
 
     delete req.session.oauthRegistration;

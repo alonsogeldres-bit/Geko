@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // El botón solo se habilita si se aceptan los términos
   acceptTerms.addEventListener("change", function () {
-    registerSubmit.disabled = !acceptTerms.checked;
+    if (registerSubmit) registerSubmit.disabled = !acceptTerms.checked;
   });
 
   if (!formRegister) {
@@ -33,10 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var nombre_usuario = document.getElementById("register-username").value.trim();
     var correo = document.getElementById("register-email").value.trim();
     var numero = document.getElementById("register-phone").value.trim();
+    var fecha_nacimiento = document.getElementById("register-birthdate").value;
     var contrasena = document.getElementById("register-password").value;
     var confirm = document.getElementById("register-confirm").value;
 
-    if (!nombre || !apellido || !nombre_usuario || !correo || !numero || !contrasena || !confirm) {
+    if (!nombre || !apellido || !nombre_usuario || !correo || !numero || !fecha_nacimiento || !contrasena || !confirm) {
       errorEl.textContent = "Completa todos los campos.";
       return;
     }
@@ -57,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: nombre, apellido: apellido, nombre_usuario: nombre_usuario, correo: correo, numero: numero, contrasena: contrasena, acepta_terminos: acceptTerms.checked, acepta_privacidad: acceptPrivacy.checked }),
+      body: JSON.stringify({ nombre: nombre, apellido: apellido, nombre_usuario: nombre_usuario, correo: correo, numero: numero, fecha_nacimiento: fecha_nacimiento, contrasena: contrasena, acepta_terminos: acceptTerms.checked, acepta_privacidad: acceptPrivacy.checked }),
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {

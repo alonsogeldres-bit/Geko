@@ -41,8 +41,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var apellido = document.getElementById("profile-lastname").value.trim();
     var nombre_usuario = document.getElementById("profile-username").value.trim();
     var numero = document.getElementById("profile-phone").value.trim();
+    var fecha_nacimiento = document.getElementById("profile-birthdate").value;
 
-    if (!nombre || !apellido || !nombre_usuario || !numero) {
+    if (!nombre || !apellido || !nombre_usuario || !numero || !fecha_nacimiento) {
       showAlert("Completa todos los campos.");
       return;
     }
@@ -56,7 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
         nombre: nombre,
         apellido: apellido,
         nombre_usuario: nombre_usuario,
-        numero: numero
+        numero: numero,
+        fecha_nacimiento: fecha_nacimiento
       })
     })
       .then(function (res) {

@@ -94,8 +94,22 @@
             id="profile-phone"
             name="numero"
             class="auth-input"
+            value="+56"
+            data-prefijo="+56"
             placeholder="+56 9 1234 5678"
             autocomplete="tel"
+            required
+          />
+
+          <label class="auth-label" for="profile-birthdate">Fecha de nacimiento</label>
+          <input
+            type="date"
+            id="profile-birthdate"
+            name="fecha_nacimiento"
+            class="auth-input"
+            autocomplete="bday"
+            min="1900-01-01"
+            max="<%= new Date().toISOString().slice(0, 10) %>"
             required
           />
 
@@ -114,6 +128,7 @@
 
   </div>
 
+  <script src="/js/phone-prefix.js" defer></script>
   <script src="/js/complete-registration.js" defer></script>
 </body>
 </html>

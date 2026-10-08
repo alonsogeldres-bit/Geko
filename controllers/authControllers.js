@@ -18,7 +18,7 @@ const showPrivacidad = (req, res) => res.render('post/politic');
 
 const register = async (req, res) => {
   try {
-    const { nombre, apellido, nombre_usuario, correo, numero, contrasena, acepta_terminos } = req.body;
+    const { nombre, apellido, nombre_usuario, correo, numero, contrasena, acepta_terminos, fecha_nacimiento } = req.body;
 
     if (acepta_terminos !== true) {
       return res.status(400).json({ success: false, message: 'Debes aceptar los Términos y Condiciones.' });
@@ -34,9 +34,9 @@ const register = async (req, res) => {
     }
 
     const contrasena_hash = await bcrypt.hash(contrasena, 10);
-    await UserModel.create({ nombre, apellido, nombre_usuario, correo, numero, contrasena_hash });
+    await UserModel.create({ nombre, apellido, nombre_usuario, correo, numero, contrasena_hash, fecha_nacimiento });
 
-    // Sin await: el correo no retrasa ni bloquea el registro.
+    
     sendWelcomeEmail({ to: correo, nombre, metodo: 'registro' });
 
     res.status(201).json({ success: true, message: 'Cuenta creada correctamente.' });

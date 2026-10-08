@@ -23,11 +23,11 @@ const existsByPhone = async (numero) => {
   return rows.length > 0;
 };
 
-const create = async ({ nombre, apellido, nombre_usuario, correo, numero, contrasena_hash }) => {
+const create = async ({ nombre, apellido, nombre_usuario, correo, numero, contrasena_hash, fecha_nacimiento }) => {
   const [result] = await pool.query(
-    `INSERT INTO usuarios (id_rol, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [ID_ROL_CLIENTE, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario]
+    `INSERT INTO usuarios (id_rol, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario, fecha_nacimiento)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [ID_ROL_CLIENTE, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario, fecha_nacimiento]
   );
   return result;
 };

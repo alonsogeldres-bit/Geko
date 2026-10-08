@@ -1,7 +1,7 @@
-/**
- * PROFILE - Lógica del wizard multi-paso
+﻿/**
+ * PROFILE - LÃ³gica del wizard multi-paso
  * Equivalente al componente React Profile.jsx: maneja el estado del
- * formulario, la validación por paso y el guardado final.
+ * formulario, la validaciÃ³n por paso y el guardado final.
  *
  * NOTA: el guardado final (finish()) por ahora solo escribe en
  * localStorage y redirige a /paywall. Cuando tengas el endpoint,
@@ -9,9 +9,9 @@
  */
 
 document.addEventListener("DOMContentLoaded", function () {
-  // ---------- Definición de pasos ----------
+  // ---------- DefiniciÃ³n de pasos ----------
   var stepTitles = [
-    "Datos básicos",
+    "Datos bÃ¡sicos",
     "Nivel y objetivos",
     "Limitaciones",
     "Entrena",
@@ -19,14 +19,14 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   var stepDescriptions = [
-    "Cuéntanos lo básico para personalizar tu entrenamiento.",
+    "CuÃ©ntanos lo bÃ¡sico para personalizar tu entrenamiento.",
     "Tu nivel y lo que quieres lograr marcan la diferencia.",
     "Queremos adaptar todo a tu cuerpo y evitar riesgos.",
-    "Tu entorno define qué rutinas te recomendamos.",
+    "Tu entorno define quÃ© rutinas te recomendamos.",
     "Ajustamos el plan a tu disponibilidad real.",
   ];
 
-  // Un ícono SVG simple por paso (User, Target, Shield, Activity, Clock)
+  // Un Ã­cono SVG simple por paso (User, Target, Shield, Activity, Clock)
   var stepIcons = [
     '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
     '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>',
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var weightInput = document.getElementById("weight");
   var injuriesTextInput = document.getElementById("injuries-text");
 
-  // ---------- Helpers de selección (segmented / chips / level) ----------
+  // ---------- Helpers de selecciÃ³n (segmented / chips / level) ----------
   function setupSingleSelect(groupSelector, stateKey) {
     var group = document.querySelector('[data-group="' + groupSelector + '"]');
     if (!group) return;
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
     state.injuriesText = injuriesTextInput.value;
   });
 
-  // ---------- Validación por paso ----------
+  // ---------- ValidaciÃ³n por paso ----------
   function clearErrors() {
     document.querySelectorAll(".field-error").forEach(function (el) {
       el.textContent = "";
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       var age = Number(state.age);
       if (!state.age || age < 12 || age > 100) {
-        document.getElementById("err-age").textContent = "Edad válida (12-100).";
+        document.getElementById("err-age").textContent = "Edad vÃ¡lida (12-100).";
         valid = false;
       }
       var height = Number(state.heightCm);
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         : 'Crear mi plan <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
   }
 
-  // ---------- Navegación ----------
+  // ---------- NavegaciÃ³n ----------
   btnBack.addEventListener("click", function () {
     if (step === 0) {
       window.location.href = "/login";
@@ -256,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btnNext.disabled = true;
     btnNext.textContent = "Guardando...";
 
-    // Guardado temporal en el cliente (sin backend todavía)
+    // Guardado temporal en el cliente (sin backend todavÃ­a)
     try {
       localStorage.setItem("geko_profile", JSON.stringify(profile));
     } catch (e) {
@@ -270,14 +270,14 @@ document.addEventListener("DOMContentLoaded", function () {
     //   body: JSON.stringify(profile),
     // })
     //   .then(function (res) { return res.json(); })
-    //   .then(function () { window.location.href = "/paywall"; })
+    //   .then(function () { window.location.href = "/dashboard"; })
     //   .catch(function () {
     //     btnNext.disabled = false;
     //     renderStep();
     //   });
 
-    console.log("Perfil guardado (sin backend todavía):", profile);
-    window.location.href = "/paywall";
+    console.log("Perfil guardado (sin backend todavÃ­a):", profile);
+    window.location.href = "/dashboard";
   }
 
   // ---------- Inicio ----------

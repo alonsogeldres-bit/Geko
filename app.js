@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const session = require('express-session')
@@ -8,6 +8,7 @@ dns.setDefaultResultOrder('ipv4first');
 
 // Rutas
 const postRouter = require('./routes/postRoutes');
+const dashboardRoutes = require('./routes/DashboardRoutes');
 const authRoutes = require('./routes/authRoutes')
 
 const app = express();
@@ -17,7 +18,7 @@ const port = process.env.PORT || 3000;
 // Configurar EJS
 app.set('view engine', 'ejs');
 
-// Archivos estáticos (CSS, JS, imágenes)
+// Archivos estÃ¡ticos (CSS, JS, imÃ¡genes)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MIDDLEWARES
@@ -59,6 +60,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/splash', postRouter);
+app.use('/dashboard', dashboardRoutes);
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 

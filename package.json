@@ -1,7 +1,7 @@
 {
   "name": "geko",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000G\u0000e\u0000k\u0000o\u0000\r\u0000 \u0000",
+  "description": "Geko",
   "type": "commonjs",
   "main": "app.js",
   "scripts": {

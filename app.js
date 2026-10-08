@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session')
-const flash = require('connect-flash')
+
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 
@@ -18,7 +18,7 @@ const port = process.env.PORT || 3000;
 // Configurar EJS
 app.set('view engine', 'ejs');
 
-// Archivos estÃ¡ticos (CSS, JS, imÃ¡genes)
+// Archivos estáticos (CSS, JS, imágenes)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MIDDLEWARES
@@ -40,19 +40,7 @@ app.use(
     })
 )
 
-/*Flash
-app.use(flash());
 
-Variables globales
-app.use((req, res, next) => {
-    res.locals.success = req.flash('success')
-    res.locals.error = req.flash('error')
-    res.locals.user = req.session.user || null
-
-    next()
-
-    })
-*/ 
 
 // Programar rutas
 app.get('/', (req, res) => {
@@ -68,3 +56,8 @@ app.use('/auth', authRoutes)
 app.listen(port, () => {
     console.log(`Servidor arriba en http://localhost:${port}`);
 });
+
+
+
+
+

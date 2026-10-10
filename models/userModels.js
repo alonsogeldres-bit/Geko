@@ -23,19 +23,29 @@ const existsByPhone = async (numero) => {
   return rows.length > 0;
 };
 
-const create = async ({ nombre, apellido, nombre_usuario, correo, numero, contrasena_hash, fecha_nacimiento }) => {
+const create = async ({
+  nombre,
+  apellido,
+  nombre_usuario,
+  correo,
+  numero,
+  contrasena_hash,
+  fecha_nacimiento,
+  usuario_proveedor = 'local',
+}) => {
   const [result] = await pool.query(
-    `INSERT INTO usuarios (id_rol, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario, fecha_nacimiento)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [ID_ROL_CLIENTE, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario, fecha_nacimiento]
+    `INSERT INTO usuarios
+       (id_rol, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario, fecha_nacimiento, usuario_proveedor)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [ID_ROL_CLIENTE, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario, fecha_nacimiento, usuario_proveedor]
   );
   return result;
 };
 
-/** Updates contrasena_hash for one user. Used by password recovery. */
+
 const updatePassword = async (id_usuario, contrasena_hash) => {
   const [result] = await pool.query(
-    'UPDATE usuarios SET contrasena_hash = ? WHERE id_usuario = ?',
+    "UPDATE usuarios SET contrasena_hash = ? WHERE id_usuario = ? AND usuario_proveedor = 'local'",
     [contrasena_hash, id_usuario]
   );
   return result.affectedRows;

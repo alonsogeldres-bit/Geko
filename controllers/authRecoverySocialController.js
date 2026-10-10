@@ -10,6 +10,7 @@ const { startSession } = require('./authControllers');
 const MSG_ENVIADO = 'El correo fue enviado con éxito. Revisa tu bandeja de entrada y la carpeta de spam.';
 const MSG_INEXISTENTE = 'El correo es inexistente.';
 const MSG_ERROR_ENVIO = 'No pudimos enviar el correo. Inténtalo de nuevo en unos minutos.';
+const MSG_CUENTA_GOOGLE = 'Esta cuenta se creó con Google. Entra con Google.';
 
 const showForgotPassword = (req, res) => {
   res.render('post/forgot-password');
@@ -23,6 +24,11 @@ const forgotPassword = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ success: false, message: MSG_INEXISTENTE });
+    }
+
+    // Las cuentas creadas con Google no tienen contraseña propia
+    if (user.usuario_proveedor !== 'local') {
+      return res.status(400).json({ success: false, message: MSG_CUENTA_GOOGLE });
     }
 
     if (!mailer.isMailConfigured()) {
@@ -86,8 +92,12 @@ const resetPassword = async (req, res) => {
     const hash = await bcrypt.hash(req.body.contrasena, 10);
     const affected = await UserModel.updatePassword(idUsuario, hash);
 
+    // 0 filas: la cuenta ya no existe o no es 'local' (p. ej. se creó con Google)
     if (!affected) {
-      return res.status(400).json({ success: false, message: 'La cuenta ya no existe.' });
+      return res.status(400).json({
+        success: false,
+        message: 'No pudimos cambiar la contraseña. La cuenta no existe o se creó con Google.'
+      });
     }
 
     req.session.destroy(() => {});
@@ -181,9 +191,6 @@ const completeRegistration = async (req, res) => {
 
     const nombreFinal = (nombre || pending.nombre || nombre_usuario || '').trim();
 
-    // `usuarios.contrasena_hash` is NOT NULL but Google provides no
-    // password. A bcrypt hash of random bytes is stored, which leaves
-    // the account intentionally unusable via password.
     const contrasena_hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
 
     const result = await UserModel.create({
@@ -193,12 +200,12 @@ const completeRegistration = async (req, res) => {
       correo: pending.correo,
       numero,
       contrasena_hash,
-      fecha_nacimiento
+      fecha_nacimiento,
+      usuario_proveedor: 'google'
     });
 
     delete req.session.oauthRegistration;
 
-    // Sin await: el correo no retrasa ni bloquea el registro.
     sendWelcomeEmail({ to: pending.correo, nombre: nombreFinal, metodo: 'google' });
 
     startSession(req, res, {

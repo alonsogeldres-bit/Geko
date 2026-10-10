@@ -24,6 +24,7 @@ SELECT * FROM rol;
 		sexo ENUM('F','M'),
 		fecha_nacimiento DATE,
 		nombre_usuario VARCHAR(50) not null UNIQUE,
+		usuario_proveedor VARCHAR(20) NOT NULL DEFAULT 'local',
 		FOREIGN KEY (id_rol) REFERENCES rol(id_rol) ON DELETE RESTRICT
 	);
 

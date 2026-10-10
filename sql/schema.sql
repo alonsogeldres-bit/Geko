@@ -24,20 +24,24 @@ SELECT * FROM rol;
 		sexo ENUM('F','M'),
 		fecha_nacimiento DATE,
 		nombre_usuario VARCHAR(50) not null UNIQUE,
-		usuario_proveedor VARCHAR(20) NOT NULL DEFAULT 'local',
 		FOREIGN KEY (id_rol) REFERENCES rol(id_rol) ON DELETE RESTRICT
 	);
 
 select * from usuarios;
 
-/* Cuenta de admin*/
-INSERT INTO usuarios (id_rol, nombre, apellido, correo, contrasena_hash, numero, nombre_usuario)
-VALUES (1, 'Geko', 'Fitness', 'geko.training@gmail.com', '$2b$10$LxeXMWSGrXPu6zFfvIf2qeNSgpfag72R8fym6mcNQhui93Rpu26Ca', '+56932927405', 'GEKO_admin');
+/*SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE pago;
+TRUNCATE TABLE suscripcion;
+TRUNCATE TABLE plan_entrenamiento;
+TRUNCATE TABLE cirugia;
+TRUNCATE TABLE ficha_antecedente;
+TRUNCATE TABLE mediciones;
+TRUNCATE TABLE ficha_medica;
+TRUNCATE TABLE clientes;
+TRUNCATE TABLE usuarios;
+TRUNCATE TABLE antecedente;
+SET FOREIGN_KEY_CHECKS = 1;*/
 
-/*DELETE FROM clientes WHERE id_usuario > 0;
-DELETE FROM usuarios WHERE id_usuario > 0;
-ALTER TABLE clientes AUTO_INCREMENT = 1;
-ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 
 	CREATE TABLE antecedente (
 		id_antecedente INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -47,12 +51,10 @@ ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 	);
 
 
-
 	CREATE TABLE objetivo (
 		id_objetivo INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
 		nombre_objetivo VARCHAR(50) NOT NULL UNIQUE
 	);
-
 
 
 	CREATE TABLE clientes (
@@ -66,6 +68,37 @@ ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 		FOREIGN KEY (id_objetivo) REFERENCES objetivo(id_objetivo) ON DELETE SET NULL
 	);
 
+    	CREATE TABLE preferencia_entrenamiento (
+		id_preferencia INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+		id_cliente INT NOT NULL UNIQUE,
+		entorno ENUM('Gimnasio','Casa','Aire libre','Mixto') NOT NULL,
+		dias_semana TINYINT NOT NULL,
+		minutos_sesion SMALLINT NOT NULL,
+		creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+		actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
+		CHECK (dias_semana BETWEEN 1 AND 7),
+		CHECK (minutos_sesion > 0)
+	);
+
+
+	CREATE TABLE equipamiento (
+		id_equipamiento INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+		nombre VARCHAR(50) NOT NULL UNIQUE
+	);
+INSERT INTO equipamiento (nombre) VALUES
+  ('Mancuernas'), ('Barra'), ('Máquinas'), ('Peso corporal'),
+  ('Bandas elásticas'), ('Cuerda'), ('Banco');
+
+
+	CREATE TABLE cliente_equipamiento (
+		id_cliente_equipamiento INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+		id_cliente INT NOT NULL,
+		id_equipamiento INT NOT NULL,
+		FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
+		FOREIGN KEY (id_equipamiento) REFERENCES equipamiento(id_equipamiento) ON DELETE RESTRICT,
+		UNIQUE (id_cliente, id_equipamiento)
+	);
 
 
 	CREATE TABLE ficha_medica (
@@ -75,7 +108,6 @@ ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 		actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE RESTRICT
 	);
-
 
 
 	CREATE TABLE mediciones (
@@ -92,7 +124,6 @@ ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 	);
 
 
-
 	CREATE TABLE ficha_antecedente (
 		id_ficha_antecedente INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
 		id_ficha INT NOT NULL,
@@ -101,7 +132,6 @@ ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 		FOREIGN KEY (id_antecedente) REFERENCES antecedente(id_antecedente) ON DELETE RESTRICT,
 		UNIQUE (id_ficha, id_antecedente)
 	);
-
 
 
 	CREATE TABLE cirugia (
@@ -113,7 +143,7 @@ ALTER TABLE usuarios AUTO_INCREMENT = 1;*/
 		creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (id_ficha) REFERENCES ficha_medica(id_ficha) ON DELETE CASCADE
 	);
-
+    
 
 	CREATE TABLE tipo_plan (
 		id_tipo_plan INT PRIMARY KEY AUTO_INCREMENT NOT NULL,

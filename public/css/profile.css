@@ -229,6 +229,12 @@ body {
   gap: 14px;
 }
 
+.profile-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
 /* ---------- Segmented control ---------- */
 
 .segmented {
@@ -395,10 +401,52 @@ body {
 
 
 @media (max-width: 560px) {
-  .profile-grid-3 {
+  .profile-grid-3,
+  .profile-grid-2 {
     grid-template-columns: 1fr;
   }
   .level-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.chip:disabled,
+.chip-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---------- Cirugías ---------- */
+.surgery-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.surgery-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.surgery-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.surgery-remove {
+  background: transparent;
+  border: none;
+  color: #ff8080;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.surgery-card .field {
+  margin-bottom: 12px;
 }

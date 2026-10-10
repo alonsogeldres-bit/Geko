@@ -30,6 +30,23 @@ const validarFechaNacimiento = (valor) => {
   return null;
 };
 
+/** Fecha de cirugía YYYY-MM-DD: debe existir y no ser futura. Devuelve mensaje o null. */
+const validarFechaCirugia = (valor) => {
+  const MSG = 'La fecha de la cirugía no es válida.';
+  if (typeof valor !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return MSG;
+
+  const [anio, mes, dia] = valor.split('-').map(Number);
+  const fecha = new Date(Date.UTC(anio, mes - 1, dia));
+  if (fecha.getUTCFullYear() !== anio || fecha.getUTCMonth() !== mes - 1 || fecha.getUTCDate() !== dia) return MSG;
+
+  // +1 día de margen por diferencias de zona horaria entre navegador y servidor
+  const hoy = new Date();
+  const limite = Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate() + 1);
+  if (fecha.getTime() > limite) return 'La fecha de la cirugía no puede ser futura.';
+  if (anio < 1900) return MSG;
+  return null;
+};
+
 const validateRegister = (req, res, next) => {
   const { nombre, apellido, nombre_usuario, correo, numero, contrasena, fecha_nacimiento } = req.body;
 
@@ -142,10 +159,95 @@ const validateResetPassword = (req, res, next) => {
   next();
 };
 
+const validateProfile = (req, res, next) => {
+  const P = require('../models/profileModel');
+  const b = req.body || {};
+  const fail = (message) => res.status(400).json({ success: false, message });
+  const isStringArray = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string');
+
+  const heightCm = Number(b.heightCm);
+  if (!Number.isFinite(heightCm) || heightCm < 100 || heightCm > 250) {
+    return fail('La altura debe estar entre 100 y 250 cm.');
+  }
+
+  const weightKg = Number(b.weightKg);
+  if (!Number.isFinite(weightKg) || weightKg < 30 || weightKg > 300) {
+    return fail('El peso debe estar entre 30 y 300 kg.');
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(P.SEX, b.sex)) return fail('Sexo no válido.');
+  if (!Object.prototype.hasOwnProperty.call(P.LEVELS, b.level)) return fail('Nivel no válido.');
+  if (!Object.prototype.hasOwnProperty.call(P.ENVIRONMENTS, b.environment)) return fail('Entorno no válido.');
+
+  if (!isStringArray(b.goals) || b.goals.length === 0 || !b.goals.every((g) => Object.prototype.hasOwnProperty.call(P.GOALS, g))) {
+    return fail('Selecciona al menos un objetivo válido.');
+  }
+
+  if (!isStringArray(b.injuries) || !b.injuries.every((i) => i === 'Ninguna' || P.INJURIES.includes(i))) {
+    return fail('Las limitaciones seleccionadas no son válidas.');
+  }
+
+  if (!isStringArray(b.equipment) || !b.equipment.every((e) => e === 'Ninguno' || P.EQUIPMENT.includes(e))) {
+    return fail('El equipamiento seleccionado no es válido.');
+  }
+  if (b.equipment.length === 0) return fail('Selecciona el equipamiento.');
+
+  const daysPerWeek = Number(b.daysPerWeek);
+  if (!Number.isInteger(daysPerWeek) || daysPerWeek < 1 || daysPerWeek > 7) {
+    return fail('Los días por semana deben estar entre 1 y 7.');
+  }
+
+  const minutesPerSession = Number(b.minutesPerSession);
+  if (!P.MINUTES_ALLOWED.includes(minutesPerSession)) return fail('Los minutos por sesión no son válidos.');
+
+  const injuriesText = typeof b.injuriesText === 'string' ? b.injuriesText.trim() : '';
+  if (injuriesText.length > 250) return fail('La descripción no puede superar los 250 caracteres.');
+
+  // Cirugías (opcional): máximo 10, cada una con descripción
+  const rawSurgeries = b.surgeries === undefined ? [] : b.surgeries;
+  if (!Array.isArray(rawSurgeries) || rawSurgeries.length > 10) {
+    return fail('Puedes registrar hasta 10 cirugías.');
+  }
+  const surgeries = [];
+  for (const sg of rawSurgeries) {
+    if (!sg || typeof sg !== 'object') return fail('Una cirugía no es válida.');
+    const descripcion = typeof sg.descripcion === 'string' ? sg.descripcion.trim() : '';
+    const fecha = typeof sg.fecha === 'string' ? sg.fecha.trim() : '';
+    const observaciones = typeof sg.observaciones === 'string' ? sg.observaciones.trim() : '';
+
+    if (!descripcion) return fail('Describe cada cirugía.');
+    if (descripcion.length > 255) return fail('La descripción de la cirugía no puede superar los 255 caracteres.');
+    if (observaciones.length > 500) return fail('Las observaciones no pueden superar los 500 caracteres.');
+    if (fecha) {
+      const errorFecha = validarFechaCirugia(fecha);
+      if (errorFecha) return fail(errorFecha);
+    }
+    surgeries.push({ descripcion, fecha: fecha || null, observaciones: observaciones || null });
+  }
+
+  req.profileData = {
+    heightCm,
+    weightKg,
+    sex: b.sex,
+    level: b.level,
+    environment: b.environment,
+    goals: [...new Set(b.goals)],
+    injuries: [...new Set(b.injuries.filter((i) => i !== 'Ninguna'))],
+    equipment: [...new Set(b.equipment.filter((e) => e !== 'Ninguno'))],
+    daysPerWeek,
+    minutesPerSession,
+    injuriesText,
+    surgeries,
+  };
+
+  next();
+};
+
 module.exports = {
   validateRegister,
   validateLogin,
   validateCompleteRegistration,
   validateForgotPassword,
   validateResetPassword,
+  validateProfile,
 };

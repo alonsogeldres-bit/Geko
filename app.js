@@ -2,7 +2,6 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session')
-
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 
@@ -10,6 +9,7 @@ dns.setDefaultResultOrder('ipv4first');
 const postRouter = require('./routes/postRoutes');
 const dashboardRoutes = require('./routes/DashboardRoutes');
 const authRoutes = require('./routes/authRoutes')
+const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
@@ -51,6 +51,7 @@ app.use('/splash', postRouter);
 app.use('/dashboard', dashboardRoutes);
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
+app.use('/', profileRoutes);
 
 // Levantar el servidor
 app.listen(port, () => {

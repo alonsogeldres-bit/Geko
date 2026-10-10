@@ -3,9 +3,7 @@
  * Equivalente al componente React Profile.jsx: maneja el estado del
  * formulario, la validación por paso y el guardado final.
  *
- * NOTA: el guardado final (finish()) por ahora solo escribe en
- * localStorage y redirige a /paywall. Cuando tengas el endpoint,
- * reemplaza ese bloque por un fetch() a tu backend (ver el TODO).
+ * El guardado final (finish()) envía el perfil a POST /profile.
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -39,8 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ---------- Estado del formulario ----------
   var state = {
-    firstName: "",
-    age: "",
     heightCm: "",
     weightKg: "",
     sex: "masculino",
@@ -48,6 +44,8 @@ document.addEventListener("DOMContentLoaded", function () {
     goals: ["perder_grasa"],
     injuries: [],
     injuriesText: "",
+    hasSurgeries: "no",
+    surgeries: [],
     environment: "gimnasio",
     equipment: ["Mancuernas"],
     daysPerWeek: "3",
@@ -66,8 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
   var btnBack = document.getElementById("btn-back");
   var btnNext = document.getElementById("btn-next");
 
-  var firstNameInput = document.getElementById("first-name");
-  var ageInput = document.getElementById("age");
   var heightInput = document.getElementById("height");
   var weightInput = document.getElementById("weight");
   var injuriesTextInput = document.getElementById("injuries-text");
@@ -90,21 +86,45 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function setupMultiSelect(groupSelector, stateKey) {
+  function setupMultiSelect(groupSelector, stateKey, exclusiveValue) {
     var group = document.querySelector('[data-group="' + groupSelector + '"]');
     if (!group) return;
     var buttons = group.querySelectorAll("button");
+
+    // Bloquea o desbloquea los demás chips según si "Ninguno/Ninguna" está activo
+    function applyExclusive() {
+      if (!exclusiveValue) return;
+      var exclusiveOn = state[stateKey].indexOf(exclusiveValue) !== -1;
+      buttons.forEach(function (b) {
+        if (b.getAttribute("data-value") !== exclusiveValue) {
+          b.disabled = exclusiveOn;
+          b.classList.toggle("chip-disabled", exclusiveOn);
+        }
+      });
+    }
+
     buttons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var value = btn.getAttribute("data-value");
         var idx = state[stateKey].indexOf(value);
+
         if (idx === -1) {
-          state[stateKey].push(value);
-          btn.classList.add("chip-active");
+          if (exclusiveValue && value === exclusiveValue) {
+            // "Ninguno": se descartan todas las demás selecciones
+            state[stateKey] = [exclusiveValue];
+            buttons.forEach(function (b) {
+              b.classList.toggle("chip-active", b === btn);
+            });
+          } else {
+            state[stateKey].push(value);
+            btn.classList.add("chip-active");
+          }
         } else {
           state[stateKey].splice(idx, 1);
           btn.classList.remove("chip-active");
         }
+
+        applyExclusive();
       });
     });
   }
@@ -115,15 +135,9 @@ document.addEventListener("DOMContentLoaded", function () {
   setupSingleSelect("daysPerWeek", "daysPerWeek");
   setupSingleSelect("minutesPerSession", "minutesPerSession");
   setupMultiSelect("goals", "goals");
-  setupMultiSelect("injuries", "injuries");
-  setupMultiSelect("equipment", "equipment");
+  setupMultiSelect("injuries", "injuries", "Ninguna");
+  setupMultiSelect("equipment", "equipment", "Ninguno");
 
-  firstNameInput.addEventListener("input", function () {
-    state.firstName = firstNameInput.value;
-  });
-  ageInput.addEventListener("input", function () {
-    state.age = ageInput.value;
-  });
   heightInput.addEventListener("input", function () {
     state.heightCm = heightInput.value;
   });
@@ -133,6 +147,124 @@ document.addEventListener("DOMContentLoaded", function () {
   injuriesTextInput.addEventListener("input", function () {
     state.injuriesText = injuriesTextInput.value;
   });
+
+  // ---------- Cirugías ----------
+  var MAX_SURGERIES = 10;
+  var surgeriesBox = document.getElementById("surgeries-box");
+  var surgeriesList = document.getElementById("surgeries-list");
+  var btnAddSurgery = document.getElementById("btn-add-surgery");
+
+  function todayString() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function makeField(labelText, control, errId) {
+    var wrap = document.createElement("div");
+    wrap.className = "field";
+    var label = document.createElement("label");
+    label.className = "field-label";
+    label.textContent = labelText;
+    wrap.appendChild(label);
+    wrap.appendChild(control);
+    var err = document.createElement("span");
+    err.className = "field-error";
+    err.id = errId;
+    wrap.appendChild(err);
+    return wrap;
+  }
+
+  function renderSurgeries() {
+    surgeriesList.innerHTML = "";
+
+    state.surgeries.forEach(function (surgery, i) {
+      var card = document.createElement("div");
+      card.className = "surgery-card";
+
+      var head = document.createElement("div");
+      head.className = "surgery-card-head";
+      var title = document.createElement("span");
+      title.className = "surgery-card-title";
+      title.textContent = "Cirugía " + (i + 1);
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "surgery-remove";
+      remove.textContent = "Quitar";
+      remove.addEventListener("click", function () {
+        state.surgeries.splice(i, 1);
+        if (state.surgeries.length === 0) {
+          setHasSurgeries("no");
+        } else {
+          renderSurgeries();
+        }
+      });
+      head.appendChild(title);
+      head.appendChild(remove);
+      card.appendChild(head);
+
+      var desc = document.createElement("input");
+      desc.type = "text";
+      desc.className = "input";
+      desc.maxLength = 255;
+      desc.placeholder = "Ej: Operación de rodilla izquierda";
+      desc.value = surgery.descripcion;
+      desc.addEventListener("input", function () {
+        surgery.descripcion = desc.value;
+      });
+      card.appendChild(makeField("¿Qué cirugía fue?", desc, "err-surgery-desc-" + i));
+
+      var date = document.createElement("input");
+      date.type = "date";
+      date.className = "input";
+      date.max = todayString();
+      date.value = surgery.fecha;
+      date.addEventListener("input", function () {
+        surgery.fecha = date.value;
+      });
+      card.appendChild(makeField("Fecha (opcional)", date, "err-surgery-date-" + i));
+
+      var obs = document.createElement("textarea");
+      obs.className = "input textarea";
+      obs.maxLength = 500;
+      obs.placeholder = "Secuelas, restricciones médicas...";
+      obs.value = surgery.observaciones;
+      obs.addEventListener("input", function () {
+        surgery.observaciones = obs.value;
+      });
+      card.appendChild(makeField("Observaciones (opcional)", obs, "err-surgery-obs-" + i));
+
+      surgeriesList.appendChild(card);
+    });
+
+    btnAddSurgery.disabled = state.surgeries.length >= MAX_SURGERIES;
+  }
+
+  function addSurgery() {
+    if (state.surgeries.length >= MAX_SURGERIES) return;
+    state.surgeries.push({ descripcion: "", fecha: "", observaciones: "" });
+    renderSurgeries();
+  }
+
+  // Sincroniza el selector Sí/No, el estado y la caja de cirugías
+  function setHasSurgeries(value) {
+    state.hasSurgeries = value;
+    document.querySelectorAll('[data-group="hasSurgeries"] button').forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-value") === value);
+    });
+    var show = value === "si";
+    surgeriesBox.classList.toggle("hidden", !show);
+    if (show && state.surgeries.length === 0) addSurgery();
+    else renderSurgeries();
+  }
+
+  document.querySelectorAll('[data-group="hasSurgeries"] button').forEach(function (b) {
+    b.addEventListener("click", function () {
+      setHasSurgeries(b.getAttribute("data-value"));
+    });
+  });
+  btnAddSurgery.addEventListener("click", addSurgery);
 
   // ---------- Validación por paso ----------
   function clearErrors() {
@@ -146,15 +278,6 @@ document.addEventListener("DOMContentLoaded", function () {
     var valid = true;
 
     if (s === 0) {
-      if (!state.firstName.trim()) {
-        document.getElementById("err-firstName").textContent = "Ingresa tu nombre.";
-        valid = false;
-      }
-      var age = Number(state.age);
-      if (!state.age || age < 12 || age > 100) {
-        document.getElementById("err-age").textContent = "Edad válida (12-100).";
-        valid = false;
-      }
       var height = Number(state.heightCm);
       if (!state.heightCm || height < 100 || height > 250) {
         document.getElementById("err-heightCm").textContent = "Altura en cm.";
@@ -170,6 +293,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (s === 1 && state.goals.length === 0) {
       document.getElementById("err-goals").textContent = "Selecciona al menos un objetivo.";
       valid = false;
+    }
+
+    if (s === 2 && state.hasSurgeries === "si") {
+      var today = todayString();
+      state.surgeries.forEach(function (surgery, i) {
+        if (!surgery.descripcion.trim()) {
+          document.getElementById("err-surgery-desc-" + i).textContent = "Describe la cirugía.";
+          valid = false;
+        }
+        if (surgery.fecha && surgery.fecha > today) {
+          document.getElementById("err-surgery-date-" + i).textContent = "La fecha no puede ser futura.";
+          valid = false;
+        }
+      });
     }
 
     if (s === 3 && state.equipment.length === 0) {
@@ -230,54 +367,63 @@ document.addEventListener("DOMContentLoaded", function () {
   function finish() {
     if (!validateStep(step)) return;
 
-    var injuries =
-      state.injuriesText.trim() ||
-      (state.injuries.includes("Ninguna") || state.injuries.length === 0
-        ? "Ninguna"
-        : state.injuries.join(", "));
-
     var profile = {
-      firstName: state.firstName,
-      age: Number(state.age),
+      sex: state.sex,
       heightCm: Number(state.heightCm),
       weightKg: Number(state.weightKg),
-      sex: state.sex,
       level: state.level,
       goals: state.goals,
-      injuries: injuries,
+      injuries: state.injuries,
+      injuriesText: state.injuriesText.trim(),
+      surgeries:
+        state.hasSurgeries === "si"
+          ? state.surgeries.map(function (sg) {
+              return {
+                descripcion: sg.descripcion.trim(),
+                fecha: sg.fecha,
+                observaciones: sg.observaciones.trim(),
+              };
+            })
+          : [],
       environment: state.environment,
+      equipment: state.equipment,
       daysPerWeek: Number(state.daysPerWeek),
       minutesPerSession: Number(state.minutesPerSession),
-      equipment: state.equipment,
-      plan: "freemium",
-      createdAt: new Date().toISOString(),
     };
 
     btnNext.disabled = true;
     btnNext.textContent = "Guardando...";
 
-    // Guardado temporal en el cliente (sin backend todavía)
-    try {
-      localStorage.setItem("geko_profile", JSON.stringify(profile));
-    } catch (e) {
-      console.warn("No se pudo guardar en localStorage:", e);
+    function showError(message) {
+      btnNext.disabled = false;
+      renderStep();
+      alert(message || "No pudimos guardar tu perfil. Inténtalo de nuevo.");
     }
 
-    // TODO: conectar al backend
-    // fetch("/profile", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(profile),
-    // })
-    //   .then(function (res) { return res.json(); })
-    //   .then(function () { window.location.href = "/dashboard"; })
-    //   .catch(function () {
-    //     btnNext.disabled = false;
-    //     renderStep();
-    //   });
-
-    console.log("Perfil guardado (sin backend todavía):", profile);
-    window.location.href = "/dashboard";
+    fetch("/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          return { status: res.status, data: data };
+        });
+      })
+      .then(function (result) {
+        if (result.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        if (!result.data.success) {
+          showError(result.data.message);
+          return;
+        }
+        window.location.href = result.data.redirect || "/dashboard";
+      })
+      .catch(function () {
+        showError();
+      });
   }
 
   // ---------- Inicio ----------

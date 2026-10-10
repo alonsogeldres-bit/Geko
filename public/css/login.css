@@ -609,3 +609,9 @@ body {
 .auth-input[type="date"] {
   color-scheme: dark;
 }
+
+.chip:disabled,
+.chip-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

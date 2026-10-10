@@ -5,6 +5,11 @@ const requireAuth = (req, res, next) => {
   return res.redirect('/login');
 };
 
+const requireAuthApi = (req, res, next) => {
+  if (req.session.usuario) return next();
+  return res.status(401).json({ success: false, message: 'Tu sesión expiró. Inicia sesión de nuevo.' });
+};
+
 const requireAdmin = (req, res, next) => {
   if (!req.session.usuario) return res.redirect('/login');
   if (req.session.usuario.id_rol !== ID_ROL_ADMIN) {
@@ -25,4 +30,4 @@ const requirePendingRegistration = (req, res, next) => {
   next();
 };
 
-module.exports = { requireAuth, requireAdmin, redirectIfAuth, requirePendingRegistration };
+module.exports = { requireAuth, requireAuthApi, requireAdmin, redirectIfAuth, requirePendingRegistration };

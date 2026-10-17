@@ -1,0 +1,258 @@
+/* ===========================================
+   DASHBOARD - Estilos
+   =========================================== */
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; min-height: 100%; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  color: #ffffff;
+}
+
+:root {
+  --ac: #6fdc6a;
+  --on-ac: #032309;
+  --line: rgba(255, 255, 255, 0.13);
+  --card: rgba(255, 255, 255, 0.06);
+  --chip: rgba(255, 255, 255, 0.09);
+  --mut: rgba(255, 255, 255, 0.62);
+  --pad-x: 32px;               /* margen lateral común (igual que profile) */
+}
+
+.dash-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 0%, #166306 50%, #0a4722 55%, #032309 100%);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.muted { color: var(--mut); }
+.small { font-size: 0.78rem; }
+
+/* ---------- Barra superior ---------- */
+
+.dash-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px var(--pad-x);
+}
+
+.logo-brand { display: flex; align-items: center; gap: 10px; }
+.brand-text { font-size: 16px; font-weight: 700; letter-spacing: 0.1em; }
+
+/* ---------- Avatar + menú desplegable ---------- */
+
+.user-menu { position: relative; }
+
+.avatar-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--ac);
+  color: var(--on-ac);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  list-style: none;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.avatar-btn::-webkit-details-marker { display: none; }
+.avatar-btn:hover { transform: scale(1.05); }
+.avatar-btn:focus-visible,
+.user-menu[open] .avatar-btn { border-color: #ffffff; outline: none; }
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 230px;
+  padding: 8px;
+  background: #0a4722;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+  animation: dropdown-in 0.15s ease;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus-visible { background: rgba(255, 255, 255, 0.1); outline: none; }
+
+.dropdown-ico { width: 20px; text-align: center; }
+.dropdown-item.is-soon { opacity: 0.75; }
+
+.soon-tag {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--chip);
+}
+
+.dropdown-logout {
+  margin: 4px 0 0;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Contenido (ancho completo) ---------- */
+
+.dash-main {
+  width: 100%;
+  padding: 8px var(--pad-x) 56px;
+}
+
+.dash-title { margin: 0 0 6px; font-size: 32px; font-weight: 800; }
+.subtitle { margin: 0; font-size: 15px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 28px;
+  margin-top: 20px;
+  min-width: 0;
+}
+
+.card h3 { margin: 0 0 14px; font-size: 16px; }
+
+/* ---------- Sugerencia (HU-019 / HU-020) ---------- */
+
+.hero { border-color: var(--ac); padding: 32px; }
+
+.tag {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ac);
+}
+
+.hero-title { margin: 0 0 14px; font-size: 30px; }
+
+.meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.meta span { font-size: 14px; padding: 6px 14px; border-radius: 999px; background: var(--chip); }
+
+.why { margin: 0 0 22px; font-size: 14px; line-height: 1.5; color: var(--mut); }
+
+.acts { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.cta {
+  flex: 1;
+  min-width: 220px;
+  padding: 18px 26px;
+  border-radius: 14px;
+  background: var(--ac);
+  color: var(--on-ac);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cta:hover { filter: brightness(1.08); }
+
+.ghost {
+  padding: 18px 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.ghost:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* ---------- Resumen (HU-018) ---------- */
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; gap: 0; } }
+
+.big { margin: 4px 0; font-size: 42px; font-weight: 800; }
+
+.bar {
+  height: 10px;
+  margin: 10px 0 6px;
+  border-radius: 999px;
+  background: var(--chip);
+  overflow: hidden;
+}
+
+.bar i { display: block; height: 100%; background: var(--ac); transition: width 0.3s ease; }
+
+.week { display: flex; gap: 8px; margin-top: 14px; }
+.week div { flex: 1; text-align: center; font-size: 12px; color: var(--mut); }
+.week i { display: block; height: 34px; margin-bottom: 6px; border-radius: 10px; background: var(--chip); }
+.week i.plan { border: 1px dashed var(--ac); background: transparent; }
+.week i.hecho { background: var(--ac); }
+.week i.hoy { outline: 2px solid var(--ac); outline-offset: 2px; }
+
+.recent {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.recent:first-of-type { border-top: 0; }
+
+.empty { padding: 12px 0; text-align: center; }
+.empty strong { display: block; margin-bottom: 6px; font-size: 16px; }
+.empty .muted { font-size: 14px; }
+
+/* ---------- Móvil ---------- */
+
+@media (max-width: 600px) {
+  :root { --pad-x: 16px; }
+  .dash-title { font-size: 26px; }
+  .hero { padding: 22px; }
+  .hero-title { font-size: 24px; }
+  .big { font-size: 34px; }
+}

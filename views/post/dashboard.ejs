@@ -1,16 +1,185 @@
+<%
+  /* Datos opcionales desde el controlador. Si no llegan, se usan valores de ejemplo. */
+  const u = locals.usuario || {};
+  const nombre = u.nombre || 'Atleta';
+  const inicial = nombre.charAt(0).toUpperCase();
+
+  const s = locals.sugerencia || {
+    nombre: 'Torso: pecho y espalda', tipo: 'Fuerza', grupo: 'Pecho y espalda',
+    minutos: 45, intensidad: 'Media', ejercicios: 5,
+    motivo: 'Ganar músculo · nivel intermedio · gimnasio'
+  };
+  const r = locals.resumen || { racha: 0, mejorRacha: 0, sesiones: 0, meta: 3, dias: [], hoy: (new Date().getDay() + 6) % 7 };
+  const prog = locals.enProgreso || null;           // { hechos: 2, total: 5 } o null
+  const actividad = locals.actividad || [];          // [{ nombre, detalle }]
+
+  const metaPct = r.meta ? Math.min(100, Math.round((r.sesiones / r.meta) * 100)) : 0;
+  const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+  /* Menú del avatar: los dos últimos son plantilla (href="#") */
+  const menu = [
+    { href: '/profile',       icono: '', texto: 'Mi perfil' },
+    { href: '/configuracion', icono: '', texto: 'Configuración' },
+    { href: '#',              icono: '', texto: 'Mi progreso',  pronto: true },
+    { href: '#',              icono: '', texto: 'Ayuda',        pronto: true }
+  ];
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GEKO - Dashboard</title>
-  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
-  <div class="profile-page bg-gradient">
-    <main class="profile-main">
-      <h1 class="profile-title">Dashboard</h1>
-      <p class="muted">Tu plan de entrenamiento estará aquí.</p>
+  <div class="dash-page">
+
+    <!-- ========== Barra superior ========== -->
+    <header class="dash-nav">
+      <div class="logo-brand">
+        <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
+        <span class="brand-text">GEKO</span>
+      </div>
+
+      <details class="user-menu" id="user-menu">
+        <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
+
+        <div class="dropdown" role="menu">
+          <div class="dropdown-head">
+            <strong><%= nombre %></strong>
+            <span class="muted small">Mi cuenta</span>
+          </div>
+
+          <% menu.forEach(function (item) { %>
+            <a href="<%= item.href %>" role="menuitem"
+               class="dropdown-item<%= item.pronto ? ' is-soon' : '' %>">
+              <span class="dropdown-ico"><%= item.icono %></span>
+              <%= item.texto %>
+              <% if (item.pronto) { %><span class="soon-tag">Pronto</span><% } %>
+            </a>
+          <% }) %>
+
+          <form action="/auth/logout" method="POST" class="dropdown-logout">
+            <button type="submit" class="dropdown-item" role="menuitem">
+              <span class="dropdown-ico"></span> Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <!-- ========== Contenido ========== -->
+    <main class="dash-main">
+      <h1 class="dash-title">Hola, <%= nombre %> </h1>
+      <p class="muted subtitle">Tu entrenamiento de hoy, según tu perfil.</p>
+
+      <!-- HU-019 + HU-020: sugerencia y acceso rápido -->
+      <section class="card hero">
+        <span class="tag"><%= prog ? 'Rutina en progreso' : 'Sugerencia de hoy' %></span>
+        <h2 class="hero-title"><%= s.nombre %></h2>
+
+        <div class="meta">
+          <span> <%= s.tipo %></span>
+          <span> ~<%= s.minutos %> min</span>
+          <span> <%= s.grupo %></span>
+          <span> Intensidad <%= s.intensidad.toLowerCase() %></span>
+          <span><%= s.ejercicios %> ejercicios</span>
+        </div>
+        <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
+
+        <% if (prog) { %>
+          <p class="muted small">Vas en <%= prog.hechos %> de <%= prog.total %> ejercicios</p>
+          <div class="bar"><i style="width:<%= Math.round(prog.hechos / prog.total * 100) %>%"></i></div>
+        <% } %>
+
+        <div class="acts">
+          <a class="cta" href="<%= prog ? '/entrenamiento?retomar=1' : '/entrenamiento' %>">
+            ▶ <%= prog ? 'Retomar entrenamiento' : 'Comenzar entrenamiento' %>
+          </a>
+          <button type="button" class="ghost" id="btn-swap">↻ Cambiar sugerencia</button>
+        </div>
+      </section>
+
+      <!-- HU-018: resumen, racha y progreso -->
+      <section class="grid">
+        <article class="card">
+          <h3>Racha actual</h3>
+          <div class="big"><%= r.racha %> <%= r.racha === 1 ? 'día' : 'días' %></div>
+          <p class="muted small">
+            <%= r.racha ? 'consecutivos · tu mejor racha: ' + r.mejorRacha : 'Empieza hoy tu primera racha' %>
+          </p>
+        </article>
+
+        <article class="card">
+          <h3> Meta semanal</h3>
+          <div class="big"><%= metaPct %> %</div>
+          <div class="bar"><i style="width:<%= metaPct %>%"></i></div>
+          <p class="muted small"><%= r.sesiones %> de <%= r.meta %> sesiones por semana</p>
+        </article>
+
+        <article class="card">
+          <h3>Entrenamientos de la semana</h3>
+          <div class="big"><%= r.sesiones %> / <%= r.meta %></div>
+          <div class="week">
+            <% diasSemana.forEach(function (d, i) { %>
+              <div>
+                <i class="<%= r.dias[i] || '' %><%= i === r.hoy ? ' hoy' : '' %>"></i>
+                <%= d %>
+              </div>
+            <% }) %>
+          </div>
+        </article>
+      </section>
+
+      <section class="card">
+        <h3>Actividad reciente</h3>
+        <% if (actividad.length) { %>
+          <% actividad.forEach(function (a) { %>
+            <div class="recent"><span><%= a.nombre %></span><span class="muted"><%= a.detalle %></span></div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty">
+            <strong>Aún no tienes actividad</strong>
+            <span class="muted">Completa tu primer entrenamiento para ver aquí tu resumen y tu racha.</span>
+          </div>
+        <% } %>
+      </section>
     </main>
   </div>
+
+  <script>
+    (function () {
+      var menu = document.getElementById('user-menu');
+
+      // Cerrar el menú al hacer clic fuera
+      document.addEventListener('click', function (e) {
+        if (menu.open && !menu.contains(e.target)) menu.open = false;
+      });
+
+      // Cerrar con Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && menu.open) {
+          menu.open = false;
+          menu.querySelector('summary').focus();
+        }
+      });
+
+      // Los ítems de plantilla no navegan
+      menu.querySelectorAll('.is-soon').forEach(function (a) {
+        a.addEventListener('click', function (e) { e.preventDefault(); });
+      });
+
+      // Cambiar sugerencia: recarga con ?alt=N
+      var swap = document.getElementById('btn-swap');
+      if (swap) {
+        swap.addEventListener('click', function () {
+          var url = new URL(window.location.href);
+          url.searchParams.set('alt', parseInt(url.searchParams.get('alt') || '0', 10) + 1);
+          window.location.href = url.toString();
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

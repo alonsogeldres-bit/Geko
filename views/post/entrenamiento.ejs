@@ -1,0 +1,122 @@
+<%
+  const u = locals.usuario || {};
+  const p = locals.perfil || {};
+  const s = locals.sugerencia || {};
+  const nombre = u.nombre || 'Atleta';
+  const inicial = nombre.charAt(0).toUpperCase();
+
+  const menu = [
+    { href: '/dashboard',  icono: '', texto: 'Mi dashboard' },
+    { href: '/profile',    icono: '', texto: 'Mi perfil' },
+    { href: '#',           icono: '', texto: 'Configuración', pronto: true },
+    { href: '#',           icono: '', texto: 'Mi progreso',  pronto: true },
+    { href: '#',           icono: '', texto: 'Ayuda',        pronto: true }
+  ];
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Entrenamiento</title>
+  <link rel="stylesheet" href="/css/dashboard.css" />
+</head>
+<body>
+  <div class="dash-page">
+
+    <header class="dash-nav">
+      <div class="logo-brand">
+        <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
+        <span class="brand-text">GEKO</span>
+      </div>
+
+      <details class="user-menu" id="user-menu">
+        <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
+
+        <div class="dropdown" role="menu">
+          <div class="dropdown-head">
+            <strong><%= nombre %></strong>
+            <span class="muted small">Mi cuenta</span>
+          </div>
+
+          <% menu.forEach(function (item) { %>
+            <a href="<%= item.href %>" role="menuitem"
+               class="dropdown-item<%= item.pronto ? ' is-soon' : '' %>">
+              <span class="dropdown-ico"><%= item.icono %></span>
+              <%= item.texto %>
+              <% if (item.pronto) { %><span class="soon-tag">Pronto</span><% } %>
+            </a>
+          <% }) %>
+
+          <form action="/auth/logout" method="POST" class="dropdown-logout">
+            <button type="submit" class="dropdown-item" role="menuitem">
+              <span class="dropdown-ico"></span> Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <main class="dash-main">
+      <h1 class="dash-title">Entrenamiento</h1>
+      <p class="muted subtitle">La rutina que te/armamos para hoy.</p>
+
+      <section class="card hero">
+        <span class="tag">Rutina de hoy</span>
+        <h2 class="hero-title"><%= s.nombre %></h2>
+
+        <div class="meta">
+          <span><%= s.tipo %></span>
+          <span>~<%= s.minutos %> min</span>
+          <span><%= s.grupo %></span>
+          <span>Intensidad <%= String(s.intensidad || '').toLowerCase() %></span>
+          <span><%= s.ejercicios %> ejercicios</span>
+        </div>
+        <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
+
+        <div class="empty soon-empty">
+          <strong>Esta pantalla estará lista pronto</strong>
+          <span class="muted">
+            Estamos preparando el generador de rutinas: tu ejercicio a ejercicio,
+            con series, repeticiones y tiempos de descanso, y el registro de cada
+            sesión para que tu racha y tu progreso se actualicen solos.
+          </span>
+        </div>
+
+        <div class="acts">
+          <a class="ghost" href="/dashboard">← Volver al dashboard</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Lo que ya sabemos de tu plan</h3>
+        <div class="perfil-grid">
+          <div class="perfil-dato">
+            <span class="muted small">Objetivo</span>
+            <strong><%= p.objetivo || 'Sin objetivo definido' %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Duración</span>
+            <strong><%= p.minutosSesion ? p.minutosSesion + ' min por sesión' : 'Sin definir' %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Frecuencia</span>
+            <strong><%= p.diasSemana ? p.diasSemana + ' días por semana' : 'Sin definir' %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Dónde entrenas</span>
+            <strong><%= p.entorno || 'Sin definir' %></strong>
+          </div>
+        </div>
+        <p class="muted small aviso">
+          Puedes ajustar cualquiera de estos datos en
+          <a href="/profile" class="link">tu perfil</a>.
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

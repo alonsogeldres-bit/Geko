@@ -8,6 +8,7 @@ dns.setDefaultResultOrder('ipv4first');
 // Rutas
 const postRouter = require('./routes/postRoutes');
 const dashboardRoutes = require('./routes/DashboardRoutes');
+const trainingRoutes = require('./routes/trainingRoutes');
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes');
 
@@ -49,6 +50,7 @@ app.get('/', (req, res) => {
 
 app.use('/splash', postRouter);
 app.use('/dashboard', dashboardRoutes);
+app.use('/entrenamiento', trainingRoutes);
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 app.use('/', profileRoutes);

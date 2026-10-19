@@ -1,29 +1,34 @@
 <%
-  /* Datos opcionales desde el controlador. Si no llegan, se usan valores de ejemplo. */
+  /* Todo lo que llega aquí viene del controlador con datos reales de la BD.
+     Si algo falta, la vista degrada con honestidad en vez de inventar valores. */
   const u = locals.usuario || {};
+  const p = locals.perfil || {};
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
-  const s = locals.sugerencia || {
-    nombre: 'Torso: pecho y espalda', tipo: 'Fuerza', grupo: 'Pecho y espalda',
-    minutos: 45, intensidad: 'Media', ejercicios: 5,
-    motivo: 'Ganar músculo · nivel intermedio · gimnasio'
-  };
-  const r = locals.resumen || { racha: 0, mejorRacha: 0, sesiones: 0, meta: 3, dias: [], hoy: (new Date().getDay() + 6) % 7 };
+  const s = locals.sugerencia || {};
+  const r = locals.resumen || { racha: 0, mejorRacha: 0, sesiones: 0, meta: 3, dias: [], hoy: 0 };
   const prog = locals.enProgreso || null;           // { hechos: 2, total: 5 } o null
   const actividad = locals.actividad || [];          // [{ nombre, detalle }]
 
   const metaPct = r.meta ? Math.min(100, Math.round((r.sesiones / r.meta) * 100)) : 0;
   const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
-  /* Menú del avatar: los dos últimos son plantilla (href="#") */
+  const nivelTexto = { Bajo: 'Principiante', Medio: 'Intermedio', Alto: 'Avanzado' }[p.nivelFisico] || 'Sin nivel';
+  const objetivo = p.objetivo || 'Sin objetivo definido';
+  const entorno = p.entorno || 'Sin definir';
+  const diasTexto = p.diasSemana ? p.diasSemana + (p.diasSemana === 1 ? ' día por semana' : ' días por semana') : 'Sin definir';
+  const minutosTexto = p.minutosSesion ? p.minutosSesion + ' min por sesión' : 'Sin definir';
+
+  /* Menú del avatar. "Mi perfil" es el único destino real por ahora. */
   const menu = [
     { href: '/profile',       icono: '', texto: 'Mi perfil' },
-    { href: '/configuracion', icono: '', texto: 'Configuración' },
+    { href: '#',              icono: '', texto: 'Configuración', pronto: true },
     { href: '#',              icono: '', texto: 'Mi progreso',  pronto: true },
     { href: '#',              icono: '', texto: 'Ayuda',        pronto: true }
   ];
 %>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -74,16 +79,78 @@
       <h1 class="dash-title">Hola, <%= nombre %> </h1>
       <p class="muted subtitle">Tu entrenamiento de hoy, según tu perfil.</p>
 
-      <!-- HU-019 + HU-020: sugerencia y acceso rápido -->
+      <!-- Resumen del perfil que dejó el wizard de /profile -->
+      <section class="card perfil">
+        <div class="perfil-head">
+          <h3>Tu plan</h3>
+          <a class="perfil-edit" href="/profile">Editar perfil</a>
+        </div>
+
+        <div class="perfil-grid">
+          <div class="perfil-dato">
+            <span class="muted small">Objetivo</span>
+            <strong><%= objetivo %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Nivel</span>
+            <strong><%= nivelTexto %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Dónde entrenas</span>
+            <strong><%= entorno %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Frecuencia</span>
+            <strong><%= diasTexto %></strong>
+          </div>
+          <div class="perfil-dato">
+            <span class="muted small">Duración</span>
+            <strong><%= minutosTexto %></strong>
+          </div>
+          <% if (p.alturaCm && p.pesoKg) { %>
+            <div class="perfil-dato">
+              <span class="muted small">Medición actual</span>
+              <strong><%= p.alturaCm %> cm · <%= p.pesoKg %> kg</strong>
+            </div>
+          <% } %>
+        </div>
+
+        <% if (p.equipamiento && p.equipamiento.length) { %>
+          <div class="perfil-bloque">
+            <span class="muted small">Tu equipamiento</span>
+            <div class="chips">
+              <% p.equipamiento.forEach(function (e) { %>
+                <span class="chip"><%= e %></span>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (p.lesiones && p.lesiones.length) { %>
+          <div class="perfil-bloque">
+            <span class="muted small">Limitaciones a considerar</span>
+            <div class="chips">
+              <% p.lesiones.forEach(function (l) { %>
+                <span class="chip chip-alerta"><%= l %></span>
+              <% }) %>
+            </div>
+            <p class="muted small aviso">
+              Vamos a tener en cuenta estas zonas al armar tus rutinas.
+            </p>
+          </div>
+        <% } %>
+      </section>
+
+      <!-- Sugerencia del día -->
       <section class="card hero">
         <span class="tag"><%= prog ? 'Rutina en progreso' : 'Sugerencia de hoy' %></span>
         <h2 class="hero-title"><%= s.nombre %></h2>
 
         <div class="meta">
-          <span> <%= s.tipo %></span>
-          <span> ~<%= s.minutos %> min</span>
-          <span> <%= s.grupo %></span>
-          <span> Intensidad <%= s.intensidad.toLowerCase() %></span>
+          <span><%= s.tipo %></span>
+          <span>~<%= s.minutos %> min</span>
+          <span><%= s.grupo %></span>
+          <span>Intensidad <%= String(s.intensidad || '').toLowerCase() %></span>
           <span><%= s.ejercicios %> ejercicios</span>
         </div>
         <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
@@ -94,14 +161,17 @@
         <% } %>
 
         <div class="acts">
-          <a class="cta" href="<%= prog ? '/entrenamiento?retomar=1' : '/entrenamiento' %>">
+          <a class="cta" href="/entrenamiento<%= (s.indiceVariante ? '?alt=' + (s.indiceVariante - 1) : '') %>">
             ▶ <%= prog ? 'Retomar entrenamiento' : 'Comenzar entrenamiento' %>
           </a>
-          <button type="button" class="ghost" id="btn-swap">↻ Cambiar sugerencia</button>
+          <button type="button" class="ghost" id="btn-swap">
+            ↻ Cambiar sugerencia
+            <% if (s.variantes > 1) { %><span class="muted small">(<%= s.indiceVariante %>/<%= s.variantes %>)</span><% } %>
+          </button>
         </div>
       </section>
 
-      <!-- HU-018: resumen, racha y progreso -->
+      <!-- Resumen, racha y progreso -->
       <section class="grid">
         <article class="card">
           <h3>Racha actual</h3>
@@ -112,7 +182,7 @@
         </article>
 
         <article class="card">
-          <h3> Meta semanal</h3>
+          <h3>Meta semanal</h3>
           <div class="big"><%= metaPct %> %</div>
           <div class="bar"><i style="width:<%= metaPct %>%"></i></div>
           <p class="muted small"><%= r.sesiones %> de <%= r.meta %> sesiones por semana</p>
@@ -124,11 +194,16 @@
           <div class="week">
             <% diasSemana.forEach(function (d, i) { %>
               <div>
-                <i class="<%= r.dias[i] || '' %><%= i === r.hoy ? ' hoy' : '' %>"></i>
+                <i class="<%= (r.dias && r.dias[i]) || '' %><%= i === r.hoy ? ' hoy' : '' %>"></i>
                 <%= d %>
               </div>
             <% }) %>
           </div>
+          <p class="muted small">
+            <% if (r.plan && r.plan.length) { %>
+              Entrenas los <%= r.plan.map(function (i) { return diasSemana[i]; }).join(', ') %>.
+            <% } %>
+          </p>
         </article>
       </section>
 
@@ -141,45 +216,13 @@
         <% } else { %>
           <div class="empty">
             <strong>Aún no tienes actividad</strong>
-            <span class="muted">Completa tu primer entrenamiento para ver aquí tu resumen y tu racha.</span>
+            <span class="muted">Cuando completes tu primer entrenamiento, aquí verás tu resumen y tu racha.</span>
           </div>
         <% } %>
       </section>
     </main>
   </div>
 
-  <script>
-    (function () {
-      var menu = document.getElementById('user-menu');
-
-      // Cerrar el menú al hacer clic fuera
-      document.addEventListener('click', function (e) {
-        if (menu.open && !menu.contains(e.target)) menu.open = false;
-      });
-
-      // Cerrar con Escape
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && menu.open) {
-          menu.open = false;
-          menu.querySelector('summary').focus();
-        }
-      });
-
-      // Los ítems de plantilla no navegan
-      menu.querySelectorAll('.is-soon').forEach(function (a) {
-        a.addEventListener('click', function (e) { e.preventDefault(); });
-      });
-
-      // Cambiar sugerencia: recarga con ?alt=N
-      var swap = document.getElementById('btn-swap');
-      if (swap) {
-        swap.addEventListener('click', function () {
-          var url = new URL(window.location.href);
-          url.searchParams.set('alt', parseInt(url.searchParams.get('alt') || '0', 10) + 1);
-          window.location.href = url.toString();
-        });
-      }
-    })();
-  </script>
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
+const ProfileModel = require('../models/profileModel');
 const sso = require('../config/sso');
 const mailer = require('../config/mailer');
 const recovery = require('../config/recovery');
@@ -39,7 +40,7 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    const token = recovery.createToken(user.id_usuario);
+    const token = recovery.createToken(user.id_usuario, user.contrasena_hash);
     const resetUrl = recovery.buildResetUrl(token);
 
     await mailer.sendMail({
@@ -52,14 +53,14 @@ const forgotPassword = async (req, res) => {
         '',
         resetUrl,
         '',
-        `El enlace vence en ${recovery.TTL_MINUTES} minutos.`,
+        `El enlace vence en ${recovery.TTL_MINUTES} minutos y solo puede usarse una vez.`,
         'Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.',
       ].join('\n'),
       html: [
         '<p>Hola,</p>',
         '<p>Recibimos una solicitud para crear una nueva contraseña de tu cuenta GEKO.</p>',
         `<p><a href="${resetUrl}">Crear una nueva contraseña</a></p>`,
-        `<p style="color:#666">El enlace vence en ${recovery.TTL_MINUTES} minutos.</p>`,
+        `<p style="color:#666">El enlace vence en ${recovery.TTL_MINUTES} minutos y solo puede usarse una vez.</p>`,
         '<p style="color:#666">Si no solicitaste esto, ignora este mensaje: tu contraseña actual sigue vigente.</p>',
       ].join(''),
     });
@@ -71,26 +72,65 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-const showResetPassword = (req, res) => {
-  const { valid, reason } = recovery.verifyToken(req.query.token);
+/** Devuelve el motivo por el que el token no sirve, o null si es válido. */
+const motivoTokenInvalido = (verificacion, usuario) => {
+  if (!usuario) return 'El enlace no es válido. Solicita uno nuevo.';
 
-  if (!valid) {
-    return res.render('post/reset-password', { valid: false, reason, token: '' });
-  }
+  const esperada = Buffer.from(recovery.passwordVersion(usuario.contrasena_hash));
+  const recibida = verificacion.pv ? Buffer.from(verificacion.pv) : null;
 
-  res.render('post/reset-password', { valid: true, reason: '', token: req.query.token });
+  const coincide =
+    recibida &&
+    recibida.length === esperada.length &&
+    crypto.timingSafeEqual(esperada, recibida);
+
+  // Si la contraseña ya cambió (por este enlace u otro medio), la huella no coincide.
+  return coincide ? null : 'Este enlace ya fue utilizado. Solicita uno nuevo.';
 };
 
-const resetPassword = async (req, res) => {
-  const { valid, idUsuario, reason } = recovery.verifyToken(req.body.token);
+const showResetPassword = async (req, res) => {
+  const verificacion = recovery.verifyToken(req.query.token);
 
-  if (!valid) {
-    return res.status(400).json({ success: false, message: reason });
+  if (!verificacion.valid) {
+    return res.render('post/reset-password', { valid: false, reason: verificacion.reason, token: '' });
   }
 
   try {
+    const usuario = await UserModel.findById(verificacion.idUsuario);
+    const motivo = motivoTokenInvalido(verificacion, usuario);
+
+    if (motivo) {
+      return res.render('post/reset-password', { valid: false, reason: motivo, token: '' });
+    }
+
+    res.render('post/reset-password', { valid: true, reason: '', token: req.query.token });
+  } catch (err) {
+    console.error('[recuperación] error al verificar el enlace:', err.message);
+    res.render('post/reset-password', {
+      valid: false,
+      reason: 'No pudimos verificar el enlace. Inténtalo de nuevo en unos minutos.',
+      token: '',
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const verificacion = recovery.verifyToken(req.body.token);
+
+  if (!verificacion.valid) {
+    return res.status(400).json({ success: false, message: verificacion.reason });
+  }
+
+  try {
+    const usuario = await UserModel.findById(verificacion.idUsuario);
+    const motivo = motivoTokenInvalido(verificacion, usuario);
+
+    if (motivo) {
+      return res.status(400).json({ success: false, message: motivo });
+    }
+
     const hash = await bcrypt.hash(req.body.contrasena, 10);
-    const affected = await UserModel.updatePassword(idUsuario, hash);
+    const affected = await UserModel.updatePassword(verificacion.idUsuario, hash);
 
     // 0 filas: la cuenta ya no existe o no es 'local' (p. ej. se creó con Google)
     if (!affected) {
@@ -150,7 +190,8 @@ const googleCallback = async (req, res) => {
     const user = await UserModel.findByEmail(profile.correo);
 
     if (user) {
-      return startSession(req, res, user, '/profile');
+      const idCliente = await ProfileModel.hasProfile(user.id_usuario);
+      return startSession(req, res, user, idCliente ? '/dashboard' : '/profile');
     }
 
     req.session.oauthRegistration = {

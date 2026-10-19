@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Configuración</title>
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/configuracion.css" />
+</head>
+<body>
+
+  <div class="profile-page bg-gradient">
+
+    <header class="profile-nav">
+      <div class="logo-brand">
+        <img src="/assets/geko.png" alt="GEKO" class="logo-img-small" width="30" height="30" />
+        <span class="welcome-brand">GEKO</span>
+      </div>
+
+      <div class="nav-right">
+        <span class="muted step-counter">Configuración</span>
+
+        <form action="/auth/logout" method="POST">
+          <button type="submit" class="btn-logout">
+            Cerrar sesión
+          </button>
+        </form>
+      </div>
+    </header>
+
+    <main class="profile-main">
+
+      <div class="profile-head anim-fade-in">
+        <div class="profile-step-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <div>
+          <h1 class="profile-title">Tu perfil de entrenamiento</h1>
+          <p class="muted step-desc">Revisa y actualiza tus datos. Los cambios se aplican a tu próximo plan.</p>
+        </div>
+      </div>
+
+      <div class="anim-slide-up">
+
+        <div id="config-alert" class="config-alert" role="alert" hidden>
+          <span class="config-alert-icon" aria-hidden="true">!</span>
+          <span class="config-alert-msg" id="config-alert-msg"></span>
+        </div>
+
+        <!-- ================= Datos básicos ================= -->
+        <section class="config-section">
+          <h2 class="config-section-title">Datos básicos</h2>
+
+          <div class="field">
+            <label class="field-label">Sexo</label>
+            <div class="segmented" data-group="sex">
+              <button type="button" class="segmented-opt" data-value="masculino">Masculino</button>
+              <button type="button" class="segmented-opt" data-value="femenino">Femenino</button>
+              <button type="button" class="segmented-opt" data-value="otro">Otro</button>
+            </div>
+          </div>
+
+          <div class="profile-grid-2">
+            <div class="field">
+              <label class="field-label" for="height">Altura (cm)</label>
+              <input type="number" inputmode="numeric" id="height" class="input" placeholder="cm" />
+              <span class="field-error" id="err-heightCm"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="weight">Peso (kg)</label>
+              <input type="number" inputmode="numeric" id="weight" class="input" placeholder="kg" />
+              <span class="field-error" id="err-weightKg"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= Nivel y objetivos ================= -->
+        <section class="config-section">
+          <h2 class="config-section-title">Nivel y objetivos</h2>
+
+          <div class="field">
+            <label class="field-label">Nivel de entrenamiento</label>
+            <div class="level-grid" data-group="level">
+              <button type="button" class="level-option" data-value="principiante">
+                <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 L17.5 17.5"></path><circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="19" r="2"></circle></svg>
+                <strong>Principiante</strong>
+                <span class="muted small">Inicio en el entrenamiento</span>
+              </button>
+              <button type="button" class="level-option" data-value="intermedio">
+                <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 L17.5 17.5"></path><circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="19" r="2"></circle></svg>
+                <strong>Intermedio</strong>
+                <span class="muted small">Entreno con regularidad</span>
+              </button>
+              <button type="button" class="level-option" data-value="avanzado">
+                <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 L17.5 17.5"></path><circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="19" r="2"></circle></svg>
+                <strong>Avanzado</strong>
+                <span class="muted small">Alta experiencia</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Objetivos</label>
+            <span class="field-hint">Selecciona uno o más</span>
+            <div class="chip-group" data-group="goals">
+              <button type="button" class="chip" data-value="perder_grasa">🔥 Perder grasa</button>
+              <button type="button" class="chip" data-value="ganar_musculo">💪 Ganar músculo</button>
+              <button type="button" class="chip" data-value="mejorar_condicion">🏃 Mejorar condición</button>
+              <button type="button" class="chip" data-value="mantener_forma">⚖️ Mantener forma</button>
+            </div>
+            <span class="field-error" id="err-goals"></span>
+          </div>
+        </section>
+
+        <!-- ================= Lesiones y cirugías ================= -->
+        <section class="config-section">
+          <h2 class="config-section-title">Limitaciones médicas</h2>
+
+          <div class="field">
+            <label class="field-label">Lesiones o limitaciones</label>
+            <span class="field-hint">Selecciona las zonas afectadas</span>
+            <div class="chip-group" data-group="injuries">
+              <button type="button" class="chip" data-value="Rodilla">Rodilla</button>
+              <button type="button" class="chip" data-value="Espalda">Espalda</button>
+              <button type="button" class="chip" data-value="Hombro">Hombro</button>
+              <button type="button" class="chip" data-value="Cuello">Cuello</button>
+              <button type="button" class="chip" data-value="Muñeca">Muñeca</button>
+              <button type="button" class="chip" data-value="Codo">Codo</button>
+              <button type="button" class="chip" data-value="Ninguna">Ninguna</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="injuries-text">Describe (opcional)</label>
+            <textarea id="injuries-text" class="input textarea" placeholder="Cuéntanos cualquier limitación relevante..."></textarea>
+          </div>
+
+          <div class="field">
+            <label class="field-label">¿Has tenido cirugías?</label>
+            <div class="segmented" data-group="hasSurgeries">
+              <button type="button" class="segmented-opt" data-value="no">No</button>
+              <button type="button" class="segmented-opt" data-value="si">Sí</button>
+            </div>
+          </div>
+
+          <div class="field hidden" id="surgeries-box">
+            <div id="surgeries-list"></div>
+            <button type="button" class="btn btn-ghost" id="btn-add-surgery">+ Agregar otra cirugía</button>
+          </div>
+        </section>
+
+        <!-- ================= Entorno y equipamiento ================= -->
+        <section class="config-section">
+          <h2 class="config-section-title">Entreno</h2>
+
+          <div class="field">
+            <label class="field-label">¿Dónde entrenas?</label>
+            <div class="segmented" data-group="environment">
+              <button type="button" class="segmented-opt" data-value="gimnasio">Gimnasio</button>
+              <button type="button" class="segmented-opt" data-value="casa">En casa</button>
+              <button type="button" class="segmented-opt" data-value="aire_libre">Aire libre</button>
+              <button type="button" class="segmented-opt" data-value="mixto">Mixto</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Equipamiento disponible</label>
+            <span class="field-hint">Selecciona todo lo que tengas</span>
+            <div class="chip-group" data-group="equipment">
+              <button type="button" class="chip" data-value="Mancuernas">Mancuernas</button>
+              <button type="button" class="chip" data-value="Barra">Barra</button>
+              <button type="button" class="chip" data-value="Máquinas">Máquinas</button>
+              <button type="button" class="chip" data-value="Peso corporal">Peso corporal</button>
+              <button type="button" class="chip" data-value="Bandas elásticas">Bandas elásticas</button>
+              <button type="button" class="chip" data-value="Cuerda">Cuerda</button>
+              <button type="button" class="chip" data-value="Banco">Banco</button>
+              <button type="button" class="chip" data-value="Ninguno">Ninguno</button>
+            </div>
+            <span class="field-error" id="err-equipment"></span>
+          </div>
+        </section>
+
+        <!-- ================= Tiempo ================= -->
+        <section class="config-section">
+          <h2 class="config-section-title">Tiempo</h2>
+
+          <div class="field">
+            <label class="field-label">Días por semana que puedes entrenar</label>
+            <div class="segmented" data-group="daysPerWeek">
+              <button type="button" class="segmented-opt" data-value="1">1d</button>
+              <button type="button" class="segmented-opt" data-value="2">2d</button>
+              <button type="button" class="segmented-opt" data-value="3">3d</button>
+              <button type="button" class="segmented-opt" data-value="4">4d</button>
+              <button type="button" class="segmented-opt" data-value="5">5d</button>
+              <button type="button" class="segmented-opt" data-value="6">6d</button>
+              <button type="button" class="segmented-opt" data-value="7">7d</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Minutos disponibles por sesión</label>
+            <div class="segmented" data-group="minutesPerSession">
+              <button type="button" class="segmented-opt" data-value="15">15</button>
+              <button type="button" class="segmented-opt" data-value="30">30</button>
+              <button type="button" class="segmented-opt" data-value="45">45</button>
+              <button type="button" class="segmented-opt" data-value="60">60</button>
+              <button type="button" class="segmented-opt" data-value="75">75</button>
+              <button type="button" class="segmented-opt" data-value="90">90</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= Acciones ================= -->
+        <div class="config-actions">
+          <a href="/dashboard" class="btn btn-ghost">Volver al dashboard</a>
+          <button type="button" class="btn btn-primary" id="btn-save">Guardar cambios</button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Datos actuales del perfil, embebidos de forma segura (JSON sin '<'). -->
+  <script>window.__PERFIL__ = <%- JSON.stringify(perfil).replace(/</g, '\\u003c') %>;</script>
+  <script src="/js/configuracion.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+/* ===========================================
+   CONFIGURACION - Estilos de página
+   El look general viene de profile.css;
+   aquí solo se agrega el layout de secciones
+   y la caja de alerta.
+   =========================================== */
+
+.config-section {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.config-section-title {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.config-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Alerta ---------- */
+
+.config-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* display:flex anula el atributo hidden; hay que forzarlo (igual que login.css). */
+.config-alert[hidden] {
+  display: none;
+}
+
+.config-alert-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.config-alert[data-variant="error"] {
+  background: rgba(255, 99, 99, 0.12);
+  border: 1px solid rgba(255, 99, 99, 0.4);
+  color: #ffb3b3;
+}
+
+.config-alert[data-variant="error"] .config-alert-icon {
+  background: #ff8080;
+  color: #3a0d0d;
+}
+
+.config-alert[data-variant="success"] {
+  background: rgba(99, 255, 148, 0.1);
+  border: 1px solid rgba(99, 255, 148, 0.35);
+  color: #a9f5c3;
+}
+
+.config-alert[data-variant="success"] .config-alert-icon {
+  background: #63ff94;
+  color: #0a3a1c;
+}
+
+@media (max-width: 560px) {
+  .config-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .config-actions .btn {
+    width: 100%;
+  }
+}

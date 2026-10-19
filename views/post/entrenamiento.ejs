@@ -6,11 +6,10 @@
   const inicial = nombre.charAt(0).toUpperCase();
 
   const menu = [
-    { href: '/dashboard',  icono: '', texto: 'Mi dashboard' },
-    { href: '/profile',    icono: '', texto: 'Mi perfil' },
-    { href: '#',           icono: '', texto: 'Configuración', pronto: true },
-    { href: '#',           icono: '', texto: 'Mi progreso',  pronto: true },
-    { href: '#',           icono: '', texto: 'Ayuda',        pronto: true }
+    { href: '/dashboard',       icono: '', texto: 'Mi dashboard' },
+    { href: '/configuracion',   icono: '', texto: 'Configuración' },
+    { href: '#',                icono: '', texto: 'Mi progreso',  pronto: true },
+    { href: '#',                icono: '', texto: 'Ayuda',        pronto: true }
   ];
 %>
 
@@ -111,7 +110,7 @@
         </div>
         <p class="muted small aviso">
           Puedes ajustar cualquiera de estos datos en
-          <a href="/profile" class="link">tu perfil</a>.
+          <a href="/configuracion" class="link">tu perfil</a>.
         </p>
       </section>
     </main>

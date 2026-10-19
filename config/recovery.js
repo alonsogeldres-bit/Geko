@@ -22,13 +22,22 @@ const fromBase64url = (value) =>
 const sign = (payload) =>
   base64url(crypto.createHmac('sha256', secret()).update(payload).digest());
 
-/** Builds a token for the given user id, valid for TTL_MINUTES. */
-const createToken = (idUsuario) => {
+/** Huella corta de la contraseña actual: cambia cuando cambia la contraseña. */
+const passwordVersion = (contrasenaHash) =>
+  crypto.createHmac('sha256', secret()).update(String(contrasenaHash)).digest('hex').slice(0, 16);
+
+/**
+ * Builds a token for the given user id, valid for TTL_MINUTES.
+ * `contrasenaHash` ata el token a la contraseña vigente: al cambiarla,
+ * todos los enlaces emitidos quedan inválidos (incluso si no expiraron).
+ */
+const createToken = (idUsuario, contrasenaHash) => {
   const payload = base64url(
     JSON.stringify({
       uid: Number(idUsuario),
       exp: Date.now() + TTL_MINUTES * 60 * 1000,
       jti: crypto.randomBytes(12).toString('hex'),
+      pv: passwordVersion(contrasenaHash),
     })
   );
 
@@ -74,7 +83,7 @@ const verifyToken = (token) => {
     return { valid: false, reason: 'El enlace no es válido.' };
   }
 
-  return { valid: true, idUsuario: data.uid };
+  return { valid: true, idUsuario: data.uid, pv: typeof data.pv === 'string' ? data.pv : null };
 };
 
 /** Absolute URL that goes in the email body. */
@@ -84,5 +93,6 @@ module.exports = {
   TTL_MINUTES,
   createToken,
   verifyToken,
+  passwordVersion,
   buildResetUrl,
 };

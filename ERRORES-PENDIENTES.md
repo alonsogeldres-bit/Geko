@@ -12,7 +12,7 @@
 |---|-------|-------------|
 | R1 | Login repetía el wizard de perfil aunque estuviera completado | commit `f1af5ef` — doc `CAMBIOS-PERFIL-COMPLETADO.md` |
 | R2 | Enlaces de recuperación no morían al usarse | commit `879b6f1` — doc `CAMBIOS-ENLACE-UN-SOLO-USO.md` |
-| R3 | Edición de perfil sin precarga de datos (era E20) | 19-10-2026 — nueva ruta `/configuracion` (lee con `getProfileByUser`, guarda vía `POST /profile`) |
+| R3 | Edición de perfil sin precarga de datos (era E20) | commit `88b8768` — nueva ruta `/configuracion` (lee con `getProfileByUser`, guarda vía `POST /profile`) — doc `CAMBIOS-CONFIGURACION-PERFIL.md` |
 
 ---
 

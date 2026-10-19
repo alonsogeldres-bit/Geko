@@ -12,6 +12,7 @@
 |---|-------|-------------|
 | R1 | Login repetía el wizard de perfil aunque estuviera completado | commit `f1af5ef` — doc `CAMBIOS-PERFIL-COMPLETADO.md` |
 | R2 | Enlaces de recuperación no morían al usarse | commit `879b6f1` — doc `CAMBIOS-ENLACE-UN-SOLO-USO.md` |
+| R3 | Edición de perfil sin precarga de datos (era E20) | 19-10-2026 — nueva ruta `/configuracion` (lee con `getProfileByUser`, guarda vía `POST /profile`) |
 
 ---
 
@@ -127,11 +128,6 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 - **Qué pasa:** confusión para quien configure el entorno.
 - **Arreglo:** borrar la línea del `.env` local (nunca se commitea, así que es solo higiene de cada máquina).
 
-#### E20 — Wizard de edición no precarga datos
-- **Ubicación:** `public/js/profile.js` + `views/post/profile.ejs`
-- **Qué pasa:** con `/profile?edit=1` el wizard abre **vacío** aunque el usuario ya tenga perfil guardado; si guarda sin tocar nada, se crea una medición duplicada en el historial (por diseño, cada guardado agrega medición). No es un bug de datos, pero confunde al usuario.
-- **Arreglo sugerido:** `showProfile` consulta los datos actuales (`profileModel`) y los pasa a la vista; `profile.js` los pinta en el estado inicial. Es el cambio más grande de la lista.
-
 #### E21 — Sin tests automatizados
 - **Ubicación:** `package.json` → `"test": "echo \"Error: no test specified\" && exit 1"`
 - **Arreglo sugerido:** al menos tests unitarios de `config/recovery.js` (tokens) y de `middlewares/validators.js` (no requieren BD). Vitest o node:test (sin dependencias extra).
@@ -150,4 +146,3 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 8. **E9, E12, E13** (dashboard/docs) → 1-2 h
 9. **E17, E18, E19** (documentación) → 30 min
 10. **E21** (tests, para que lo anterior no se rompa de nuevo) → ongoing
-11. **E20** (mejora de UX, el más grande) → cuando se decida

@@ -1,5 +1,22 @@
 const ProfileModel = require('../models/profileModel');
 
+// GET /configuracion — muestra los datos actuales del perfil para editarlos.
+// Sin perfil (sin fila en clientes) no hay nada que editar: va al wizard.
+const showConfig = async (req, res) => {
+  try {
+    const perfil = await ProfileModel.getProfileByUser(req.session.usuario.id_usuario);
+
+    if (!perfil) {
+      return res.redirect('/profile');
+    }
+
+    res.render('post/configuracion', { perfil });
+  } catch (err) {
+    console.error('[configuración] error al cargar el perfil:', err.message);
+    res.status(500).send('No pudimos cargar tu configuración. Inténtalo de nuevo.');
+  }
+};
+
 // POST /profile — guarda el perfil de entrenamiento del usuario en sesión.
 // Los datos ya vienen validados y normalizados en req.profileData.
 const saveProfile = async (req, res) => {
@@ -12,4 +29,4 @@ const saveProfile = async (req, res) => {
   }
 };
 
-module.exports = { saveProfile };
+module.exports = { showConfig, saveProfile };

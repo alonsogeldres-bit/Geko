@@ -172,6 +172,116 @@ const hasProfile = async (idUsuario) => {
   return rows.length ? rows[0].id_cliente : null;
 };
 
+/* ---------- Claves inversas (BD -> formulario) ---------- */
+
+const SEX_INV = { M: 'masculino', F: 'femenino' };
+const invertir = (obj) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]));
+const LEVELS_INV = invertir(LEVELS);
+const GOALS_INV = invertir(GOALS);
+const ENVIRONMENTS_INV = invertir(ENVIRONMENTS);
+
+/**
+ * Lee el perfil completo del usuario y lo devuelve con el MISMO formato
+ * que espera el formulario del wizard (claves invertidas: 'M' -> 'masculino',
+ * 'Bajo' -> 'principiante', sexo NULL -> 'otro', etc.).
+ * Devuelve null si el usuario todavía no tiene perfil (sin fila en clientes).
+ */
+const getProfileByUser = async (idUsuario) => {
+  const conn = await pool.getConnection();
+
+  try {
+    const [filas] = await conn.query(
+      `SELECT u.sexo, c.id_cliente, o.nombre_objetivo, c.observacion_objetivo
+         FROM usuarios u
+         LEFT JOIN clientes c ON c.id_usuario = u.id_usuario
+         LEFT JOIN objetivo o ON o.id_objetivo = c.id_objetivo
+        WHERE u.id_usuario = ?`,
+      [idUsuario]
+    );
+
+    if (!filas.length || !filas[0].id_cliente) return null;
+
+    const fila = filas[0];
+    const idCliente = fila.id_cliente;
+
+    const [fichas] = await conn.query('SELECT id_ficha FROM ficha_medica WHERE id_cliente = ?', [idCliente]);
+    const idFicha = fichas.length ? fichas[0].id_ficha : null;
+
+    let medicion = null;
+    let antecedentes = [];
+    let cirugias = [];
+
+    if (idFicha) {
+      // Última medición (historial): la más reciente define altura/peso/nivel.
+      const [meds] = await conn.query(
+        `SELECT nivel_fisico, altura_cm, peso_kg
+           FROM mediciones
+          WHERE id_ficha = ?
+          ORDER BY fecha_medicion DESC, id_medicion DESC
+          LIMIT 1`,
+        [idFicha]
+      );
+      medicion = meds[0] || null;
+
+      const [ants] = await conn.query(
+        `SELECT a.nombre
+           FROM ficha_antecedente fa
+           INNER JOIN antecedente a ON a.id_antecedente = fa.id_antecedente
+          WHERE fa.id_ficha = ?`,
+        [idFicha]
+      );
+      antecedentes = ants.map((r) => r.nombre);
+
+      // dateStrings: los DATE llegan como 'YYYY-MM-DD' sin corrimiento por zona horaria.
+      const [cirs] = await conn.query(
+        {
+          sql: 'SELECT descripcion, fecha_cirugia, observaciones FROM cirugia WHERE id_ficha = ? ORDER BY fecha_cirugia',
+          dateStrings: true,
+        },
+        [idFicha]
+      );
+      cirugias = cirs.map((c) => ({
+        descripcion: c.descripcion || '',
+        fecha: c.fecha_cirugia || '',
+        observaciones: c.observaciones || '',
+      }));
+    }
+
+    const [prefs] = await conn.query(
+      'SELECT entorno, dias_semana, minutos_sesion FROM preferencia_entrenamiento WHERE id_cliente = ?',
+      [idCliente]
+    );
+
+    const [equips] = await conn.query(
+      `SELECT e.nombre
+         FROM cliente_equipamiento ce
+         INNER JOIN equipamiento e ON e.id_equipamiento = ce.id_equipamiento
+        WHERE ce.id_cliente = ?`,
+      [idCliente]
+    );
+
+    // La BD guarda un solo objetivo por cliente (clientes.id_objetivo).
+    const objetivo = fila.nombre_objetivo ? GOALS_INV[fila.nombre_objetivo] : null;
+
+    return {
+      sex: SEX_INV[fila.sexo] || 'otro',
+      heightCm: medicion ? Number(medicion.altura_cm) : null,
+      weightKg: medicion ? Number(medicion.peso_kg) : null,
+      level: medicion && LEVELS_INV[medicion.nivel_fisico] ? LEVELS_INV[medicion.nivel_fisico] : 'principiante',
+      goals: objetivo ? [objetivo] : [],
+      injuries: antecedentes,
+      injuriesText: fila.observacion_objetivo || '',
+      surgeries: cirugias,
+      environment: prefs.length && ENVIRONMENTS_INV[prefs[0].entorno] ? ENVIRONMENTS_INV[prefs[0].entorno] : 'gimnasio',
+      equipment: equips.map((r) => r.nombre),
+      daysPerWeek: prefs.length ? Number(prefs[0].dias_semana) : 3,
+      minutesPerSession: prefs.length ? Number(prefs[0].minutos_sesion) : 45,
+    };
+  } finally {
+    conn.release();
+  }
+};
+
 module.exports = {
   GOALS,
   LEVELS,
@@ -181,5 +291,6 @@ module.exports = {
   EQUIPMENT,
   MINUTES_ALLOWED,
   hasProfile,
+  getProfileByUser,
   saveProfile,
 };

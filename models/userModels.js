@@ -8,6 +8,11 @@ const findByEmail = async (correo) => {
   return rows[0] || null;
 };
 
+const findById = async (id_usuario) => {
+  const [rows] = await pool.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id_usuario]);
+  return rows[0] || null;
+};
+
 const existsByEmail = async (correo) => {
   const [rows] = await pool.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [correo]);
   return rows.length > 0;
@@ -55,6 +60,7 @@ module.exports = {
   ID_ROL_ADMIN,
   ID_ROL_CLIENTE,
   findByEmail,
+  findById,
   existsByEmail,
   existsByUsername,
   existsByPhone,

@@ -163,6 +163,15 @@ const saveProfile = async (idUsuario, data) => {
   }
 };
 
+/**
+ * Devuelve el id_cliente del usuario, o null si aún no completó su perfil.
+ * Una fila en `clientes` equivale a "wizard completado" (id_usuario es UNIQUE).
+ */
+const hasProfile = async (idUsuario) => {
+  const [rows] = await pool.query('SELECT id_cliente FROM clientes WHERE id_usuario = ?', [idUsuario]);
+  return rows.length ? rows[0].id_cliente : null;
+};
+
 module.exports = {
   GOALS,
   LEVELS,
@@ -171,5 +180,6 @@ module.exports = {
   INJURIES,
   EQUIPMENT,
   MINUTES_ALLOWED,
+  hasProfile,
   saveProfile,
 };

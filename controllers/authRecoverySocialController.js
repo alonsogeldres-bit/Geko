@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
+const ProfileModel = require('../models/profileModel');
 const sso = require('../config/sso');
 const mailer = require('../config/mailer');
 const recovery = require('../config/recovery');
@@ -150,7 +151,8 @@ const googleCallback = async (req, res) => {
     const user = await UserModel.findByEmail(profile.correo);
 
     if (user) {
-      return startSession(req, res, user, '/profile');
+      const idCliente = await ProfileModel.hasProfile(user.id_usuario);
+      return startSession(req, res, user, idCliente ? '/dashboard' : '/profile');
     }
 
     req.session.oauthRegistration = {

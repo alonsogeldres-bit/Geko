@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (successEl) {
               successEl.textContent = r.data.message;
             }
-            window.location.href = "/profile";
+            window.location.href = (r.data && r.data.redirect) || "/profile";
             return;
           }
 

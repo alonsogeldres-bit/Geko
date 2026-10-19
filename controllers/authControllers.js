@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
+const ProfileModel = require('../models/profileModel');
 const sso = require('../config/sso');
 const { sendWelcomeEmail } = require('../config/welcomeMail');
 
@@ -10,7 +11,20 @@ const showRegister = (req, res) => {
   res.render('post/register');
 };
 
-const showProfile = (req, res) => res.render('post/profile', { usuario: req.session.usuario });
+const showProfile = async (req, res) => {
+  try {
+    // ?edit=1 fuerza el wizard aunque el perfil ya exista (menú "Mi perfil").
+    if (req.query.edit === undefined) {
+      const idCliente = await ProfileModel.hasProfile(req.session.usuario.id_usuario);
+      if (idCliente) return res.redirect('/dashboard');
+    }
+    res.render('post/profile', { usuario: req.session.usuario });
+  } catch (err) {
+    // Si falla la consulta no bloqueamos al usuario: mostramos el wizard.
+    console.error('[profile] error al verificar el perfil:', err.message);
+    res.render('post/profile', { usuario: req.session.usuario });
+  }
+};
 
 const showTerminos = (req, res) => res.render('post/terms');
 
@@ -55,6 +69,10 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos.' });
     }
 
+    // Si ya completó el wizard (existe fila en clientes), el destino es el dashboard.
+    const idCliente = await ProfileModel.hasProfile(usuario.id_usuario);
+    const destino = idCliente ? '/dashboard' : '/profile';
+
     req.session.regenerate((err) => {
       if (err) {
         console.error(err);
@@ -67,7 +85,7 @@ const login = async (req, res) => {
         nombre: usuario.nombre
       };
 
-      res.json({ success: true, message: 'Inicio de sesión exitoso.' });
+      res.json({ success: true, message: 'Inicio de sesión exitoso.', redirect: destino });
     });
   } catch (err) {
     console.error(err);

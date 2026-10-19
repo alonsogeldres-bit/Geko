@@ -13,6 +13,10 @@
 | R1 | Login repetía el wizard de perfil aunque estuviera completado | commit `f1af5ef` — doc `CAMBIOS-PERFIL-COMPLETADO.md` |
 | R2 | Enlaces de recuperación no morían al usarse | commit `879b6f1` — doc `CAMBIOS-ENLACE-UN-SOLO-USO.md` |
 | R3 | Edición de perfil sin precarga de datos (era E20) | commit `88b8768` — nueva ruta `/configuracion` (lee con `getProfileByUser`, guarda vía `POST /profile`) — doc `CAMBIOS-CONFIGURACION-PERFIL.md` |
+| R4 | `dashboardController.js` huérfano (era E12) | commit `57396a5` — reconectado desde `routes/DashboardRoutes.js`; ahora arma el contexto y renderiza `post/dashboard` — doc `CAMBIOS-DASHBOARD-DATOS-REALES.md` |
+| R5 | `public/js/dashboard.js` duplicado y muerto (era E13) | commit `57396a5` — un solo bloque, con los IDs reales de la vista (`<details id="user-menu">`); la vista lo carga con `<script src>` |
+| R6 | `postControllers.js` con código muerto (era E14) | commit `57396a5` — fuera el `require` sin usar y las funciones `login`/`profile` |
+| R7 | Vista `views/post/index.ejs` vacía (era E15, parte 1) | commit `c6538ce` — eliminada. **La parte 2 de E15 sigue pendiente**: `views/post/paywall.ejs` |
 
 ---
 
@@ -92,23 +96,19 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 - **Arreglo sugerido:** capturar el `ER_DUP_ENTRY` (código `err.code === 'ER_DUP_ENTRY'` de mysql2) en el `catch` y responder 409 con mensaje claro.
 - **Esfuerzo:** 15 minutos.
 
+#### E22 — El perfil se lee en dos modelos distintos
+- **Ubicación:** `models/profileModel.js` → `getProfileByUser` (commit `88b8768`) y `models/dashboardModel.js` → `getPerfil` (commit `57396a5`).
+- **Qué pasa:** los dos leen las mismas 6 tablas (`clientes`, `objetivo`, `preferencia_entrenamiento`, `mediciones`, `ficha_antecedente`, `cliente_equipamiento`) y devuelven formatos distintos: `getProfileByUser` devuelve el **formato del wizard** (`level:'intermedio'`, `environment:'gimnasio'`, `goals:['ganar_musculo']`), `getPerfil` el **formato de pantalla** (`nivelFisico:'Medio'`, `entorno:'Gimnasio'`, `objetivo:'Ganar músculo'`). Hoy muestran lo mismo, pero si se cambia el modelo del perfil en uno solo, el dashboard y `/configuracion` pueden quedar mostrando datos distintos sin que nada falle.
+- **Por qué no se unificó ya:** `profileModel.js` se había recién mergeado desde `origin/main`; tocarlo en el mismo commit aumentaba el riesgo de conflicto en el siguiente `pull`. Se dejó documentado en `CAMBIOS-DASHBOARD-DATOS-REALES.md` (sección 7).
+- **Arreglo sugerido:** extraer un lector único (por ejemplo `profileModel.getPerfilCrudo`) y que los dos consumidores apliquen su propia transformación encima. Así cada vista conserva su formato sin duplicar el SQL.
+- **Esfuerzo:** 30 minutos.
+
 ### 🟢 Severidad BAJA (código muerto y limpieza)
 
-#### E12 — `dashboardController.js` huérfano
-- **Ubicación:** `controllers/dashboardController.js` — renderiza `dashboard/index` (**vista inexistente**) y ninguna ruta lo usa (`routes/DashboardRoutes.js` renderiza `post/dashboard` directamente).
-- **Arreglo:** borrarlo, o reconectarlo desde la ruta (decidir cuál de las dos formas queda). **Nota:** al conectarlo, `res.render('post/dashboard', { usuario })` necesita recibir `usuario` desde el controlador.
-
-#### E13 — `public/js/dashboard.js` duplicado y muerto
-- **Ubicación:** `public/js/dashboard.js` — el mismo IIFE está **copiado dos veces**; busca IDs (`avatar-btn`, `user-dropdown`) que no existen en `dashboard.ejs` (usa `<details>`); la vista ni lo referencia (tiene su propio script inline que sí funciona).
-- **Arreglo:** borrar el archivo, o bien unificar: mover el script inline de `dashboard.ejs` a este archivo (referenciándolo con `<script src>`) y dejarlo una sola vez.
-
-#### E14 — `postControllers.js` con código muerto
-- **Ubicación:** `controllers/postControllers.js` — hace `require('../config/db')` sin usarlo y define `login`/`profile` que ninguna ruta llama (solo se usa `splash`).
-- **Arreglo:** quitar el require y las funciones no usadas.
-
-#### E15 — Vistas huérfanas
-- **Ubicación:** `views/post/paywall.ejs` (sin ruta que la renderice, sin `<link>` a su `paywall.css`, links a `/registro` y `/premium` inexistentes) y `views/post/index.ejs` (HTML vacío).
-- **Arreglo:** borrar ambas (o guardar el paywall como borrador comentando en este doc que existe).
+#### E15 — Vistas huérfanas (parte 1 resuelta)
+- **Ubicación:** `views/post/paywall.ejs` (sin ruta que la renderice, sin `<link>` a su `paywall.css`, links a `/registro` y `/premium` inexistentes).
+- **Estado:** `views/post/index.ejs` **ya se eliminó** (commit `c6538ce`, ver R7). Queda pendiente decidir el destino de `paywall.ejs`.
+- **Arreglo:** borrarla (o guardarla como borrador, comentando en este doc que existe).
 
 #### E16 — Dependencia `sesion@0.0.0` sin usar
 - **Ubicación:** `package.json` → `"sesion": "^0.0.0"`
@@ -139,10 +139,11 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 1. **E1** (rompe instalaciones nuevas) → 5 min
 2. **E2** (error en consola en cada carga) → 5 min
 3. **E3** (filtrado de usuarios) → 15 min
-4. **E10, E14, E15, E16** (limpieza rápida, todo borrar) → 20 min en total
+4. **E10, E15, E16** (limpieza rápida, todo borrar) → 20 min en total
 5. **E4, E5** (seguridad seria) → media tarde
 6. **E6, E7** (preparar producción) → 1.5 h
 7. **E8, E11** (consistencia) → 30 min
-8. **E9, E12, E13** (dashboard/docs) → 1-2 h
+8. **E9** (dashboard/docs) → 1-2 h
 9. **E17, E18, E19** (documentación) → 30 min
 10. **E21** (tests, para que lo anterior no se rompa de nuevo) → ongoing
+11. **E22** (unificar la lectura del perfil) → 30 min, cuando no haya merges en curso

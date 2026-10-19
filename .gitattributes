@@ -1,0 +1,21 @@
+# Normaliza los finales de linea en todo el repositorio.
+#
+# Sin esto, cada persona puede tener core.autocrlf distinto y el mismo
+# archivo aparece como "modificado" completo aunque nadie lo haya tocado.
+# Eso genera conflictos falsos y diffs con ruido.
+#
+# eol=lf  -> en el disco (working tree) siempre LF
+# text     -> en el repositorio (índice) siempre LF
+# binary   -> los .png y .jpg no se tocan
+#
+# GitHub lo recomienda para proyectos con colaboradores en Windows y macOS.
+
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

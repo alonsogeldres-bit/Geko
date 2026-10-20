@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Planes</title>
+  <link rel="stylesheet" href="/css/paywall.css" />
+</head>
+<body>
+  <div class="planes-wrap">
+
+    <header class="planes-nav">
+      <a href="/dashboard" class="planes-brand">
+        <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
+        <span>GEKO</span>
+      </a>
+      <a href="/dashboard" class="planes-back">Volver al dashboard</a>
+    </header>
+
+    <div class="planes-head">
+      <h1>Elige tu plan</h1>
+      <p>Empieza gratis. Mejora cuando quieras.</p>
+    </div>
+
+    <div id="planes-alert" class="planes-alert" role="alert" hidden>
+      <span class="planes-alert-icon" aria-hidden="true">!</span>
+      <span class="planes-alert-msg" id="planes-alert-msg"></span>
+    </div>
+
+    <main class="planes">
+      <% planes.forEach(function (plan) {
+           var esGratis = plan.nombre === 'Gratis';
+           var esActual = suscripcion && suscripcion.nombre === plan.nombre;
+      %>
+        <section class="plan <%= esGratis ? 'plan-gratis' : 'plan-premium' %>">
+          <% if (esActual) { %><span class="plan-badge">Tu plan actual</span><% } %>
+
+          <h2><%= plan.nombre %></h2>
+          <p class="plan-precio">
+            <%= plan.valor > 0 ? '$' + plan.valor.toLocaleString('es-CL') + ' / mes' : 'Gratis' %>
+          </p>
+
+          <ul>
+            <% if (esGratis) { %>
+              <li>Perfil de entrenamiento personalizado</li>
+              <li>Sugerencia de rutina del día</li>
+              <li>Progreso y racha de actividad</li>
+            <% } else { %>
+              <li>Todo lo del plan Gratis</li>
+              <li>Rutinas adaptadas con IA (pronto)</li>
+              <li>Soporte prioritario (pronto)</li>
+            <% } %>
+          </ul>
+
+          <% if (esGratis) { %>
+            <% if (esActual) { %>
+              <button type="button" class="btn-obtener" disabled>Plan activo</button>
+            <% } else { %>
+              <button type="button" class="btn-obtener" id="btn-gratis">Continuar con el plan Gratis</button>
+            <% } %>
+          <% } else { %>
+            <button type="button" class="btn-obtener" disabled>Pronto</button>
+          <% } %>
+        </section>
+      <% }) %>
+
+      <% if (!planes.length) { %>
+        <p class="planes-empty">Todavía no hay planes configurados. Inténtalo más tarde.</p>
+      <% } %>
+    </main>
+
+    <p class="planes-note">El plan Gratis no requiere datos de pago.</p>
+  </div>
+
+  <script src="/js/planes.js" defer></script>
+</body>
+</html>

@@ -17,6 +17,7 @@
 | R5 | `public/js/dashboard.js` duplicado y muerto (era E13) | commit `57396a5` — un solo bloque, con los IDs reales de la vista (`<details id="user-menu">`); la vista lo carga con `<script src>` |
 | R6 | `postControllers.js` con código muerto (era E14) | commit `57396a5` — fuera el `require` sin usar y las funciones `login`/`profile` |
 | R7 | Vista `views/post/index.ejs` vacía (era E15, parte 1) | commit `c6538ce` — eliminada. **La parte 2 de E15 sigue pendiente**: `views/post/paywall.ejs` |
+| R8 | Vista `views/post/paywall.ejs` huérfana (era E15, parte 2) | HU-013 — reemplazada por `views/post/planes.ejs` con ruta real (`GET /planes`); se eliminó `paywall.ejs` y sus links rotos (`/registro`, `/premium`) |
 
 ---
 
@@ -103,12 +104,19 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 - **Arreglo sugerido:** extraer un lector único (por ejemplo `profileModel.getPerfilCrudo`) y que los dos consumidores apliquen su propia transformación encima. Así cada vista conserva su formato sin duplicar el SQL.
 - **Esfuerzo:** 30 minutos.
 
-### 🟢 Severidad BAJA (código muerto y limpieza)
+#### E23 — HU-013: trigger diferido de la pantalla de planes desactivado
+- **Ubicación:** `models/planModel.js` → `debeMostrarPlanes`
+- **Qué pasa:** por decisión de producto, `/planes` no se fuerza; el usuario entra directo al dashboard y el plan Gratis es implícito. El hook `debeMostrarPlanes` devuelve `false` (trigger apagado).
+- **Arreglo sugerido:** definir el umbral y activar el redirect (tiempo desde `clientes.creado_en`, o primera fila en `sesion_entrenamiento` cuando exista EP-011).
+- **Esfuerzo:** 30 minutos una vez definido el umbral.
 
-#### E15 — Vistas huérfanas (parte 1 resuelta)
-- **Ubicación:** `views/post/paywall.ejs` (sin ruta que la renderice, sin `<link>` a su `paywall.css`, links a `/registro` y `/premium` inexistentes).
-- **Estado:** `views/post/index.ejs` **ya se eliminó** (commit `c6538ce`, ver R7). Queda pendiente decidir el destino de `paywall.ejs`.
-- **Arreglo:** borrarla (o guardarla como borrador, comentando en este doc que existe).
+#### E24 — HU-013 CA3: gating de funciones de pago sin aplicar
+- **Ubicación:** `middlewares/planMiddleware.js` → `requirePaidPlan`
+- **Qué pasa:** el middleware y el `GET /planes` existen, pero ninguna función está marcada como Premium (las rutinas IA están pendientes), así que CA3 no es demostrable con una función real.
+- **Arreglo sugerido:** decidir la función exclusiva (rutinas IA o progreso avanzado) y aplicarla con `requirePaidPlan`. El cobro real es EP-008 (Flow o Mercado Pago en Chile).
+- **Esfuerzo:** 30 minutos al aplicarla; EP-008 por separado.
+
+### 🟢 Severidad BAJA (código muerto y limpieza)
 
 #### E16 — Dependencia `sesion@0.0.0` sin usar
 - **Ubicación:** `package.json` → `"sesion": "^0.0.0"`

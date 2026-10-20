@@ -11,6 +11,7 @@ const dashboardRoutes = require('./routes/DashboardRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes');
+const planRoutes = require('./routes/planRoutes');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/entrenamiento', trainingRoutes);
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 app.use('/', profileRoutes);
+app.use('/', planRoutes);
 
 // Levantar el servidor
 app.listen(port, () => {

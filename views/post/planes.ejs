@@ -30,9 +30,10 @@
     <main class="planes">
       <% planes.forEach(function (plan) {
            var esGratis = plan.nombre === 'Gratis';
+           var esPremium = plan.valor > 0;
            var esActual = suscripcion && suscripcion.nombre === plan.nombre;
       %>
-        <section class="plan <%= esGratis ? 'plan-gratis' : 'plan-premium' %>">
+        <section class="plan <%= esPremium ? 'plan-premium' : 'plan-gratis' %>">
           <% if (esActual) { %><span class="plan-badge">Tu plan actual</span><% } %>
 
           <h2><%= plan.nombre %></h2>
@@ -52,14 +53,19 @@
             <% } %>
           </ul>
 
-          <% if (esGratis) { %>
-            <% if (esActual) { %>
-              <button type="button" class="btn-obtener" disabled>Plan activo</button>
-            <% } else { %>
-              <button type="button" class="btn-obtener" id="btn-gratis">Continuar con el plan Gratis</button>
-            <% } %>
+          <% if (esActual) { %>
+            <button type="button" class="btn-obtener" disabled>Plan activo</button>
+          <% } else if (esPremium) { %>
+            <button type="button"
+                    class="btn-obtener"
+                    id="btn-premium"
+                    data-plan-id="<%= plan.id %>"
+                    data-plan-nombre="<%= plan.nombre %>"
+                    data-plan-precio="$<%= plan.valor.toLocaleString('es-CL') %> / mes">
+              Elegir Premium
+            </button>
           <% } else { %>
-            <button type="button" class="btn-obtener" disabled>Pronto</button>
+            <button type="button" class="btn-obtener" id="btn-gratis">Continuar con el plan Gratis</button>
           <% } %>
         </section>
       <% }) %>
@@ -71,6 +77,8 @@
 
     <p class="planes-note">El plan Gratis no requiere datos de pago.</p>
   </div>
+
+  <%- include('../partials/paywall_modal') %>
 
   <script src="/js/planes.js" defer></script>
 </body>

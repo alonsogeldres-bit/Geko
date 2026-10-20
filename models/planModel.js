@@ -39,6 +39,119 @@ const getPlanByName = async (nombre) => {
   return { id: rows[0].id_tipo_plan, nombre: rows[0].nombre_plan, valor: Number(rows[0].valor) };
 };
 
+/** Un plan por id, o null. */
+const getPlanById = async (id) => {
+  const [rows] = await pool.query(
+    'SELECT id_tipo_plan, nombre_plan, valor FROM tipo_plan WHERE id_tipo_plan = ?',
+    [id]
+  );
+  if (!rows.length) return null;
+  return { id: rows[0].id_tipo_plan, nombre: rows[0].nombre_plan, valor: Number(rows[0].valor) };
+};
+
+/** Suscripción por id (cualquier estado), o null. */
+const getSubscriptionById = async (idSuscripcion) => {
+  const [rows] = await pool.query(
+    'SELECT id_suscripcion, id_cliente, id_tipo_plan, estado FROM suscripcion WHERE id_suscripcion = ?',
+    [idSuscripcion]
+  );
+  return rows.length ? rows[0] : null;
+};
+
+/** Suscripción pendiente (en checkout) de un plan, o null. */
+const getPendingSubscription = async (idCliente, idPlan) => {
+  const [rows] = await pool.query(
+    `SELECT id_suscripcion, id_tipo_plan, estado
+       FROM suscripcion
+      WHERE id_cliente = ? AND id_tipo_plan = ? AND estado = 'Pendiente'
+      ORDER BY id_suscripcion DESC
+      LIMIT 1`,
+    [idCliente, idPlan]
+  );
+  return rows.length ? rows[0] : null;
+};
+
+/**
+ * Crea la suscripción pendiente + su pago pendiente (transaccional).
+ * Idempotente: si ya existe un pendiente del mismo plan lo reutiliza.
+ * Requiere la migración sql/migracion-plan-premium.sql (estado 'Pendiente').
+ */
+const createPendingSubscription = async (idCliente, idPlan, monto) => {
+  const existente = await getPendingSubscription(idCliente, idPlan);
+  if (existente) return { id: existente.id_suscripcion };
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const [result] = await conn.query(
+      `INSERT INTO suscripcion (id_cliente, id_tipo_plan, fecha_inicio, fecha_termino, estado)
+       VALUES (?, ?, NULL, NULL, 'Pendiente')`,
+      [idCliente, idPlan]
+    );
+    const idSuscripcion = result.insertId;
+
+    await conn.query(
+      `INSERT INTO pago (id_suscripcion, monto, fecha_pago, estado)
+       VALUES (?, ?, CURDATE(), 'Pendiente')`,
+      [idSuscripcion, monto]
+    );
+
+    await conn.commit();
+    return { id: idSuscripcion };
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+};
+
+/**
+ * Activa la suscripción una vez aprobado el pago (transaccional).
+ * Idempotente: solo activa si está 'Pendiente'; si ya está activa no
+ * extiende fechas (evita que reintentos de webhook alarguen el plan).
+ * Cancela otras suscripciones activas del mismo cliente.
+ */
+const activateSubscription = async (idSuscripcion, idCliente) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const [result] = await conn.query(
+      `UPDATE suscripcion
+          SET estado = 'Activa',
+              fecha_inicio = CURDATE(),
+              fecha_termino = DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
+        WHERE id_suscripcion = ? AND estado = 'Pendiente'`,
+      [idSuscripcion]
+    );
+
+    if (result.affectedRows > 0) {
+      await conn.query(
+        `UPDATE pago SET estado = 'Pagado'
+          WHERE id_suscripcion = ? AND estado = 'Pendiente'`,
+        [idSuscripcion]
+      );
+      if (idCliente) {
+        await conn.query(
+          `UPDATE suscripcion SET estado = 'Cancelada'
+            WHERE id_cliente = ? AND id_suscripcion <> ? AND estado = 'Activa'`,
+          [idCliente, idSuscripcion]
+        );
+      }
+    }
+
+    await conn.commit();
+    return result.affectedRows > 0;
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+};
+
 /** Suscripción activa (vigente) del cliente, o null. */
 const getActiveSubscription = async (idCliente) => {
   const [rows] = await pool.query(
@@ -121,6 +234,11 @@ module.exports = {
   getClienteByUser,
   listPlans,
   getPlanByName,
+  getPlanById,
+  getSubscriptionById,
+  getPendingSubscription,
+  createPendingSubscription,
+  activateSubscription,
   getActiveSubscription,
   getEffectivePlan,
   activateFree,

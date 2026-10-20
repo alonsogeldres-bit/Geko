@@ -1,0 +1,31 @@
+<!-- ===========================================
+     MODAL PAYWALL - Confirmación de suscripción Premium
+     Se incluye desde la vista de planes con la directriz
+     include de EJS apuntando a ../partials/paywall_modal
+     El contenido lo rellena public/js/planes.js al abrirlo.
+     =========================================== -->
+
+<div class="paywall-overlay" id="paywall-modal" role="dialog" aria-modal="true" aria-labelledby="paywall-title" hidden>
+  <div class="paywall-card">
+    <button type="button" class="paywall-close" id="paywall-close" aria-label="Cerrar">&times;</button>
+
+    <span class="paywall-kicker">Confirmar suscripción</span>
+    <h2 id="paywall-title">Plan <span id="paywall-plan-nombre">Premium</span></h2>
+    <p class="paywall-precio"><span id="paywall-plan-precio"></span></p>
+
+    <ul class="paywall-beneficios">
+      <li>Todo lo del plan Gratis</li>
+      <li>Rutinas adaptadas con IA (pronto)</li>
+      <li>Soporte prioritario (pronto)</li>
+    </ul>
+
+    <div class="paywall-alert" id="paywall-alert" role="alert" hidden>
+      <span class="paywall-alert-icon" aria-hidden="true">!</span>
+      <span class="paywall-alert-msg" id="paywall-alert-msg"></span>
+    </div>
+
+    <button type="button" class="btn-obtener" id="paywall-confirm">Confirmar suscripción</button>
+
+    <p class="paywall-note">Serás redirigido a Mercado Pago para completar el pago de forma segura.</p>
+  </div>
+</div>

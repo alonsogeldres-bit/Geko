@@ -159,7 +159,7 @@ INSERT INTO equipamiento (nombre) VALUES
 		id_tipo_plan INT NOT NULL,
 		fecha_inicio DATE,
 		fecha_termino DATE,
-		estado ENUM('Activa', 'Vencida', 'Cancelada') NOT NULL DEFAULT 'Activa',
+		estado ENUM('Activa', 'Vencida', 'Cancelada', 'Pendiente') NOT NULL DEFAULT 'Activa',
 		creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
 		actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE RESTRICT,

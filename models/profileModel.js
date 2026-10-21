@@ -281,11 +281,16 @@ const getProfileByUser = async (idUsuario) => {
       weightKg: medicion ? Number(medicion.peso_kg) : null,
       level: medicion && LEVELS_INV[medicion.nivel_fisico] ? LEVELS_INV[medicion.nivel_fisico] : 'principiante',
       goals: objetivo ? [objetivo] : [],
-      injuries: antecedentes,
+      // "Ninguna"/"Ninguno" no se guardan: equivalen a cero filas en la BD.
+      // Si no hay elementos, la única selección posible que el usuario hizo
+      // fue esa, y hay que devolverla explícita para que el formulario la
+      // muestre marcada (si no, el chip aparece sin seleccionar y el
+      // guardado se bloquea con "Selecciona el equipamiento").
+      injuries: antecedentes.length ? antecedentes : ['Ninguna'],
       injuriesText: fila.observacion_objetivo || '',
       surgeries: cirugias,
       environment: prefs.length && ENVIRONMENTS_INV[prefs[0].entorno] ? ENVIRONMENTS_INV[prefs[0].entorno] : 'gimnasio',
-      equipment: equips.map((r) => r.nombre),
+      equipment: equips.length ? equips.map((r) => r.nombre) : ['Ninguno'],
       days,                       // ['Lunes', 'Jueves']
       daysPerWeek: days.length,   // compatibilidad con dashboard / generador de rutina
       minutesPerSession: prefs.length ? Number(prefs[0].minutos_sesion) : 45,

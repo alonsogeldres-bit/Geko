@@ -15,7 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
     weightKg: inicial.weightKg != null ? String(inicial.weightKg) : "",
     level: inicial.level || "principiante",
     goals: Array.isArray(inicial.goals) ? inicial.goals.slice() : [],
-    injuries: Array.isArray(inicial.injuries) ? inicial.injuries.slice() : [],
+    injuries: Array.isArray(inicial.injuries) && inicial.injuries.length
+      ? inicial.injuries.slice()
+      : ["Ninguna"],
     injuriesText: inicial.injuriesText || "",
     hasSurgeries: Array.isArray(inicial.surgeries) && inicial.surgeries.length ? "si" : "no",
     surgeries: Array.isArray(inicial.surgeries)
@@ -28,7 +30,9 @@ document.addEventListener("DOMContentLoaded", function () {
         })
       : [],
     environment: inicial.environment || "gimnasio",
-    equipment: Array.isArray(inicial.equipment) ? inicial.equipment.slice() : [],
+    equipment: Array.isArray(inicial.equipment) && inicial.equipment.length
+      ? inicial.equipment.slice()
+      : ["Ninguno"],
     days: Array.isArray(inicial.days) ? inicial.days.slice() : [],
     minutesPerSession: String(inicial.minutesPerSession || 45),
   };

@@ -1,6 +1,6 @@
 # Estado de errores del proyecto GEKO
 
-> **Fecha de corte:** 19-10-2026
+> **Fecha de corte:** 21-10-2026
 > **Propósito:** inventario único de errores conocidos, con su severidad, ubicación y arreglo sugerido. Sirve como backlog de deuda técnica: se puede ir tachando de a uno.
 > **Regla:** al arreglar un error, moverlo a la sección "Resueltos" con fecha y hash del commit.
 
@@ -18,6 +18,7 @@
 | R6 | `postControllers.js` con código muerto (era E14) | commit `57396a5` — fuera el `require` sin usar y las funciones `login`/`profile` |
 | R7 | Vista `views/post/index.ejs` vacía (era E15, parte 1) | commit `c6538ce` — eliminada. **La parte 2 de E15 sigue pendiente**: `views/post/paywall.ejs` |
 | R8 | Vista `views/post/paywall.ejs` huérfana (era E15, parte 2) | HU-013 — reemplazada por `views/post/planes.ejs` con ruta real (`GET /planes`); se eliminó `paywall.ejs` y sus links rotos (`/registro`, `/premium`) |
+| R9 | "Equipamiento: Ninguno" se perdía al volver a `/configuracion` (era E25) | pendiente de commit — `getProfileByUser` devuelve `['Ninguno']`/`['Ninguna']` cuando no hay filas + fallback en `configuracion.js` — doc `CAMBIOS-EQUIPAMIENTO-NINGUNO.md` |
 
 ---
 

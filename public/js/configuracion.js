@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
       : [],
     environment: inicial.environment || "gimnasio",
     equipment: Array.isArray(inicial.equipment) ? inicial.equipment.slice() : [],
-    daysPerWeek: String(inicial.daysPerWeek || 3),
+    days: Array.isArray(inicial.days) ? inicial.days.slice() : [],
     minutesPerSession: String(inicial.minutesPerSession || 45),
   };
 
@@ -92,10 +92,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Días de entrenamiento: selección múltiple, cada clic activa/desactiva el día.
+  // Se guardan por nombre ("Lunes", "Jueves"...), igual que en el wizard (/profile).
+  function setupDays() {
+    var group = document.querySelector('[data-group="days"]');
+    if (!group) return;
+    var buttons = group.querySelectorAll("button");
+
+    function paint(btn) {
+      var on = state.days.indexOf(btn.getAttribute("data-value")) !== -1;
+      btn.classList.toggle("active", on);
+    }
+
+    buttons.forEach(function (btn) {
+      paint(btn); // estado inicial (los días que ya venían guardados)
+      btn.addEventListener("click", function () {
+        var value = btn.getAttribute("data-value");
+        var idx = state.days.indexOf(value);
+        if (idx === -1) state.days.push(value);
+        else state.days.splice(idx, 1);
+        paint(btn);
+        var err = document.getElementById("err-days");
+        if (err) err.textContent = "";
+      });
+    });
+  }
+
   setupSingleSelect("sex", "sex");
   setupSingleSelect("level", "level");
   setupSingleSelect("environment", "environment");
-  setupSingleSelect("daysPerWeek", "daysPerWeek");
+  setupDays();
   setupSingleSelect("minutesPerSession", "minutesPerSession");
   setupMultiSelect("goals", "goals");
   setupMultiSelect("injuries", "injuries", "Ninguna");
@@ -124,7 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
   marcarSeleccionado("sex", state.sex);
   marcarSeleccionado("level", state.level);
   marcarSeleccionado("environment", state.environment);
-  marcarSeleccionado("daysPerWeek", state.daysPerWeek);
   marcarSeleccionado("minutesPerSession", state.minutesPerSession);
   marcarMulti("goals", state.goals);
   marcarMulti("injuries", state.injuries);
@@ -309,6 +334,11 @@ document.addEventListener("DOMContentLoaded", function () {
       valid = false;
     }
 
+    if (state.days.length === 0) {
+      document.getElementById("err-days").textContent = "Selecciona al menos un día.";
+      valid = false;
+    }
+
     if (state.hasSurgeries === "si") {
       var today = todayString();
       state.surgeries.forEach(function (surgery, i) {
@@ -375,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
           : [],
       environment: state.environment,
       equipment: state.equipment,
-      daysPerWeek: Number(state.daysPerWeek),
+      days: state.days.slice(),
       minutesPerSession: Number(state.minutesPerSession),
     };
 

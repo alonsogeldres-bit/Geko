@@ -20,7 +20,7 @@ const index = async (req, res) => {
 
     const sesiones = await DashboardModel.getSesiones(perfil.idCliente);
     const sugerencia = RoutineModel.construirSugerencia(perfil, alt);
-    const resumen = RoutineModel.calcularResumen(sesiones, perfil.diasSemana);
+    const resumen = RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana);
     const actividad = RoutineModel.construirActividad(sesiones);
 
     return res.render('post/dashboard', {

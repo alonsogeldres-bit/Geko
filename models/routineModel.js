@@ -76,6 +76,17 @@ const diasPlanificados = (diasSemana) => {
 };
 
 /**
+ * Convierte los días elegidos por el usuario ('Lunes','Jueves') en índices
+ * con lunes = 0. Si no hay días válidos, cae al plan por defecto (3 días).
+ */
+const indicesDeDias = (dias) => {
+  if (!Array.isArray(dias) || !dias.length) return diasPlanificados(3);
+  const set = new Set(dias.map((d) => String(d).trim()));
+  const indices = DIAS_SEMANA.map((d, i) => (set.has(d) ? i : -1)).filter((i) => i >= 0);
+  return indices.length ? indices : diasPlanificados(3);
+};
+
+/**
  * Sugerencia del día, construida con el perfil real del usuario.
  * `alt` rota entre las variantes del objetivo.
  */
@@ -103,9 +114,10 @@ const construirSugerencia = (perfil, alt = 0) => {
 };
 
 /** Racha actual, mejor racha, sesiones de la semana y estado de cada día. */
-const calcularResumen = (sesiones, diasSemana) => {
-  const meta = limitar(Number(diasSemana) || 3, 1, 7);
-  const plan = diasPlanificados(meta);
+const calcularResumen = (sesiones, diasElegidos, diasSemana) => {
+  const total = Array.isArray(diasElegidos) && diasElegidos.length ? diasElegidos.length : diasSemana;
+  const meta = limitar(Number(total) || 3, 1, 7);
+  const plan = indicesDeDias(diasElegidos);
 
   const fechas = new Set(sesiones.map((s) => aFechaISO(s.fecha)));
   const hoy = aFechaISO(new Date());
@@ -197,6 +209,7 @@ module.exports = {
   calcularResumen,
   construirActividad,
   diasPlanificados,
+  indicesDeDias,
   indiceHoy,
   aFechaISO,
 };

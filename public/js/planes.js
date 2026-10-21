@@ -176,11 +176,11 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Éxito: la pasarela de Mercado Pago se abre en la misma pestaña.
-        if (result.data.initPoint) {
-          btnConfirmar.textContent = "Redirigiendo a Mercado Pago...";
+        // Éxito: la página de pago de PayPal se abre en la misma pestaña.
+        if (result.data.payUrl) {
+          btnConfirmar.textContent = "Redirigiendo a PayPal...";
           btnConfirmar.disabled = true;
-          window.location.href = result.data.initPoint;
+          window.location.href = result.data.payUrl;
           return;
         }
 

@@ -15,7 +15,7 @@ router.post('/planes/premium', requireAuthApi, planController.startCheckout);
 // Retorno del navegador desde Mercado Pago (puede venir sin sesión).
 router.get('/planes/retorno', planController.retornoPago);
 
-// Notificación servidor-a-servidor de Mercado Pago (sin autenticación).
-router.post('/webhook/mercadopago', planController.recibirWebhook);
+// Notificación servidor-a-servidor de PayPal (sin autenticación).
+router.post('/webhook/paypal', planController.recibirWebhook);
 
 module.exports = router;

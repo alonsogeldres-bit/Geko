@@ -1,16 +1,5 @@
 const PlanModel = require('../models/planModel');
-const mp = require('../config/mercadopago');
-
-/* Estados de pago de Mercado Pago → mensajes de retorno. */
-const ESTADO_PAGO = {
-  approved: 'aprobado',
-  rejected: 'rechazado',
-  cancelled: 'cancelado',
-  pending: 'pendiente',
-  in_process: 'pendiente',
-  authorized: 'pendiente',
-  refunded: 'reembolsado',
-};
+const paypal = require('../config/paypal');
 
 /* GET /planes — muestra el catálogo y el plan actual (si tiene uno). */
 const showPlanes = async (req, res) => {
@@ -62,31 +51,61 @@ const chooseFree = async (req, res) => {
   }
 };
 
+/** Activa la suscripción a partir del custom_id traído por la orden de PayPal. */
+const activarDesdeOrden = async (orden) => {
+  const unidad = (orden.purchase_units && orden.purchase_units[0]) || {};
+  const idSuscripcion = Number(unidad.custom_id);
+
+  if (!Number.isInteger(idSuscripcion) || idSuscripcion <= 0) return;
+
+  const suscripcion = await PlanModel.getSubscriptionById(idSuscripcion);
+  if (suscripcion) {
+    await PlanModel.activateSubscription(idSuscripcion, suscripcion.id_cliente);
+  }
+};
+
 /**
- * Verifica el pago contra la API de Mercado Pago y, si está aprobado,
- * activa la suscripción. Devuelve el estado normalizado ('aprobado',
- * 'rechazado', 'pendiente', ...).
+ * Verifica la orden contra la API de PayPal (nunca se confía en los
+ * parámetros del navegador ni en el cuerpo del webhook).
+ *
+ * - Si la orden está APPROVED y `intentarCapturar` es true, la captura
+ *   (cobra) y activa la suscripción.
+ * - Si ya está COMPLETED, solo activa.
+ * Devuelve el estado normalizado para la URL (?pago=...).
  */
-const verificarYActivar = async (idPagoMp) => {
-  const pago = await mp.getPayment(idPagoMp);
-  if (!pago || !pago.external_reference) return 'pendiente';
+const verificarYActivar = async (orderId, intentarCapturar) => {
+  const consulta = await paypal.getOrder(orderId);
+  if (!consulta.ok || !consulta.datos) return 'pendiente';
 
-  const idSuscripcion = Number(pago.external_reference);
-  if (!Number.isInteger(idSuscripcion) || idSuscripcion <= 0) return 'pendiente';
+  const orden = consulta.datos;
 
-  if (pago.status === 'approved') {
-    const suscripcion = await PlanModel.getSubscriptionById(idSuscripcion);
-    if (suscripcion) {
-      await PlanModel.activateSubscription(idSuscripcion, suscripcion.id_cliente);
+  if (orden.status === 'APPROVED' && intentarCapturar) {
+    const captura = await paypal.captureOrder(orderId);
+    if (captura.ok && captura.datos && captura.datos.status === 'COMPLETED') {
+      await activarDesdeOrden(captura.datos);
+      return 'aprobado';
     }
+    // Puede fallar si ya fue capturada (otra pestaña, webhook): se reconsulta.
+    const reclamada = await paypal.getOrder(orderId);
+    if (reclamada.ok && reclamada.datos && reclamada.datos.status === 'COMPLETED') {
+      await activarDesdeOrden(reclamada.datos);
+      return 'aprobado';
+    }
+    return 'pendiente';
+  }
+
+  if (orden.status === 'COMPLETED') {
+    await activarDesdeOrden(orden);
     return 'aprobado';
   }
 
-  return ESTADO_PAGO[pago.status] || 'pendiente';
+  if (orden.status === 'VOIDED' || orden.status === 'CANCELLED') return 'cancelado';
+
+  return 'pendiente';
 };
 
-/* POST /planes/premium — crea la suscripción pendiente y la preferencia
-   de pago de Mercado Pago (Checkout Pro). Devuelve init_point. */
+/* POST /planes/premium — crea la suscripción pendiente y la orden de
+   pago de PayPal (Checkout Orders API v2). Devuelve payUrl. */
 const startCheckout = async (req, res) => {
   try {
     const idUsuario = req.session.usuario.id_usuario;
@@ -119,10 +138,11 @@ const startCheckout = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Plan no válido.' });
     }
 
-    if (!mp.isConfigured()) {
+    if (!paypal.isConfigured()) {
       return res.status(503).json({
         success: false,
-        message: 'Los pagos no están disponibles: falta configurar MP_ACCESS_TOKEN en el servidor.',
+        message:
+          'Los pagos no están disponibles: faltan PAYPAL_CLIENT_ID y PAYPAL_CLIENT_SECRET en el servidor.',
       });
     }
 
@@ -130,29 +150,37 @@ const startCheckout = async (req, res) => {
 
     // BASE_URL puede traer '/' final: se normaliza para no duplicar slash en las URLs.
     const baseUrl = (process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/+$/, '');
-    const creada = await mp.createCheckoutPreference({
-      items: [
+
+    // PayPal no soporta CLP: el monto se cobra en USD (configurable).
+    const montoUsd = (Number(process.env.PLAN_PREMIUM_USD) || 9.99).toFixed(2);
+
+    const creacion = await paypal.createOrder({
+      intent: 'CAPTURE',
+      purchase_units: [
         {
-          id: String(plan.id),
-          title: `Plan ${plan.nombre} - GEKO`,
-          quantity: 1,
-          unit_price: plan.valor,
-          currency_id: 'CLP',
+          amount: { currency_code: 'USD', value: montoUsd },
+          description: `Plan ${plan.nombre} - GEKO`,
+          custom_id: String(suscripcion.id),
         },
       ],
-      external_reference: String(suscripcion.id),
-      notification_url: `${baseUrl}/webhook/mercadopago`,
-      back_urls: {
-        success: `${baseUrl}/planes/retorno`,
-        failure: `${baseUrl}/planes/retorno`,
-        pending: `${baseUrl}/planes/retorno`,
+      application_context: {
+        brand_name: 'GEKO',
+        user_action: 'PAY_NOW',
+        return_url: `${baseUrl}/planes/retorno`,
+        cancel_url: `${baseUrl}/planes/retorno?cancel=1`,
       },
-      auto_return: 'approved',
-      statement_descriptor: 'GEKO',
-      metadata: { id_suscripcion: suscripcion.id },
     });
 
-    return res.json({ success: true, initPoint: creada.init_point });
+    if (!creacion.ok || !creacion.datos) {
+      throw new Error(`PayPal createOrder respondió ${creacion.status}`);
+    }
+
+    const linkAprobar = (creacion.datos.links || []).find((l) => l.rel === 'approve');
+    if (!linkAprobar) {
+      throw new Error('PayPal no devolvió el enlace de aprobación.');
+    }
+
+    return res.json({ success: true, payUrl: linkAprobar.href });
   } catch (err) {
     console.error('[planes] error al iniciar el checkout Premium:', err.message);
     return res.status(500).json({
@@ -162,18 +190,20 @@ const startCheckout = async (req, res) => {
   }
 };
 
-/* GET /planes/retorno — el usuario vuelve desde Mercado Pago.
-   Verifica el pago real y redirige a /planes con el resultado. */
+/* GET /planes/retorno — el usuario vuelve desde PayPal.
+   Verifica/captura la orden real y redirige a /planes con el resultado. */
 const retornoPago = async (req, res) => {
   try {
-    const idPagoMp = req.query.payment_id || req.query.collection_id;
-    const idSuscripcion = Number(req.query.external_reference);
-
-    if (!idPagoMp) {
-      return res.redirect(idSuscripcion ? '/planes?pago=cancelado' : '/planes');
+    if (req.query.cancel === '1') {
+      return res.redirect('/planes?pago=cancelado');
     }
 
-    const estado = await verificarYActivar(idPagoMp);
+    const orderId = req.query.token; // PayPal agrega ?token=ID_DE_ORDEN al volver
+    if (!orderId) {
+      return res.redirect('/planes?pago=cancelado');
+    }
+
+    const estado = await verificarYActivar(orderId, true);
     return res.redirect(`/planes?pago=${estado}`);
   } catch (err) {
     console.error('[planes] error al verificar el retorno de pago:', err.message);
@@ -181,21 +211,27 @@ const retornoPago = async (req, res) => {
   }
 };
 
-/* POST /webhook/mercadopago — notificación de Mercado Pago.
+/* POST /webhook/paypal — notificación de PayPal (evento de captura).
    Siempre responde 200; la verificación real es contra la API. */
 const recibirWebhook = async (req, res) => {
   try {
-    const tipo = (req.body && (req.body.type || req.body.topic)) || req.query.topic || req.query.type;
-    const idPago = (req.body && req.body.data && req.body.data.id) || req.query.id;
+    const evento = req.body && req.body.event_type;
+    const recurso = (req.body && req.body.resource) || {};
 
-    if (tipo === 'payment' && idPago) {
-      const estado = await verificarYActivar(idPago);
-      console.log(`[webhook] pago ${idPago} verificado: ${estado}`);
+    if (evento === 'PAYMENT.CAPTURE.COMPLETED') {
+      const ids = recurso.supplementary_data && recurso.supplementary_data.related_ids;
+      const orderId = ids && ids.order_id;
+
+      if (orderId) {
+        // No capturar de nuevo: el pago ya se hizo; solo verificar y activar.
+        const estado = await verificarYActivar(orderId, false);
+        console.log(`[webhook] orden ${orderId} verificada: ${estado}`);
+      }
     }
 
     res.sendStatus(200);
   } catch (err) {
-    console.error('[webhook] error al procesar la notificación de MP:', err.message);
+    console.error('[webhook] error al procesar la notificación de PayPal:', err.message);
     // Responder 200 evita reintentos en bucle; el retorno del navegador
     // (/planes/retorno) vuelve a verificar el estado real del pago.
     res.sendStatus(200);

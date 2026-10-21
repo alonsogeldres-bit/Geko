@@ -17,7 +17,6 @@
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
-    "mercadopago": "^3.6.1",
     "mysql2": "^3.24.4",
     "nodemailer": "^10.0.15",
     "sesion": "^0.0.0"

@@ -76,4 +76,47 @@ const getOrder = (orderId) => pedir('GET', `/v2/checkout/orders/${orderId}`);
 /** Captura (cobra) una orden aprobada. */
 const captureOrder = (orderId) => pedir('POST', `/v2/checkout/orders/${orderId}/capture`, {});
 
-module.exports = { isConfigured, createOrder, getOrder, captureOrder };
+/**
+ * Verifica la firma de un webhook de PayPal contra su API oficial.
+ * Requiere PAYPAL_WEBHOOK_ID en .env (se obtiene al crear el webhook
+ * en el panel de desarrolladores de PayPal).
+ *
+ * Devuelve { configured, valid, motivo }.
+ * - `configured: false` → no hay PAYPAL_WEBHOOK_ID; el llamador decide
+ *   si confía en la verificación indirecta (reconsultar la orden).
+ */
+const verifyWebhookSignature = async (headers = {}, evento = {}) => {
+  const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+  if (!webhookId) {
+    return { configured: false, valid: false, motivo: 'PAYPAL_WEBHOOK_ID no configurado' };
+  }
+
+  if (!isConfigured()) {
+    return { configured: true, valid: false, motivo: 'Credenciales de PayPal no configuradas' };
+  }
+
+  const respuesta = await pedir('POST', '/v1/notifications/verify-webhook-signature', {
+    auth_algo: headers['paypal-auth-algo'],
+    cert_url: headers['paypal-cert-url'],
+    transmission_id: headers['paypal-transmission-id'],
+    transmission_sig: headers['paypal-transmission-sig'],
+    transmission_time: headers['paypal-transmission-time'],
+    webhook_id: webhookId,
+    webhook_event: evento,
+  });
+
+  const estado = respuesta.datos && respuesta.datos.verification_status;
+  return {
+    configured: true,
+    valid: Boolean(respuesta.ok && estado === 'SUCCESS'),
+    motivo: estado || `HTTP ${respuesta.status}`,
+  };
+};
+
+module.exports = {
+  isConfigured,
+  createOrder,
+  getOrder,
+  captureOrder,
+  verifyWebhookSignature,
+};

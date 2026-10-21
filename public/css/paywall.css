@@ -92,6 +92,21 @@ body {
   border-color: rgba(109, 255, 166, 0.45);
 }
 
+.planes-alert[data-variant="pending"] {
+  background: rgba(255, 200, 90, 0.12);
+  border-color: rgba(255, 200, 90, 0.4);
+}
+
+.planes-estado {
+  margin-top: 10px;
+  color: var(--texto-suave);
+  font-size: 0.98rem;
+}
+
+.planes-estado strong {
+  color: var(--texto);
+}
+
 .planes-alert[hidden] { display: none; }
 
 .planes-alert-icon {
@@ -151,6 +166,14 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--verde-claro);
+}
+
+.plan-precio-usd {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--texto-suave);
 }
 
 /* Lista de características */

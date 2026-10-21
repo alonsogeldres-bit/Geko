@@ -17,10 +17,46 @@
       <a href="/dashboard" class="planes-back">Volver al dashboard</a>
     </header>
 
+    <%
+      // Defensivo: si el controlador en memoria aún no envía estas variables.
+      var planes = typeof planes !== 'undefined' && Array.isArray(planes) ? planes : [];
+      var suscripcion = typeof suscripcion !== 'undefined' ? suscripcion : null;
+      var pendiente = typeof pendiente !== 'undefined' ? pendiente : null;
+
+      function fmtFecha(valor) {
+        if (!valor) return null;
+        var fecha = valor instanceof Date ? valor : new Date(String(valor) + 'T00:00:00');
+        if (isNaN(fecha.getTime())) return null;
+        return fecha.toLocaleDateString('es-CL', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+    %>
+
     <div class="planes-head">
       <h1>Elige tu plan</h1>
       <p>Empieza gratis. Mejora cuando quieras.</p>
+
+      <% if (typeof suscripcion !== 'undefined' && suscripcion) { %>
+        <p class="planes-estado">
+          Plan <strong><%= suscripcion.nombre %></strong> activo<% if (suscripcion.fechaTermino) { %>
+          hasta el <strong><%= fmtFecha(suscripcion.fechaTermino) %></strong><% } %>.
+          <% if (suscripcion.valor > 0) { %>Renueva antes de esa fecha para mantener el acceso.<% } %>
+        </p>
+      <% } %>
     </div>
+
+    <% if (typeof pendiente !== 'undefined' && pendiente) { %>
+      <div class="planes-alert" data-variant="pending" role="status">
+        <span class="planes-alert-icon" aria-hidden="true">!</span>
+        <span class="planes-alert-msg">
+          Tienes un pago pendiente para el plan <strong><%= pendiente.nombre %></strong>.
+          Si ya pagaste, recarga la página en unos segundos.
+        </span>
+      </div>
+    <% } %>
 
     <div id="planes-alert" class="planes-alert" role="alert" hidden>
       <span class="planes-alert-icon" aria-hidden="true">!</span>
@@ -39,6 +75,9 @@
           <h2><%= plan.nombre %></h2>
           <p class="plan-precio">
             <%= plan.valor > 0 ? '$' + plan.valor.toLocaleString('es-CL') + ' / mes' : 'Gratis' %>
+            <% if (plan.precioUsd > 0) { %>
+              <span class="plan-precio-usd">Se cobra US$<%= plan.precioUsd.toFixed(2) %> vía PayPal</span>
+            <% } %>
           </p>
 
           <ul>
@@ -61,7 +100,7 @@
                     id="btn-premium"
                     data-plan-id="<%= plan.id %>"
                     data-plan-nombre="<%= plan.nombre %>"
-                    data-plan-precio="$<%= plan.valor.toLocaleString('es-CL') %> / mes">
+                    data-plan-precio="$<%= plan.valor.toLocaleString('es-CL') %> / mes<% if (plan.precioUsd > 0) { %> · US$<%= plan.precioUsd.toFixed(2) %><% } %>">
               Elegir Premium
             </button>
           <% } else { %>

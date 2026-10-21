@@ -38,6 +38,10 @@ const EQUIPMENT = [
 
 const MINUTES_ALLOWED = [15, 30, 45, 60, 75, 90];
 
+// Mismos textos que muestra la página (sin tilde en Miercoles y Sabado).
+// En la BD se guardan separados por coma: 'Lunes,Jueves'.
+const DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
 /** Busca el id de un catálogo por nombre; si no existe, lo crea (valor ya validado). */
 const findOrCreate = async (conn, table, idColumn, nameColumn, name) => {
   const [rows] = await conn.query(
@@ -133,6 +137,9 @@ const saveProfile = async (idUsuario, data) => {
     }
 
     // --- preferencia_entrenamiento (una por cliente) ---
+    // Orden fijo de la semana y sin repetidos: 'Lunes,Jueves'
+    const dias = DAYS.filter((d) => (data.days || []).includes(d)).join(',');
+
     await conn.query(
       `INSERT INTO preferencia_entrenamiento (id_cliente, entorno, dias_semana, minutos_sesion)
        VALUES (?, ?, ?, ?)
@@ -140,7 +147,7 @@ const saveProfile = async (idUsuario, data) => {
          entorno = VALUES(entorno),
          dias_semana = VALUES(dias_semana),
          minutos_sesion = VALUES(minutos_sesion)`,
-      [idCliente, ENVIRONMENTS[data.environment], data.daysPerWeek, data.minutesPerSession]
+      [idCliente, ENVIRONMENTS[data.environment], dias, data.minutesPerSession]
     );
 
     // --- equipamiento: se reemplaza el conjunto completo ---
@@ -263,6 +270,11 @@ const getProfileByUser = async (idUsuario) => {
     // La BD guarda un solo objetivo por cliente (clientes.id_objetivo).
     const objetivo = fila.nombre_objetivo ? GOALS_INV[fila.nombre_objetivo] : null;
 
+    // 'Lunes,Jueves' -> ['Lunes', 'Jueves']
+    const days = prefs.length && prefs[0].dias_semana
+      ? String(prefs[0].dias_semana).split(',').filter((d) => DAYS.includes(d))
+      : [];
+
     return {
       sex: SEX_INV[fila.sexo] || 'otro',
       heightCm: medicion ? Number(medicion.altura_cm) : null,
@@ -274,7 +286,8 @@ const getProfileByUser = async (idUsuario) => {
       surgeries: cirugias,
       environment: prefs.length && ENVIRONMENTS_INV[prefs[0].entorno] ? ENVIRONMENTS_INV[prefs[0].entorno] : 'gimnasio',
       equipment: equips.map((r) => r.nombre),
-      daysPerWeek: prefs.length ? Number(prefs[0].dias_semana) : 3,
+      days,                       // ['Lunes', 'Jueves']
+      daysPerWeek: days.length,   // compatibilidad con dashboard / generador de rutina
       minutesPerSession: prefs.length ? Number(prefs[0].minutos_sesion) : 45,
     };
   } finally {
@@ -290,6 +303,7 @@ module.exports = {
   INJURIES,
   EQUIPMENT,
   MINUTES_ALLOWED,
+  DAYS,
   hasProfile,
   getProfileByUser,
   saveProfile,

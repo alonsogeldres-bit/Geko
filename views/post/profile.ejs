@@ -179,15 +179,18 @@
         <section class="step-panel hidden" data-step="4">
           <div class="field">
             <label class="field-label">Días por semana que puedes entrenar</label>
-            <div class="segmented" data-group="daysPerWeek">
-              <button type="button" class="segmented-opt" data-value="1">1d</button>
-              <button type="button" class="segmented-opt" data-value="2">2d</button>
-              <button type="button" class="segmented-opt active" data-value="3">3d</button>
-              <button type="button" class="segmented-opt" data-value="4">4d</button>
-              <button type="button" class="segmented-opt" data-value="5">5d</button>
-              <button type="button" class="segmented-opt" data-value="6">6d</button>
-              <button type="button" class="segmented-opt" data-value="7">7d</button>
+            <span class="field-hint">Selecciona uno o más días</span>
+            <!-- Selección múltiple: el JS marca "active" según state.days -->
+            <div class="segmented" data-group="days">
+              <button type="button" class="segmented-opt" data-value="Lunes">Lunes</button>
+              <button type="button" class="segmented-opt" data-value="Martes">Martes</button>
+              <button type="button" class="segmented-opt" data-value="Miercoles">Miercoles</button>
+              <button type="button" class="segmented-opt" data-value="Jueves">Jueves</button>
+              <button type="button" class="segmented-opt" data-value="Viernes">Viernes</button>
+              <button type="button" class="segmented-opt" data-value="Sabado">Sabado</button>
+              <button type="button" class="segmented-opt" data-value="Domingo">Domingo</button>
             </div>
+            <span class="field-error" id="err-days"></span>
           </div>
 
           <div class="field">

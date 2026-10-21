@@ -68,18 +68,18 @@ SET FOREIGN_KEY_CHECKS = 1;*/
 		FOREIGN KEY (id_objetivo) REFERENCES objetivo(id_objetivo) ON DELETE SET NULL
 	);
 
-    	CREATE TABLE preferencia_entrenamiento (
-		id_preferencia INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-		id_cliente INT NOT NULL UNIQUE,
-		entorno ENUM('Gimnasio','Casa','Aire libre','Mixto') NOT NULL,
-		dias_semana TINYINT NOT NULL,
-		minutos_sesion SMALLINT NOT NULL,
-		creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
-		actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-		FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
-		CHECK (dias_semana BETWEEN 1 AND 7),
-		CHECK (minutos_sesion > 0)
-	);
+CREATE TABLE preferencia_entrenamiento (
+  id_preferencia INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  id_cliente INT NOT NULL UNIQUE,
+  entorno ENUM('Gimnasio','Casa','Aire libre','Mixto') NOT NULL,
+  dias_semana VARCHAR(70) NOT NULL,  -- 'Lunes,Jueves'
+  minutos_sesion SMALLINT NOT NULL,
+  creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
+  CHECK (CHAR_LENGTH(dias_semana) > 0),
+  CHECK (minutos_sesion > 0)
+);
 
 
 	CREATE TABLE equipamiento (

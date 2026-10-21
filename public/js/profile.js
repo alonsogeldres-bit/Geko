@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     surgeries: [],
     environment: "gimnasio",
     equipment: ["Mancuernas"],
-    daysPerWeek: "3",
+    days: ["Lunes", "Miercoles", "Viernes"],
     minutesPerSession: "45",
   };
 
@@ -129,10 +129,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Días de entrenamiento: selección múltiple, cada clic activa/desactiva el día.
+  // Se guardan por nombre ("Lunes", "Jueves"...), igual que en el modelo (DAYS).
+  function setupDays() {
+    var group = document.querySelector('[data-group="days"]');
+    if (!group) return;
+    var buttons = group.querySelectorAll("button");
+
+    function paint(btn) {
+      var on = state.days.indexOf(btn.getAttribute("data-value")) !== -1;
+      btn.classList.toggle("active", on);
+    }
+
+    buttons.forEach(function (btn) {
+      paint(btn); // estado inicial
+      btn.addEventListener("click", function () {
+        var value = btn.getAttribute("data-value");
+        var idx = state.days.indexOf(value);
+        if (idx === -1) state.days.push(value);
+        else state.days.splice(idx, 1);
+        paint(btn);
+        document.getElementById("err-days").textContent = "";
+      });
+    });
+  }
+
   setupSingleSelect("sex", "sex");
   setupSingleSelect("level", "level");
   setupSingleSelect("environment", "environment");
-  setupSingleSelect("daysPerWeek", "daysPerWeek");
+  setupDays();
   setupSingleSelect("minutesPerSession", "minutesPerSession");
   setupMultiSelect("goals", "goals");
   setupMultiSelect("injuries", "injuries", "Ninguna");
@@ -314,6 +339,11 @@ document.addEventListener("DOMContentLoaded", function () {
       valid = false;
     }
 
+    if (s === 4 && state.days.length === 0) {
+      document.getElementById("err-days").textContent = "Selecciona al menos un día.";
+      valid = false;
+    }
+
     return valid;
   }
 
@@ -387,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
           : [],
       environment: state.environment,
       equipment: state.equipment,
-      daysPerWeek: Number(state.daysPerWeek),
+      days: state.days,
       minutesPerSession: Number(state.minutesPerSession),
     };
 

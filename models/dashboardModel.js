@@ -9,6 +9,9 @@
 
 const pool = require('../config/db');
 
+// Mismos textos que guarda el wizard (sin tilde en Miercoles y Sabado).
+const DIAS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
 /* Cache de los nombres de tabla existentes.
    Sirve para trabajar de forma tolerante: si una tabla opcional todavía
    no está creada en la base, el dashboard degrada a estado vacío en vez
@@ -89,12 +92,19 @@ const getPerfil = async (idUsuario) => {
   const pref = preferencias[0] || null;
   const med = mediciones[0] || null;
 
+  // 'Lunes,Jueves' -> ['Lunes', 'Jueves'] (solo valores válidos, en orden de semana)
+  const diasGuardados = pref && pref.dias_semana
+    ? String(pref.dias_semana).split(',').map((d) => d.trim())
+    : [];
+  const dias = DIAS.filter((d) => diasGuardados.includes(d));
+
   return {
     idCliente,
     objetivo: cliente.nombre_objetivo || null,
     observacionObjetivo: cliente.observacion_objetivo || null,
     entorno: pref ? pref.entorno : null,
-    diasSemana: pref ? pref.dias_semana : null,
+    dias,                              // ['Lunes', 'Jueves']
+    diasSemana: dias.length || null,   // número, para "3 días por semana"
     minutosSesion: pref ? pref.minutos_sesion : null,
     nivelFisico: med ? med.nivel_fisico : null,
     alturaCm: med ? Number(med.altura_cm) : null,

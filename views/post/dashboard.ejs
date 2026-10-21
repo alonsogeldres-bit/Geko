@@ -11,8 +11,18 @@
   const prog = locals.enProgreso || null;           // { hechos: 2, total: 5 } o null
   const actividad = locals.actividad || [];          // [{ nombre, detalle }]
 
-  const metaPct = r.meta ? Math.min(100, Math.round((r.sesiones / r.meta) * 100)) : 0;
   const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const diasCompletos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+  /* Días que el usuario eligió en el wizard (perfil.dias). Si no hay, se usa
+     lo que traiga el controlador en resumen.plan / resumen.meta. */
+  const diasElegidos = Array.isArray(p.dias) ? p.dias : [];
+  const planIdx = diasElegidos.length
+    ? diasCompletos.map(function (d, i) { return diasElegidos.includes(d) ? i : -1; }).filter(function (i) { return i >= 0; })
+    : (r.plan || []);
+  const metaSemanal = diasElegidos.length || r.meta;
+
+  const metaPct = metaSemanal ? Math.min(100, Math.round((r.sesiones / metaSemanal) * 100)) : 0;
 
   const nivelTexto = { Bajo: 'Principiante', Medio: 'Intermedio', Alto: 'Avanzado' }[p.nivelFisico] || 'Sin nivel';
   const objetivo = p.objetivo || 'Sin objetivo definido';
@@ -185,23 +195,29 @@
           <h3>Meta semanal</h3>
           <div class="big"><%= metaPct %> %</div>
           <div class="bar"><i style="width:<%= metaPct %>%"></i></div>
-          <p class="muted small"><%= r.sesiones %> de <%= r.meta %> sesiones por semana</p>
+          <p class="muted small"><%= r.sesiones %> de <%= metaSemanal %> sesiones por semana</p>
         </article>
 
         <article class="card">
           <h3>Entrenamientos de la semana</h3>
-          <div class="big"><%= r.sesiones %> / <%= r.meta %></div>
+          <div class="big"><%= r.sesiones %> / <%= metaSemanal %></div>
           <div class="week">
-            <% diasSemana.forEach(function (d, i) { %>
+            <% diasSemana.forEach(function (d, i) {
+                 var cls = String((r.dias && r.dias[i]) || '').split(' ').filter(function (c) { return c && c !== 'plan'; });
+                 if (planIdx.includes(i)) cls.push('plan');
+                 if (i === r.hoy) cls.push('hoy');
+            %>
               <div>
-                <i class="<%= (r.dias && r.dias[i]) || '' %><%= i === r.hoy ? ' hoy' : '' %>"></i>
+                <i class="<%= cls.join(' ') %>"></i>
                 <%= d %>
               </div>
             <% }) %>
           </div>
           <p class="muted small">
-            <% if (r.plan && r.plan.length) { %>
-              Entrenas los <%= r.plan.map(function (i) { return diasSemana[i]; }).join(', ') %>.
+            <% if (planIdx.length) { %>
+              Entrenas los <%= planIdx.map(function (i) { return diasSemana[i]; }).join(', ') %>.
+            <% } else { %>
+              Aún no elegiste tus días de entrenamiento.
             <% } %>
           </p>
         </article>

@@ -77,7 +77,7 @@ const validateRegister = (req, res, next) => {
     return res.status(400).json({ success: false, message: errorFecha });
   }
 
-  next(); 
+  next();
 };
 
 const validateLogin = (req, res, next) => {
@@ -192,10 +192,12 @@ const validateProfile = (req, res, next) => {
   }
   if (b.equipment.length === 0) return fail('Selecciona el equipamiento.');
 
-  const daysPerWeek = Number(b.daysPerWeek);
-  if (!Number.isInteger(daysPerWeek) || daysPerWeek < 1 || daysPerWeek > 7) {
-    return fail('Los días por semana deben estar entre 1 y 7.');
+  // Días de entrenamiento: ahora son días concretos (ej. ['Lunes', 'Jueves'])
+  if (!isStringArray(b.days) || b.days.length === 0 || !b.days.every((d) => P.DAYS.includes(d))) {
+    return fail('Selecciona al menos un día de entrenamiento válido.');
   }
+  // Sin repetidos y en orden de semana
+  const days = P.DAYS.filter((d) => b.days.includes(d));
 
   const minutesPerSession = Number(b.minutesPerSession);
   if (!P.MINUTES_ALLOWED.includes(minutesPerSession)) return fail('Los minutos por sesión no son válidos.');
@@ -234,7 +236,8 @@ const validateProfile = (req, res, next) => {
     goals: [...new Set(b.goals)],
     injuries: [...new Set(b.injuries.filter((i) => i !== 'Ninguna'))],
     equipment: [...new Set(b.equipment.filter((e) => e !== 'Ninguno'))],
-    daysPerWeek,
+    days,
+    daysPerWeek: days.length, // compatibilidad con dashboard / generador de rutina
     minutesPerSession,
     injuriesText,
     surgeries,

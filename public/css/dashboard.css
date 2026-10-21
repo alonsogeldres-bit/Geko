@@ -203,9 +203,18 @@ body {
   font: inherit;
   font-size: 15px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .ghost:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* Parpadeo al hacer clic: 0,2 s con el color original (sin el gris del hover) */
+.ghost.is-flash,
+.ghost.is-flash:hover { background: transparent; transition: none; }
+
+/* Límite de cambios alcanzado (3/3): no se puede hacer clic */
+.ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+.ghost:disabled:hover { background: transparent; }
 
 /* ---------- Resumen (HU-018) ---------- */
 

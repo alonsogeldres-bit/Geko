@@ -15,8 +15,8 @@ const index = async (req, res) => {
     const perfil = await DashboardModel.getPerfil(idUsuario);
     if (!perfil) return res.redirect('/profile');
 
-    // ?alt=N rota la variante de la sugerencia ("Cambiar sugerencia").
-    const alt = Math.max(0, parseInt(req.query.alt, 10) || 0);
+    // Modo prueba: al cargar o recargar la página siempre se empieza en 1/3.
+    const alt = 0;
 
     const sesiones = await DashboardModel.getSesiones(perfil.idCliente);
     const sugerencia = RoutineModel.construirSugerencia(perfil, alt);
@@ -39,6 +39,28 @@ const index = async (req, res) => {
   }
 };
 
+/**
+ * POST /dashboard/sugerencia   (body JSON: { alt: N })
+ * Devuelve la sugerencia número N en JSON. El tope es la cantidad de variantes
+ * (3): si piden una mayor, devuelve la última. No guarda nada: al recargar la
+ * página se vuelve a 1/3 (modo prueba).
+ */
+const sugerencia = async (req, res) => {
+  try {
+    const idUsuario = req.session.usuario.id_usuario;
+
+    const perfil = await DashboardModel.getPerfil(idUsuario);
+    if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
+
+    const alt = Math.max(0, parseInt(req.body && req.body.alt, 10) || 0);
+    return res.json(RoutineModel.construirSugerencia(perfil, alt));
+  } catch (err) {
+    console.error('[dashboard] error al cambiar la sugerencia:', err.message);
+    return res.status(500).json({ error: 'No pudimos cambiar la sugerencia.' });
+  }
+};
+
 module.exports = {
-  index
+  index,
+  sugerencia
 };

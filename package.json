@@ -34,5 +34,8 @@
   "bugs": {
     "url": "https://github.com/alonsogeldres-bit/Geko/issues"
   },
-  "homepage": "https://github.com/alonsogeldres-bit/Geko#readme"
+  "homepage": "https://github.com/alonsogeldres-bit/Geko#readme",
+  "allowScripts": {
+    "mercadopago@3.6.1": true
+  }
 }

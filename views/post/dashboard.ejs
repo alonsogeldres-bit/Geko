@@ -144,29 +144,29 @@
       <!-- Sugerencia del día -->
       <section class="card hero">
         <span class="tag"><%= prog ? 'Rutina en progreso' : 'Sugerencia de hoy' %></span>
-        <h2 class="hero-title"><%= s.nombre %></h2>
+        <h2 class="hero-title" id="sug-nombre"><%= s.nombre %></h2>
 
         <div class="meta">
-          <span><%= s.tipo %></span>
-          <span>~<%= s.minutos %> min</span>
-          <span><%= s.grupo %></span>
-          <span>Intensidad <%= String(s.intensidad || '').toLowerCase() %></span>
-          <span><%= s.ejercicios %> ejercicios</span>
+            <span id="sug-tipo"><%= s.tipo %></span>
+          <span id="sug-minutos">~<%= s.minutos %> min</span>
+          <span id="sug-grupo"><%= s.grupo %></span>
+          <span id="sug-intensidad">Intensidad <%= String(s.intensidad || '').toLowerCase() %></span>
+          <span id="sug-ejercicios"><%= s.ejercicios %> ejercicios</span>
         </div>
-        <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
+                <p class="why">Adaptada a tu perfil: <b id="sug-motivo"><%= s.motivo %></b></p>
 
         <% if (prog) { %>
           <p class="muted small">Vas en <%= prog.hechos %> de <%= prog.total %> ejercicios</p>
           <div class="bar"><i style="width:<%= Math.round(prog.hechos / prog.total * 100) %>%"></i></div>
         <% } %>
 
-        <div class="acts">
-          <a class="cta" href="/entrenamiento<%= (s.indiceVariante ? '?alt=' + (s.indiceVariante - 1) : '') %>">
+                <div class="acts">
+          <a class="cta" id="btn-start" href="/entrenamiento<%= (s.indiceVariante ? '?alt=' + (s.indiceVariante - 1) : '') %>">
             ▶ <%= prog ? 'Retomar entrenamiento' : 'Comenzar entrenamiento' %>
           </a>
-          <button type="button" class="ghost" id="btn-swap">
+            <button type="button" class="ghost" id="btn-swap" <%= s.indiceVariante >= s.variantes ? 'disabled' : '' %>>
             ↻ Cambiar sugerencia
-            <% if (s.variantes > 1) { %><span class="muted small">(<%= s.indiceVariante %>/<%= s.variantes %>)</span><% } %>
+            <% if (s.variantes > 1) { %><span class="muted small" id="sug-contador">(<%= s.indiceVariante %>/<%= s.variantes %>)</span><% } %>
           </button>
         </div>
       </section>

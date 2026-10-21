@@ -82,7 +82,7 @@ const diasPlanificados = (diasSemana) => {
 const construirSugerencia = (perfil, alt = 0) => {
   const objetivo = perfil.objetivo || OBJETIVO_POR_DEFECTO;
   const variantes = RUTINAS[objetivo] || RUTINAS[OBJETIVO_POR_DEFECTO];
-  const rutina = variantes[((Number(alt) || 0) % variantes.length + variantes.length) % variantes.length];
+  const rutina = variantes[limitar(Number(alt) || 0, 0, variantes.length - 1)];
 
   const minutos = Number(perfil.minutosSesion) || 45;
   const nivel = perfil.nivelFisico || 'Medio';

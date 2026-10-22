@@ -1,9 +1,3 @@
-/* ===========================================
-   MODELO DE PLANES
-   Lee el catálogo `tipo_plan` y las suscripciones del cliente,
-   y activa el plan gratuito. Todo con las tablas que ya existen.
-   =========================================== */
-
 const pool = require('../config/db');
 
 const PLAN_GRATIS = 'Gratis';

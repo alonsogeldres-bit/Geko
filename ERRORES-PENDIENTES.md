@@ -113,8 +113,9 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 
 #### E24 — HU-013 CA3: gating de funciones de pago sin aplicar
 - **Ubicación:** `middlewares/planMiddleware.js` → `requirePaidPlan`
-- **Qué pasa:** el middleware y el `GET /planes` existen, pero ninguna función está marcada como Premium (las rutinas IA están pendientes), así que CA3 no es demostrable con una función real.
-- **Arreglo sugerido:** decidir la función exclusiva (rutinas IA o progreso avanzado) y aplicarla con `requirePaidPlan`. El cobro real es EP-008 (Flow o Mercado Pago en Chile).
+- **Qué pasa:** el middleware y el `GET /planes` existen, pero ninguna función está marcada como Premium, así que CA3 no es demostrable con una función real.
+- **Estado actual:** la función candidata **ya existe**: la rutina con IA en `GET /entrenamiento` (`services/geminiService.js`), documentada en `CAMBIOS-RUTINA-IA.md`. Por decisión de producto **hoy es gratis para todos** y el gating queda para más adelante, cuando se configure la versión Premium.
+- **Arreglo sugerido:** aplicar `requirePaidPlan('rutinas_ia')` sobre `GET /entrenamiento` (o sobre la generación) cuando se defina el plan Premium; para los usuarios Gratis, mostrar el paywall en vez de la rutina. El cobro real es EP-008 (Flow o Mercado Pago en Chile).
 - **Esfuerzo:** 30 minutos al aplicarla; EP-008 por separado.
 
 ### 🟢 Severidad BAJA (código muerto y limpieza)

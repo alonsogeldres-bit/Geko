@@ -122,6 +122,17 @@ MAIL_FROM_NAME=GEKO
 
 # Vigencia del enlace de recuperacion, en minutos
 RECOVERY_TOKEN_TTL_MINUTES=15
+
+# ==========================================
+#  RUTINAS CON IA (Google Gemini)
+# ==========================================
+GEMINI_API_KEY=
+
+# Modelo que arma las rutinas. Opcional: vacio = gemini-3.8-flash
+GEMINI_MODEL=gemini-3.8-flash
+
+# Timeout de cada llamada a la API, en milisegundos. Opcional: vacio = 10000
+GEMINI_TIMEOUT_MS=10000
 ```
 
 ---
@@ -242,7 +253,30 @@ MAIL_FROM_NAME=GEKO
 
 ---
 
-## Paso 7 — Verificar que todo quedó bien
+## Paso 7 — Rutinas con IA (Google Gemini)
+
+La pantalla `/entrenamiento` arma la rutina del día con Gemini. Sin clave la
+pantalla **igual funciona**: cae a una rutina de respaldo generada por el
+propio servidor, así que no es bloqueante para desarrollar.
+
+1. Entra en <https://aistudio.google.com/apikey> y crea una API key.
+2. Pégala en `.env`:
+
+```dotenv
+GEMINI_API_KEY=tu_clave_aqui
+```
+
+3. (Opcional) `GEMINI_MODEL` y `GEMINI_TIMEOUT_MS` para cambiar el modelo o
+   cuánto espera el servidor antes de abandonar la llamada y usar el respaldo.
+
+> Si la API está saturada (Google responde `503 high demand`), la pantalla
+> tarda hasta ~20 s y luego muestra la rutina de respaldo con la etiqueta
+> "Rutina de respaldo". Es el comportamiento esperado cuando Google está
+> cargado.
+
+---
+
+## Paso 8 — Verificar que todo quedó bien
 
 ```bash
 npm run doctor
@@ -280,7 +314,7 @@ año y el proyecto no lo usa.
 
 ---
 
-## Paso 8 — Arrancar
+## Paso 9 — Arrancar
 
 ```bash
 npm run dev
@@ -362,3 +396,4 @@ Nunca escribas contraseñas o claves de Google directamente en el código.
 - [ ] `npm run doctor` sin errores
 - [ ] `npm run dev` y la página abre en el puerto correcto
 - [ ] (opcional) clave de aplicación de Gmail + `MAIL_ENABLED=true`
+- [ ] (opcional) `GEMINI_API_KEY` en `.env` para las rutinas con IA

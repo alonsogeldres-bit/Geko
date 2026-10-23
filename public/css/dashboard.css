@@ -372,6 +372,88 @@ body {
 
 /* ---------- Rutina generada con IA: ajustes en móvil ---------- */
 
+/* ---------- Rutina detallada (IA / respaldo) ---------- */
+
+.rutina-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 22px;
+  padding: 14px 18px;
+  border: 1px dashed rgba(255, 193, 7, 0.55);
+  border-radius: 12px;
+  background: rgba(255, 193, 7, 0.08);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rutina-aviso strong { color: #ffd76a; }
+.rutina-aviso span { color: var(--mut); }
+
+.rutina-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rutina-item {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rutina-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rutina-item-head strong { font-size: 15px; }
+
+.rutina-item .muted {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rutina-item .chip { white-space: nowrap; }
+
+.rutina-descanso {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--mut);
+}
+
+/* Contador de solicitudes y mensajes de la generación sin recarga */
+.rutina-contador {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mut);
+}
+
+.rutina-contador b { color: #ffffff; }
+
+.rutina-estado {
+  min-height: 20px;
+  margin: 0 2px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mut);
+}
+
+.rutina-estado:empty { min-height: 0; margin-bottom: 0; }
+
+@media (max-width: 600px) {
+  .rutina-item-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
 /* ---------- Móvil ---------- */
 
 @media (max-width: 600px) {

@@ -1,9 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
   console.log("[login.js] Script cargado y DOM listo");
 
+  var tabLogin = document.getElementById("tab-login");
+  var tabRegister = document.getElementById("tab-register");
   var formLogin = document.getElementById("form-login");
+  var formRegister = document.getElementById("form-register");
   var errorEl = document.getElementById("auth-error");
   var successEl = document.getElementById("auth-success");
+  var acceptTerms = document.getElementById("accept-terms");
+  var acceptPrivacy = document.getElementById("accept-privacy");
+  var registerSubmit = document.getElementById("register-submit");
   var alertBox = document.getElementById("auth-alert");
   var alertMsg = document.getElementById("auth-alert-msg");
   var alertActions = document.getElementById("auth-alert-actions");
@@ -59,6 +65,34 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function showTab(tab) {
+    clearMessages();
+    clearAlert();
+
+    if (tab === "login") {
+      if (tabLogin) tabLogin.classList.add("active");
+      if (tabRegister) tabRegister.classList.remove("active");
+      if (formLogin) formLogin.classList.remove("hidden");
+      if (formRegister) formRegister.classList.add("hidden");
+    } else {
+      if (tabRegister) tabRegister.classList.add("active");
+      if (tabLogin) tabLogin.classList.remove("active");
+      if (formRegister) formRegister.classList.remove("hidden");
+      if (formLogin) formLogin.classList.add("hidden");
+    }
+  }
+
+  if (tabLogin && tabRegister) {
+    tabLogin.addEventListener("click", function () { showTab("login"); });
+    tabRegister.addEventListener("click", function () { showTab("register"); });
+  }
+
+  if (acceptTerms && registerSubmit) {
+    acceptTerms.addEventListener("change", function () {
+      registerSubmit.disabled = !acceptTerms.checked;
+    });
+  }
+
   if (formLogin) {
     formLogin.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -100,6 +134,72 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(function () {
           setLoading(false);
           mostrarError("Error de conexión con el servidor. Inténtalo de nuevo.");
+        });
+    });
+  }
+
+  if (formRegister) {
+    formRegister.addEventListener("submit", function (e) {
+      e.preventDefault();
+      clearMessages();
+      clearAlert();
+
+      var nombre = document.getElementById("register-name").value.trim();
+      var apellido = document.getElementById("register-lastname").value.trim();
+      var nombre_usuario = document.getElementById("register-username").value.trim();
+      var correo = document.getElementById("register-email").value.trim();
+      var numero = document.getElementById("register-phone").value.trim();
+      var contrasena = document.getElementById("register-password").value;
+      var confirm = document.getElementById("register-confirm").value;
+
+      if (!nombre || !apellido || !nombre_usuario || !correo || !numero || !contrasena || !confirm) {
+        errorEl.textContent = "Completa todos los campos.";
+        return;
+      }
+      if (contrasena !== confirm) {
+        errorEl.textContent = "Las contraseñas no coinciden.";
+        return;
+      }
+      if (contrasena.length < 6) {
+        errorEl.textContent = "La contraseña debe tener al menos 6 caracteres.";
+        return;
+      }
+      if (acceptTerms && !acceptTerms.checked) {
+        errorEl.textContent = "Debes aceptar los Términos y Condiciones.";
+        return;
+      }
+
+      fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre,
+          apellido: apellido,
+          nombre_usuario: nombre_usuario,
+          correo: correo,
+          numero: numero,
+          contrasena: contrasena,
+          acepta_terminos: acceptTerms ? acceptTerms.checked : true,
+          acepta_privacidad: acceptPrivacy ? acceptPrivacy.checked : false
+        }),
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.success) {
+            if (successEl) {
+              successEl.textContent = data.message + " Ya puedes iniciar sesión.";
+            }
+            formRegister.reset();
+            if (registerSubmit) registerSubmit.disabled = true;
+            showTab("login");
+          } else if (errorEl) {
+            errorEl.textContent = data.message;
+          }
+        })
+        .catch(function () {
+          if (errorEl) {
+            errorEl.textContent = "Error de conexión con el servidor.";
+          }
         });
     });
   }

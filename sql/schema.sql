@@ -23,7 +23,6 @@ SELECT * FROM rol;
 		numero VARCHAR(20) NOT NULL UNIQUE,
 		sexo ENUM('F','M'),
 		fecha_nacimiento DATE,
-		usuario_proveedor ENUM('local','google') NOT NULL DEFAULT 'local',
 		nombre_usuario VARCHAR(50) not null UNIQUE,
 		FOREIGN KEY (id_rol) REFERENCES rol(id_rol) ON DELETE RESTRICT
 	);

@@ -19,9 +19,6 @@
 | R7 | Vista `views/post/index.ejs` vacía (era E15, parte 1) | commit `c6538ce` — eliminada. **La parte 2 de E15 sigue pendiente**: `views/post/paywall.ejs` |
 | R8 | Vista `views/post/paywall.ejs` huérfana (era E15, parte 2) | HU-013 — reemplazada por `views/post/planes.ejs` con ruta real (`GET /planes`); se eliminó `paywall.ejs` y sus links rotos (`/registro`, `/premium`) |
 | R9 | "Equipamiento: Ninguno" se perdía al volver a `/configuracion` (era E25) | pendiente de commit — `getProfileByUser` devuelve `['Ninguno']`/`['Ninguna']` cuando no hay filas + fallback en `configuracion.js` — doc `CAMBIOS-EQUIPAMIENTO-NINGUNO.md` |
-| R10 | `sql/schema.sql` no definía `usuario_proveedor` (era E1) | 23-10-2026 — columna agregada a `sql/schema.sql` (pendiente de commit) |
-| R11 | Formulario oculto de registro roto en `/login` (era E10) | 23-10-2026 — eliminado de `login.ejs` y de `login.js`; el registro real sigue en `/register` (pendiente de commit) |
-| R12 | `/configuracion` no guardaba cambios (el JS moría en `state.trainingDays` y enviaba `daysPerWeek` en vez de `days`) | 23-10-2026 — `configuracion.js` inicializa `state.days`, pinta/selecciona días y envía `days` (pendiente de commit) |
 
 ---
 
@@ -30,6 +27,14 @@
 Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruido, trampas o fallos en escenarios específicos; **BAJA** = código muerto y limpieza.
 
 ### 🔴 Severidad ALTA
+
+#### E1 — `sql/schema.sql` no define la columna `usuario_proveedor`
+- **Ubicación:** `sql/schema.sql` (tabla `usuarios`) vs. `models/userModels.js`, `controllers/authRecoverySocialController.js`
+- **Qué pasa:** el código usa `usuario_proveedor` en el INSERT de usuarios, en el login con Google y en `updatePassword` (`WHERE usuario_proveedor = 'local'`), pero el esquema del repo nunca la crea. Si alguien arma la BD desde cero con `schema.sql`, **registro, login y reset fallan con "Unknown column"**. Solo funciona porque la BD real fue alterada a mano.
+- **Arreglo sugerido:** agregar al `CREATE TABLE usuarios`:
+  `usuario_proveedor ENUM('local','google') NOT NULL DEFAULT 'local'`
+  y aprovechar de revisar si la BD real tiene más columnas fuera del esfuerzo del repo.
+- **Esfuerzo:** 5 minutos.
 
 #### E2 — `public/js/splash.js` lanza `ReferenceError`
 - **Ubicación:** `public/js/splash.js`, líneas 18-21 (fuera del IIFE) vs. línea 3 (dentro del IIFE)
@@ -80,6 +85,12 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 - **Qué pasa:** el comando falla; la guía de setup miente.
 - **Arreglo sugerido:** crear `scripts/doctor.js` (que TUTO.md ya describe: chequea `.env`, MySQL, Google, Gmail) o sacar el script de `package.json` y la referencia de TUTO.md.
 - **Esfuerzo:** 1-2 horas si se crea; 5 minutos si se elimina la referencia.
+
+#### E10 — Formulario trampa en `login.ejs`
+- **Ubicación:** `views/post/login.ejs` (`#form-register` oculto) + `public/js/login.js` (su handler)
+- **Qué pasa:** ese formulario oculto no envía `fecha_nacimiento`, que el servidor exige → si alguna vez se muestra, el registro falla siempre con 400. El registro real vive en `/register` con su propio JS (`register.js`); el de login.js quedó de una versión con pestañas cuyos elementos (`#tab-login`, `#tab-register`) ya no existen.
+- **Arreglo sugerido:** borrar el `#form-register` del `login.ejs` y el bloque `formRegister` de `login.js`.
+- **Esfuerzo:** 10 minutos.
 
 #### E11 — Registro con condición de carrera (TOCTOU)
 - **Ubicación:** `controllers/authControllers.js` → `register` (chequea `existsByEmail/Username/Phone` y luego hace `create`)
@@ -134,13 +145,14 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 
 ## Orden sugerido de ataque
 
-1. **E2** (error en consola en cada carga) → 5 min
-2. **E3** (filtrado de usuarios) → 15 min
-3. **E16** (limpieza rápida) → 5 min
-4. **E4, E5** (seguridad seria) → media tarde
-5. **E6, E7** (preparar producción) → 1.5 h
-6. **E8, E11** (consistencia) → 30 min
-7. **E9** (dashboard/docs) → 1-2 h
-8. **E17, E18, E19** (documentación) → 30 min
-9. **E21** (tests, para que lo anterior no se rompa de nuevo) → ongoing
-10. **E22** (unificar la lectura del perfil) → 30 min, cuando no haya merges en curso
+1. **E1** (rompe instalaciones nuevas) → 5 min
+2. **E2** (error en consola en cada carga) → 5 min
+3. **E3** (filtrado de usuarios) → 15 min
+4. **E10, E15, E16** (limpieza rápida, todo borrar) → 20 min en total
+5. **E4, E5** (seguridad seria) → media tarde
+6. **E6, E7** (preparar producción) → 1.5 h
+7. **E8, E11** (consistencia) → 30 min
+8. **E9** (dashboard/docs) → 1-2 h
+9. **E17, E18, E19** (documentación) → 30 min
+10. **E21** (tests, para que lo anterior no se rompa de nuevo) → ongoing
+11. **E22** (unificar la lectura del perfil) → 30 min, cuando no haya merges en curso

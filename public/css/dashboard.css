@@ -19,7 +19,8 @@ body {
   --card: rgba(255, 255, 255, 0.06);
   --chip: rgba(255, 255, 255, 0.09);
   --mut: rgba(255, 255, 255, 0.62);
-  --pad-x: 32px;               /* margen lateral común (igual que profile) */
+  --pad-x: 24px;               /* margen lateral común */
+  --max-w: 1080px;             /* ancho máximo del contenido (dashboard compacto) */
 }
 
 .dash-page {
@@ -30,7 +31,7 @@ body {
 }
 
 .muted { color: var(--mut); }
-.small { font-size: 0.78rem; }
+.small { font-size: 0.75rem; }
 
 /* ---------- Barra superior ---------- */
 
@@ -38,24 +39,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px var(--pad-x);
+  width: 100%;
+  padding: 14px 24px;          /* sin ancho máximo: logo y avatar quedan en las esquinas */
 }
 
-.logo-brand { display: flex; align-items: center; gap: 10px; }
-.brand-text { font-size: 16px; font-weight: 700; letter-spacing: 0.1em; }
+.logo-brand { display: flex; align-items: center; gap: 12px; }
+.logo-brand img { width: 40px; height: 40px; }
+.brand-text { font-size: 20px; font-weight: 700; letter-spacing: 0.1em; }
 
 /* ---------- Avatar + menú desplegable ---------- */
 
 .user-menu { position: relative; }
 
 .avatar-btn {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: 2px solid transparent;
   background: var(--ac);
   color: var(--on-ac);
   font: inherit;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   display: grid;
@@ -139,54 +143,56 @@ body {
 
 .dash-main {
   width: 100%;
-  padding: 8px var(--pad-x) 56px;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 4px var(--pad-x) 36px;
 }
 
-.dash-title { margin: 0 0 6px; font-size: 32px; font-weight: 800; }
-.subtitle { margin: 0; font-size: 15px; }
+.dash-title { margin: 0 0 4px; font-size: 26px; font-weight: 800; }
+.subtitle { margin: 0; font-size: 14px; }
 
 .card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 28px;
-  margin-top: 20px;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-top: 14px;
   min-width: 0;
 }
 
-.card h3 { margin: 0 0 14px; font-size: 16px; }
+.card h3 { margin: 0 0 10px; font-size: 14px; }
 
 /* ---------- Sugerencia (HU-019 / HU-020) ---------- */
 
-.hero { border-color: var(--ac); padding: 32px; }
+.hero { border-color: var(--ac); padding: 22px 24px; }
 
 .tag {
   display: inline-block;
-  margin-bottom: 8px;
-  font-size: 12px;
+  margin-bottom: 6px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 700;
   color: var(--ac);
 }
 
-.hero-title { margin: 0 0 14px; font-size: 30px; }
+.hero-title { margin: 0 0 10px; font-size: 24px; }
 
-.meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-.meta span { font-size: 14px; padding: 6px 14px; border-radius: 999px; background: var(--chip); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.meta span { font-size: 12.5px; padding: 4px 11px; border-radius: 999px; background: var(--chip); }
 
-.why { margin: 0 0 22px; font-size: 14px; line-height: 1.5; color: var(--mut); }
+.why { margin: 0 0 16px; font-size: 13px; line-height: 1.4; color: var(--mut); }
 
-.acts { display: flex; flex-wrap: wrap; gap: 12px; }
+.acts { display: flex; flex-wrap: wrap; gap: 10px; }
 
 .cta {
   flex: 1;
-  min-width: 220px;
-  padding: 18px 26px;
-  border-radius: 14px;
+  min-width: 200px;
+  padding: 12px 20px;
+  border-radius: 11px;
   background: var(--ac);
   color: var(--on-ac);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
   text-decoration: none;
@@ -195,13 +201,13 @@ body {
 .cta:hover { filter: brightness(1.08); }
 
 .ghost {
-  padding: 18px 24px;
+  padding: 12px 18px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 11px;
   background: transparent;
   color: #ffffff;
   font: inherit;
-  font-size: 15px;
+  font-size: 13.5px;
   cursor: pointer;
   transition: background 0.3s ease;
 }
@@ -218,15 +224,15 @@ body {
 
 /* ---------- Resumen (HU-018) ---------- */
 
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
 @media (max-width: 900px) { .grid { grid-template-columns: 1fr; gap: 0; } }
 
-.big { margin: 4px 0; font-size: 42px; font-weight: 800; }
+.big { margin: 2px 0; font-size: 32px; font-weight: 800; }
 
 .bar {
-  height: 10px;
-  margin: 10px 0 6px;
+  height: 8px;
+  margin: 8px 0 6px;
   border-radius: 999px;
   background: var(--chip);
   overflow: hidden;
@@ -234,27 +240,27 @@ body {
 
 .bar i { display: block; height: 100%; background: var(--ac); transition: width 0.3s ease; }
 
-.week { display: flex; gap: 8px; margin-top: 14px; }
-.week div { flex: 1; text-align: center; font-size: 12px; color: var(--mut); }
-.week i { display: block; height: 34px; margin-bottom: 6px; border-radius: 10px; background: var(--chip); }
+.week { display: flex; gap: 6px; margin-top: 10px; }
+.week div { flex: 1; text-align: center; font-size: 11px; color: var(--mut); }
+.week i { display: block; height: 24px; margin-bottom: 4px; border-radius: 8px; background: var(--chip); }
 .week i.plan { border: 1px dashed var(--ac); background: transparent; }
 .week i.hecho { background: var(--ac); }
-.week i.hoy { outline: 2px solid var(--ac); outline-offset: 2px; }
+.week i.hoy { outline: 2px solid var(--ac); outline-offset: 1px; }
 
 .recent {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 0;
+  padding: 9px 0;
   border-top: 1px solid var(--line);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .recent:first-of-type { border-top: 0; }
 
-.empty { padding: 12px 0; text-align: center; }
-.empty strong { display: block; margin-bottom: 6px; font-size: 16px; }
-.empty .muted { font-size: 14px; }
+.empty { padding: 6px 0; text-align: center; }
+.empty strong { display: block; margin-bottom: 4px; font-size: 14px; }
+.empty .muted { font-size: 13px; }
 
 /* ---------- Resumen del perfil (datos reales del wizard) ---------- */
 
@@ -265,10 +271,10 @@ body {
   gap: 12px;
 }
 
-.perfil-head h3 { margin-bottom: 14px; }
+.perfil-head h3 { margin-bottom: 10px; }
 
 .perfil-edit {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ac);
   text-decoration: none;
   white-space: nowrap;
@@ -278,20 +284,20 @@ body {
 
 .perfil-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px 20px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px 16px;
 }
 
-.perfil-dato { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.perfil-dato strong { font-size: 15px; font-weight: 600; }
+.perfil-dato { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.perfil-dato strong { font-size: 14px; font-weight: 600; }
 
-.perfil-bloque { margin-top: 20px; }
+.perfil-bloque { margin-top: 14px; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 
 .chip {
-  font-size: 13px;
-  padding: 5px 12px;
+  font-size: 12px;
+  padding: 3px 10px;
   border-radius: 999px;
   background: var(--chip);
 }
@@ -301,7 +307,7 @@ body {
   color: #ffd76a;
 }
 
-.aviso { margin: 10px 0 0; line-height: 1.5; }
+.aviso { margin: 8px 0 0; line-height: 1.4; }
 
 .link { color: var(--ac); }
 
@@ -359,11 +365,12 @@ body {
 /* ---------- Móvil ---------- */
 
 @media (max-width: 600px) {
-  :root { --pad-x: 16px; }
-  .dash-title { font-size: 26px; }
-  .hero { padding: 22px; }
-  .hero-title { font-size: 24px; }
-  .big { font-size: 34px; }
-  .perfil-head { flex-direction: column; align-items: flex-start; }
+  :root { --pad-x: 14px; }
+  .dash-title { font-size: 22px; }
+  .hero { padding: 18px; }
+  .hero-title { font-size: 20px; }
+  .big { font-size: 28px; }
+  .perfil-head { flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 10px; }
+  .perfil-head h3 { margin-bottom: 0; }
   .ejercicio-head { flex-direction: column; align-items: flex-start; gap: 6px; }
 }

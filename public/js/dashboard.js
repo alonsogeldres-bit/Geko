@@ -43,14 +43,16 @@
       setText('sug-intensidad', 'Intensidad ' + String(s.intensidad || '').toLowerCase());
       setText('sug-ejercicios', s.ejercicios + ' ejercicios');
       setText('sug-motivo', s.motivo);
-      setText('sug-contador', '(' + s.indiceVariante + '/' + s.variantes + ')');
+      // Premium: el contador es el símbolo de infinito (ya está en el HTML), no se toca
+      if (!s.ilimitado) setText('sug-contador', '(' + s.indiceVariante + '/' + s.variantes + ')');
 
       // "Comenzar entrenamiento" debe abrir la variante que se está viendo
       var start = document.getElementById('btn-start');
       if (start) start.setAttribute('href', '/entrenamiento?alt=' + (s.indiceVariante - 1));
 
       // Límite alcanzado (p. ej. 3/3): el botón se desactiva
-      swap.disabled = s.indiceVariante >= s.variantes;
+      // Premium nunca llega al límite: el botón siempre queda activo
+      swap.disabled = !s.ilimitado && s.indiceVariante >= s.variantes;
     };
 
     swap.addEventListener('click', function () {
@@ -72,7 +74,9 @@
           return res.json();
         })
         .then(function (s) {
-          alt = s.indiceVariante - 1;
+          // Premium: se sigue contando hacia arriba (el servidor da la vuelta);
+          // Gratis: se sincroniza con la variante real (tope 3).
+          alt = s.ilimitado ? alt + 1 : s.indiceVariante - 1;
           pintar(s);
         })
         .catch(function () {

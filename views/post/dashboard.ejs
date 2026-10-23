@@ -6,6 +6,7 @@
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
+  const esPremium = Boolean(locals.esPremium);       // plan de pago activo: look dorado
   const s = locals.sugerencia || {};
   const r = locals.resumen || { racha: 0, mejorRacha: 0, sesiones: 0, meta: 3, dias: [], hoy: 0 };
   const prog = locals.enProgreso || null;           // { hechos: 2, total: 5 } o null
@@ -42,13 +43,14 @@
   <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
-  <div class="dash-page">
+  <div class="dash-page<%= esPremium ? ' is-premium' : '' %>">
 
     <!-- ========== Barra superior ========== -->
     <header class="dash-nav">
       <div class="logo-brand">
         <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
         <span class="brand-text">GEKO</span>
+        <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
       </div>
 
       <details class="user-menu" id="user-menu">

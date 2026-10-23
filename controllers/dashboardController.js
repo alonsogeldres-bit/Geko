@@ -41,6 +41,7 @@ const index = async (req, res) => {
       usuario: req.session.usuario,
       perfil,
       sugerencia,
+      esPremium,
       resumen,
       actividad,
       // Rutina a medias. Sigue en null mientras no exista el registro de

@@ -155,7 +155,19 @@ Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruid
 6. **E6, E7** (preparar producción) → 1.5 h
 7. **E8, E11** (consistencia) → 30 min
 8. **E9** (dashboard/docs) → 1-2 h
-9. **E17, E19** (documentación) → 30 min
+9. **E17, E18, E19** (documentación) → 30 min
 10. **E21** (tests, para que lo anterior no se rompa de nuevo) → ongoing
 11. **E22** (unificar la lectura del perfil) → 30 min, cuando no haya merges en curso
 12. **E23, E24** (gating de planes y de funciones de pago) → 1-2 h, después de E22
+=========
+1. **E2** (error en consola en cada carga) → 5 min
+2. **E3** (filtrado de usuarios) → 15 min
+3. **E16** (limpieza rápida) → 5 min
+4. **E4, E5** (seguridad seria) → media tarde
+5. **E6, E7** (preparar producción) → 1.5 h
+6. **E8, E11** (consistencia) → 30 min
+7. **E9** (dashboard/docs) → 1-2 h
+8. **E17, E18, E19** (documentación) → 30 min
+9. **E21** (tests, para que lo anterior no se rompa de nuevo) → ongoing
+10. **E22** (unificar la lectura del perfil) → 30 min, cuando no haya merges en curso
+>>>>>>>>> Temporary merge branch 2

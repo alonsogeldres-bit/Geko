@@ -101,5 +101,6 @@ const generarOtra = async (req, res) => {
 };
 
 module.exports = {
-  index
+  index,
+  generarOtra
 };

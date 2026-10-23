@@ -1,7 +1,7 @@
 <%
   const u = locals.usuario || {};
   const p = locals.perfil || {};
-  const s = locals.sugerencia || {};
+  const r = locals.rutina || {};
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
@@ -60,34 +60,19 @@
 
     <main class="dash-main">
       <h1 class="dash-title">Entrenamiento</h1>
-      <p class="muted subtitle">La rutina que te/armamos para hoy.</p>
+      <p class="muted subtitle">La rutina que armamos para hoy según tu perfil.</p>
 
-      <section class="card hero">
-        <span class="tag">Rutina de hoy</span>
-        <h2 class="hero-title"><%= s.nombre %></h2>
+      <p id="rutina-estado" class="rutina-estado" role="status" aria-live="polite"><%= locals.aviso || '' %></p>
 
-        <div class="meta">
-          <span><%= s.tipo %></span>
-          <span>~<%= s.minutos %> min</span>
-          <span><%= s.grupo %></span>
-          <span>Intensidad <%= String(s.intensidad || '').toLowerCase() %></span>
-          <span><%= s.ejercicios %> ejercicios</span>
-        </div>
-        <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
-
-        <div class="empty soon-empty">
-          <strong>Esta pantalla estará lista pronto</strong>
-          <span class="muted">
-            Estamos preparando el generador de rutinas: tu ejercicio a ejercicio,
-            con series, repeticiones y tiempos de descanso, y el registro de cada
-            sesión para que tu racha y tu progreso se actualicen solos.
-          </span>
-        </div>
-
-        <div class="acts">
-          <a class="ghost" href="/dashboard">← Volver al dashboard</a>
-        </div>
-      </section>
+      <div id="rutina-contenedor" aria-live="off">
+        <%- include('../partials/rutina', {
+          rutina: rutina,
+          perfil: perfil,
+          restantes: restantes,
+          limite: limite,
+          maxSolicitudes: maxSolicitudes
+        }) %>
+      </div>
 
       <section class="card">
         <h3>Lo que ya sabemos de tu plan</h3>
@@ -106,17 +91,19 @@
           </div>
           <div class="perfil-dato">
             <span class="muted small">Dónde entrenas</span>
-            <strong><%= p.entorno || 'Sin definir' %></strong>
+            <strong><%= r.lugarEntrenamiento || p.entorno || 'Sin definir' %></strong>
           </div>
         </div>
         <p class="muted small aviso">
           Puedes ajustar cualquiera de estos datos en
           <a href="/configuracion" class="link">tu perfil</a>.
+          Si los cambias, la rutina se genera de nuevo automáticamente.
         </p>
       </section>
     </main>
   </div>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/entrenamiento.js"></script>
 </body>
 </html>

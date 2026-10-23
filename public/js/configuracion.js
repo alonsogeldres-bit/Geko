@@ -15,9 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     weightKg: inicial.weightKg != null ? String(inicial.weightKg) : "",
     level: inicial.level || "principiante",
     goals: Array.isArray(inicial.goals) ? inicial.goals.slice() : [],
-    injuries: Array.isArray(inicial.injuries) && inicial.injuries.length
-      ? inicial.injuries.slice()
-      : ["Ninguna"],
+    injuries: Array.isArray(inicial.injuries) ? inicial.injuries.slice() : [],
     injuriesText: inicial.injuriesText || "",
     hasSurgeries: Array.isArray(inicial.surgeries) && inicial.surgeries.length ? "si" : "no",
     surgeries: Array.isArray(inicial.surgeries)
@@ -30,9 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
       : [],
     environment: inicial.environment || "gimnasio",
-    equipment: Array.isArray(inicial.equipment) && inicial.equipment.length
-      ? inicial.equipment.slice()
-      : ["Ninguno"],
+    equipment: Array.isArray(inicial.equipment) ? inicial.equipment.slice() : [],
     days: Array.isArray(inicial.days) ? inicial.days.slice() : [],
     minutesPerSession: String(inicial.minutesPerSession || 45),
   };
@@ -97,11 +93,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Días de entrenamiento: selección múltiple, cada clic activa/desactiva el día.
-  // Se guardan por nombre ("Lunes", "Jueves"...), igual que en el wizard (/profile).
+  // Se guardan por nombre ("Lunes", "Jueves"...), igual que en el modelo (DAYS).
   function setupDays() {
     var group = document.querySelector('[data-group="days"]');
     if (!group) return;
     var buttons = group.querySelectorAll("button");
+    var errDays = document.getElementById("err-days");
 
     function paint(btn) {
       var on = state.days.indexOf(btn.getAttribute("data-value")) !== -1;
@@ -109,15 +106,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     buttons.forEach(function (btn) {
-      paint(btn); // estado inicial (los días que ya venían guardados)
+      paint(btn);
       btn.addEventListener("click", function () {
         var value = btn.getAttribute("data-value");
         var idx = state.days.indexOf(value);
         if (idx === -1) state.days.push(value);
         else state.days.splice(idx, 1);
         paint(btn);
-        var err = document.getElementById("err-days");
-        if (err) err.textContent = "";
+        if (errDays) errDays.textContent = "";
       });
     });
   }
@@ -409,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
           : [],
       environment: state.environment,
       equipment: state.equipment,
-      days: state.days.slice(),
+      days: state.days,
       minutesPerSession: Number(state.minutesPerSession),
     };
 

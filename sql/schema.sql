@@ -149,7 +149,9 @@ INSERT INTO equipamiento (nombre) VALUES
 		id_tipo_plan INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
 		nombre_plan VARCHAR(50) NOT NULL UNIQUE,
 		valor DECIMAL(10,2) NOT NULL,
-		CHECK (valor >= 0)
+		precio_usd DECIMAL(10,2) NULL,
+		CHECK (valor >= 0),
+		CHECK (precio_usd IS NULL OR precio_usd >= 0)
 	);
 
 
@@ -171,13 +173,23 @@ INSERT INTO equipamiento (nombre) VALUES
 	CREATE TABLE pago (
 		id_pago INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
 		id_suscripcion INT NOT NULL,
+		paypal_order_id VARCHAR(64) NULL,
 		monto DECIMAL(10,2) NOT NULL,
+		moneda VARCHAR(3) NOT NULL DEFAULT 'USD',
 		fecha_pago DATE NOT NULL,
 		estado ENUM('Pendiente', 'Pagado', 'Rechazado') NOT NULL DEFAULT 'Pendiente',
 		creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
 		actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		FOREIGN KEY (id_suscripcion) REFERENCES suscripcion(id_suscripcion) ON DELETE RESTRICT,
+		UNIQUE KEY uq_pago_paypal_order (paypal_order_id),
 		CHECK (monto > 0)
+	);
+
+
+	CREATE TABLE webhook_evento (
+		id_evento VARCHAR(64) PRIMARY KEY,
+		tipo VARCHAR(80) NOT NULL,
+		recibido_en DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
 
 

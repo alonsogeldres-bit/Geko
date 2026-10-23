@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     alertBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  /* ---------- Resultado del pago al volver de Mercado Pago ---------- */
+  /* ---------- Resultado del pago al volver de PayPal ---------- */
 
   var params = new URLSearchParams(window.location.search);
   var estadoPago = params.get("pago");

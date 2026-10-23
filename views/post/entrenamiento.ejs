@@ -2,8 +2,6 @@
   const u = locals.usuario || {};
   const p = locals.perfil || {};
   const s = locals.sugerencia || {};
-  const r = locals.rutina || null;
-  const errorRutina = locals.error || null;
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
@@ -62,7 +60,7 @@
 
     <main class="dash-main">
       <h1 class="dash-title">Entrenamiento</h1>
-      <p class="muted subtitle">La rutina que te armamos para hoy.</p>
+      <p class="muted subtitle">La rutina que te/armamos para hoy.</p>
 
       <section class="card hero">
         <span class="tag">Rutina de hoy</span>
@@ -76,82 +74,20 @@
           <span><%= s.ejercicios %> ejercicios</span>
         </div>
         <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
-      </section>
 
-      <% if (errorRutina) { %>
-      <section class="card rutina-error">
-        <h3>No pudimos generar la rutina</h3>
-        <p class="muted"><%= errorRutina %></p>
+        <div class="empty soon-empty">
+          <strong>Esta pantalla estará lista pronto</strong>
+          <span class="muted">
+            Estamos preparando el generador de rutinas: tu ejercicio a ejercicio,
+            con series, repeticiones y tiempos de descanso, y el registro de cada
+            sesión para que tu racha y tu progreso se actualicen solos.
+          </span>
+        </div>
+
         <div class="acts">
-          <a class="ghost" href="/entrenamiento?nueva=1">Reintentar</a>
           <a class="ghost" href="/dashboard">← Volver al dashboard</a>
         </div>
       </section>
-      <% } else if (r) { %>
-      <section class="card rutina-ia">
-        <div class="perfil-head">
-          <h3>Tu rutina, ejercicio a ejercicio</h3>
-          <% if (r.fuente === 'local') { %>
-            <span class="chip chip-alerta">Rutina de respaldo</span>
-          <% } %>
-        </div>
-
-        <div class="meta">
-          <span><%= r.lugarEntrenamiento %></span>
-          <span>~<%= r.tiempoTotalMin %> min estimados</span>
-          <span><%= r.rutinaPrincipal.length %> ejercicios</span>
-        </div>
-
-        <% if (r.calentamiento && r.calentamiento.length) { %>
-        <h4 class="rutina-bloque">Calentamiento</h4>
-        <div class="lista-ejercicios">
-          <% r.calentamiento.forEach(function (ej) { %>
-            <article class="ejercicio-card">
-              <div class="ejercicio-head">
-                <h5><%= ej.nombre %></h5>
-                <span class="tag"><%= ej.duracionMin %> min</span>
-              </div>
-              <% if (ej.descripcion) { %><p class="muted small"><%= ej.descripcion %></p><% } %>
-            </article>
-          <% }) %>
-        </div>
-        <% } %>
-
-        <h4 class="rutina-bloque">Rutina principal</h4>
-        <div class="lista-ejercicios">
-          <% r.rutinaPrincipal.forEach(function (ej) { %>
-            <article class="ejercicio-card">
-              <div class="ejercicio-head">
-                <h5><%= ej.nombre %></h5>
-                <span class="tag"><%= ej.series %> × <%= ej.repeticiones %></span>
-              </div>
-              <% if (ej.descripcion) { %><p class="muted small"><%= ej.descripcion %></p><% } %>
-              <span class="muted small">Descanso: <%= ej.descansoSeg %> s</span>
-            </article>
-          <% }) %>
-        </div>
-
-        <% if (r.estiramiento && r.estiramiento.length) { %>
-        <h4 class="rutina-bloque">Estiramiento</h4>
-        <div class="lista-ejercicios">
-          <% r.estiramiento.forEach(function (ej) { %>
-            <article class="ejercicio-card">
-              <div class="ejercicio-head">
-                <h5><%= ej.nombre %></h5>
-                <span class="tag"><%= ej.duracionMin %> min</span>
-              </div>
-              <% if (ej.descripcion) { %><p class="muted small"><%= ej.descripcion %></p><% } %>
-            </article>
-          <% }) %>
-        </div>
-        <% } %>
-
-        <div class="acts rutina-acts">
-          <a class="ghost" href="/entrenamiento?nueva=1">Generar otra rutina</a>
-          <a class="ghost" href="/dashboard">← Volver al dashboard</a>
-        </div>
-      </section>
-      <% } %>
 
       <section class="card">
         <h3>Lo que ya sabemos de tu plan</h3>
@@ -170,17 +106,19 @@
           </div>
           <div class="perfil-dato">
             <span class="muted small">Dónde entrenas</span>
-            <strong><%= p.entorno || 'Sin definir' %></strong>
+            <strong><%= r.lugarEntrenamiento || p.entorno || 'Sin definir' %></strong>
           </div>
         </div>
         <p class="muted small aviso">
           Puedes ajustar cualquiera de estos datos en
           <a href="/configuracion" class="link">tu perfil</a>.
+          Si los cambias, la rutina se genera de nuevo automáticamente.
         </p>
       </section>
     </main>
   </div>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/entrenamiento.js"></script>
 </body>
 </html>

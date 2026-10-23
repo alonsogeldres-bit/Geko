@@ -1,75 +1,11 @@
-/* ===========================================
-   CONTROLADOR DE ENTRENAMIENTO
-   GET /entrenamiento
-   Muestra la rutina de hoy: la sugerencia del perfil
-   y el detalle ejercicio a ejercicio generado con IA.
-   =========================================== */
-
 const DashboardModel = require('../models/dashboardModel');
 const RoutineModel = require('../models/routineModel');
-const { generarRutinaPersonalizada } = require('../services/geminiService');
-
-/* Clave de la sesión donde se guarda la rutina del día. */
-const CACHE_RUTINA = 'rutinaIA';
-
-/**
- * Rutina de la sesión para hoy, si ya se generó.
- */
-const rutinaCacheada = (req) => {
-  const cache = req.session[CACHE_RUTINA];
-  if (!cache || !cache.rutina) return null;
-  if (cache.fecha !== RoutineModel.aFechaISO(new Date())) return null;
-  return cache.rutina;
-};
-
-/**
- * Genera la rutina con IA y la deja cacheada en la sesión por día,
- * para no llamar a la API en cada visita a la pantalla.
- * `?nueva=1` fuerza una rutina nueva.
- */
-const obtenerRutinaIA = async (req, perfil) => {
-  const cacheada = rutinaCacheada(req);
-  const forzar = req.query.nueva === '1';
-
-  if (cacheada && !forzar) {
-    return { rutina: cacheada, error: null };
-  }
-
-  try {
-    const rutina = await generarRutinaPersonalizada({
-      tiempoDisponible: perfil.minutosSesion,
-      lugarEntrenamiento: perfil.entorno,
-    });
-
-    req.session[CACHE_RUTINA] = {
-      fecha: RoutineModel.aFechaISO(new Date()),
-      rutina,
-    };
-
-    return { rutina, error: null };
-  } catch (err) {
-    console.error('[entrenamiento] error al generar la rutina con IA:', err.message);
-
-    /* Si ya había una rutina de hoy, se conserva y se avisa que no se pudo refrescar. */
-    if (cacheada) {
-      return {
-        rutina: cacheada,
-        error: 'No pudimos generar una rutina nueva. Te mostramos la de hoy.',
-      };
-    }
-
-    return {
-      rutina: null,
-      error: 'No pudimos generar la rutina con IA en este momento. Inténtalo de nuevo en un rato.',
-    };
-  }
-};
 
 /**
  * GET /entrenamiento
- * La sugerencia del perfil arma el encabezado; la rutina con IA arma
- * el detalle. Si la IA falla, la pantalla sigue funcionando con la
- * sugerencia y un mensaje de error.
+ * Placeholder: muestra la rutina que el dashboard propone para hoy, pero
+ * todavía no se puede ejecutar. El catálogo de ejercicios y el registro de
+ * sesiones se definitúan más adelante (la IA generará las rutinas).
  */
 const index = async (req, res) => {
   try {
@@ -86,14 +22,10 @@ const index = async (req, res) => {
     const alt = Math.max(0, parseInt(req.query.alt, 10) || 0);
     const sugerencia = RoutineModel.construirSugerencia(perfil, alt);
 
-    const { rutina, error } = await obtenerRutinaIA(req, perfil);
-
     return res.render('post/entrenamiento', {
       usuario: req.session.usuario,
       perfil,
       sugerencia,
-      rutina,
-      error,
     });
   } catch (err) {
     console.error('[entrenamiento] error al cargar los datos:', err.message);
@@ -101,6 +33,73 @@ const index = async (req, res) => {
   }
 };
 
+/**
+ * POST /entrenamiento/rutina
+ * Genera otra rutina y devuelve solo el HTML de la rutina para que el
+ * navegador lo sustituya sin recargar la página ni perder el scroll.
+ * Solo descuenta una solicitud si la IA respondió (no si se usó el
+ * respaldo local), para no gastar intentos cuando Groq está saturado.
+ */
+const generarOtra = async (req, res) => {
+  try {
+    const perfil = await DashboardModel.getPerfil(req.session.usuario.id_usuario);
+    if (!perfil) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Completa tu perfil para generar rutinas.',
+      });
+    }
+
+    const contexto = contextoPerfil(perfil);
+    const estado = obtenerEstado(req, contexto.huella, contexto.hoy);
+    const restantesAntes = Math.max(0, MAX_SOLICITUDES - estado.solicitadas);
+
+    if (restantesAntes === 0) {
+      return res.status(429).json({
+        ok: false,
+        limite: true,
+        restantes: 0,
+        error: `Ya usaste las ${MAX_SOLICITUDES} solicitudes de hoy.`,
+      });
+    }
+
+    const rutina = await generarRutina(contexto);
+    if (!rutinaValida(rutina)) {
+      throw new Error('El servicio devolvió una rutina vacía.');
+    }
+
+    const contada = rutina.fuente === 'groq';
+    if (contada) estado.solicitadas += 1;
+
+    estado.rutina = rutina;
+    estado.actualizadaEn = Date.now();
+
+    const restantes = Math.max(0, MAX_SOLICITUDES - estado.solicitadas);
+    const html = await renderRutina({
+      rutina,
+      perfil,
+      restantes,
+      limite: restantes === 0,
+      maxSolicitudes: MAX_SOLICITUDES,
+    });
+
+    return res.json({
+      ok: true,
+      html,
+      restantes,
+      limite: restantes === 0,
+      contada,
+      fuente: rutina.fuente || 'local',
+    });
+  } catch (err) {
+    console.error('[entrenamiento] error al generar otra rutina:', err.message);
+    return res.status(500).json({
+      ok: false,
+      error: 'No pudimos generar la rutina. Inténtalo de nuevo.',
+    });
+  }
+};
+
 module.exports = {
-  index,
+  index
 };

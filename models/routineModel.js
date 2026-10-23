@@ -90,10 +90,16 @@ const indicesDeDias = (dias) => {
  * Sugerencia del día, construida con el perfil real del usuario.
  * `alt` rota entre las variantes del objetivo.
  */
-const construirSugerencia = (perfil, alt = 0) => {
+const construirSugerencia = (perfil, alt = 0, ilimitado = false) => {
   const objetivo = perfil.objetivo || OBJETIVO_POR_DEFECTO;
   const variantes = RUTINAS[objetivo] || RUTINAS[OBJETIVO_POR_DEFECTO];
-  const rutina = variantes[limitar(Number(alt) || 0, 0, variantes.length - 1)];
+  // Premium: los cambios son infinitos, así que el índice da la vuelta (0,1,2,0,1,2...).
+  // Gratis: se queda en la última variante (tope de 3).
+  const n = Number(alt) || 0;
+  const indice = ilimitado
+    ? ((n % variantes.length) + variantes.length) % variantes.length
+    : limitar(n, 0, variantes.length - 1);
+  const rutina = variantes[indice];
 
   const minutos = Number(perfil.minutosSesion) || 45;
   const nivel = perfil.nivelFisico || 'Medio';
@@ -110,6 +116,7 @@ const construirSugerencia = (perfil, alt = 0) => {
     motivo: `${objetivo} · nivel ${NIVEL_ETIQUETA[nivel] || 'intermedio'} · ${entorno}`,
     variantes: variantes.length,
     indiceVariante: variantes.indexOf(rutina) + 1,
+    ilimitado: Boolean(ilimitado),
   };
 };
 

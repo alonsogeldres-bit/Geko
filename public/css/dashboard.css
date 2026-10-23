@@ -218,6 +218,16 @@ body {
 .ghost.is-flash,
 .ghost.is-flash:hover { background: transparent; transition: none; }
 
+/* Premium: símbolo de infinito dorado en lugar del contador (1/3) */
+.swap-infinito {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 6px;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.55));
+}
+.swap-infinito svg { display: block; }
+
 /* Límite de cambios alcanzado (3/3): no se puede hacer clic */
 .ghost:disabled { opacity: 0.5; cursor: not-allowed; }
 .ghost:disabled:hover { background: transparent; }

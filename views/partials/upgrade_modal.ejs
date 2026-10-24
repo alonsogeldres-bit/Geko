@@ -1,0 +1,23 @@
+<!-- ===========================================
+     MODAL DE MEJORA DE PLAN (límite semanal)
+     Se muestra cuando un usuario del plan Gratis ya vio
+     sus 3 sugerencias de la semana. El botón inferior
+     lleva a /planes. Lo controla public/js/dashboard.js.
+     =========================================== -->
+
+<div class="upgrade-overlay" id="upgrade-modal" role="dialog" aria-modal="true"
+     aria-labelledby="upgrade-title" aria-describedby="upgrade-text" hidden>
+  <div class="upgrade-card">
+    <button type="button" class="upgrade-close" id="upgrade-close" aria-label="Cerrar">&times;</button>
+
+    <span class="upgrade-kicker">Función Premium</span>
+    <h2 id="upgrade-title">Ya usaste tus 3 sugerencias</h2>
+    <p class="upgrade-text" id="upgrade-text">
+      El plan Gratis te deja cambiar la sugerencia <strong>3 veces por semana</strong>.
+      Con Premium tienes <strong>cambios ilimitados</strong> y rutinas adaptadas a tu perfil.
+    </p>
+
+    <a class="upgrade-cta" id="upgrade-cta" href="/planes">Ver planes</a>
+    <p class="upgrade-note">Tu contador vuelve a 1/3 cada lunes.</p>
+  </div>
+</div>

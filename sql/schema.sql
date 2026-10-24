@@ -193,6 +193,18 @@ INSERT INTO equipamiento (nombre) VALUES
 	);
 
 
+	CREATE TABLE uso_sugerencia (
+		id_uso INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+		id_cliente INT NOT NULL,
+		semana_inicio DATE NOT NULL,
+		ultimo_indice TINYINT UNSIGNED NOT NULL DEFAULT 1,
+		actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
+		UNIQUE KEY uq_uso_sugerencia_semana (id_cliente, semana_inicio),
+		KEY idx_uso_sugerencia_semana (semana_inicio)
+	);
+
+
 	CREATE TABLE ejercicios (
 		id_ejercicio INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
 		nombre VARCHAR(50) NOT NULL,

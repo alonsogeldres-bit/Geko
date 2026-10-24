@@ -24,11 +24,55 @@
   }
 
   // Cambiar sugerencia: pide la siguiente al servidor (POST) y actualiza solo
-  // la tarjeta, sin recargar la página. El límite (3) lo marca el servidor.
+  // la tarjeta, sin recargar la página. El límite semanal (3) lo decide el
+  // servidor: si responde 402, se abre el modal de mejora de plan.
   var swap = document.getElementById('btn-swap');
   if (swap) {
-    var alt = 0;           // sugerencia que se está viendo (0 = 1/3)
+    var indice = parseInt(swap.getAttribute('data-indice'), 10) || 1;
+    var variantes = parseInt(swap.getAttribute('data-variantes'), 10) || 1;
+    var ilimitado = swap.getAttribute('data-ilimitado') === 'true';
     var cargando = false;
+
+    /* ---------- Modal de límite semanal ---------- */
+    var modal = document.getElementById('upgrade-modal');
+    var focoPrevio = null;
+
+    var abrirModal = function () {
+      if (!modal) return;
+      focoPrevio = document.activeElement;
+      modal.hidden = false;
+      document.body.classList.add('modal-abierto');
+
+      var cta = document.getElementById('upgrade-cta');
+      if (cta) cta.focus();
+    };
+
+    var cerrarModal = function () {
+      if (!modal || modal.hidden) return;
+      modal.hidden = true;
+      document.body.classList.remove('modal-abierto');
+
+      // Devuelve el foco a donde estaba (normalmente el botón de cambiar).
+      if (focoPrevio && typeof focoPrevio.focus === 'function') focoPrevio.focus();
+      else swap.focus();
+    };
+
+    if (modal) {
+      var cerrar = document.getElementById('upgrade-close');
+      if (cerrar) cerrar.addEventListener('click', cerrarModal);
+
+      // Clic en el fondo (fuera de la tarjeta)
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) cerrarModal();
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) {
+          e.preventDefault();
+          cerrarModal();
+        }
+      });
+    }
 
     var setText = function (id, texto) {
       var el = document.getElementById(id);
@@ -49,14 +93,17 @@
       // "Comenzar entrenamiento" debe abrir la variante que se está viendo
       var start = document.getElementById('btn-start');
       if (start) start.setAttribute('href', '/entrenamiento?alt=' + (s.indiceVariante - 1));
-
-      // Límite alcanzado (p. ej. 3/3): el botón se desactiva
-      // Premium nunca llega al límite: el botón siempre queda activo
-      swap.disabled = !s.ilimitado && s.indiceVariante >= s.variantes;
     };
 
     swap.addEventListener('click', function () {
-      if (cargando || swap.disabled) return;
+      if (cargando) return;
+
+      // Plan Gratis en 3/3: el modal se abre sin llamar al servidor.
+      if (!ilimitado && indice >= variantes) {
+        abrirModal();
+        return;
+      }
+
       cargando = true;
 
       // Parpadeo: durante 0,2 s el botón muestra su color original (sin el gris del hover)
@@ -67,16 +114,25 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ alt: alt + 1 })
+        body: JSON.stringify({ alt: indice })
       })
         .then(function (res) {
+          // Límite semanal alcanzado: se ofrece Premium.
+          if (res.status === 402) {
+            abrirModal();
+            return null;
+          }
           if (!res.ok) throw new Error('HTTP ' + res.status);
           return res.json();
         })
         .then(function (s) {
-          // Premium: se sigue contando hacia arriba (el servidor da la vuelta);
-          // Gratis: se sincroniza con la variante real (tope 3).
-          alt = s.ilimitado ? alt + 1 : s.indiceVariante - 1;
+          if (!s) return;
+
+          // Gratis: el servidor manda la variante ya consumida (1..3).
+          // Premium: también devuelve la variante mostrada (rotación infinita).
+          indice = s.indiceVariante || 1;
+          if (s.variantes) variantes = s.variantes;
+
           pintar(s);
         })
         .catch(function () {

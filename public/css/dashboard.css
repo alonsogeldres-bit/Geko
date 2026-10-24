@@ -486,3 +486,121 @@ body {
   .perfil-head h3 { margin-bottom: 0; }
   .ejercicio-head { flex-direction: column; align-items: flex-start; gap: 6px; }
 }
+
+/* ===========================================
+   MODAL DE MEJORA DE PLAN
+   Aviso del límite semanal del plan Gratis.
+   =========================================== */
+
+body.modal-abierto { overflow: hidden; }
+
+.upgrade-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(2, 16, 8, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.upgrade-overlay[hidden] { display: none; }
+
+.upgrade-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 34px 30px 26px;
+  text-align: center;
+  background: rgba(5, 46, 22, 0.95);
+  border: 1px solid var(--ac);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(111, 220, 106, 0.15);
+  animation: upgrade-entra 0.22s ease;
+}
+
+@keyframes upgrade-entra {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.upgrade-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--mut);
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.upgrade-close:hover,
+.upgrade-close:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  outline: none;
+}
+
+.upgrade-kicker {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ac);
+}
+
+.upgrade-card h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.upgrade-text {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mut);
+}
+
+.upgrade-text strong { color: #ffffff; }
+
+.upgrade-cta {
+  display: block;
+  width: 100%;
+  padding: 13px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-ac);
+  text-align: center;
+  text-decoration: none;
+  background: var(--ac);
+  border-radius: 12px;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.upgrade-cta:hover { filter: brightness(1.08); }
+
+.upgrade-cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.upgrade-note {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--mut);
+}

@@ -108,7 +108,11 @@
           <a class="cta" id="btn-start" href="/entrenamiento<%= (s.indiceVariante ? '?alt=' + (s.indiceVariante - 1) : '') %>">
             ▶ <%= prog ? 'Retomar entrenamiento' : 'Comenzar entrenamiento' %>
           </a>
-          <button type="button" class="ghost" id="btn-swap" <%= (!s.ilimitado && s.indiceVariante >= s.variantes) ? 'disabled' : '' %>>
+          <button type="button" class="ghost" id="btn-swap"
+                  data-indice="<%= s.indiceVariante || 1 %>"
+                  data-variantes="<%= s.variantes || 1 %>"
+                  data-ilimitado="<%= s.ilimitado ? 'true' : 'false' %>"
+                  aria-haspopup="dialog">
             ↻ Cambiar sugerencia
             <% if (s.ilimitado) { %>
               <span class="swap-infinito" id="sug-contador" title="Cambios ilimitados con Premium" aria-label="Cambios ilimitados">
@@ -186,6 +190,8 @@
       </section>
     </main>
   </div>
+
+  <%- include('../partials/upgrade_modal') %>
 
   <script src="/js/dashboard.js"></script>
 </body>

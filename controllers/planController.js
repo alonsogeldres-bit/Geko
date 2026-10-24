@@ -30,6 +30,7 @@ const showPlanes = async (req, res) => {
       planes,
       suscripcion,
       pendiente,
+      usuarioPremium: Boolean(suscripcion && suscripcion.valor > 0),
     });
   } catch (err) {
     console.error('[planes] error al cargar los planes:', err.message);

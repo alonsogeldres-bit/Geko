@@ -1,16 +1,28 @@
 const ProfileModel = require('../models/profileModel');
+const PlanModel = require('../models/planModel');
 
 // GET /configuracion — muestra los datos actuales del perfil para editarlos.
 // Sin perfil (sin fila en clientes) no hay nada que editar: va al wizard.
 const showConfig = async (req, res) => {
   try {
-    const perfil = await ProfileModel.getProfileByUser(req.session.usuario.id_usuario);
+    const idUsuario = req.session.usuario.id_usuario;
+    const perfil = await ProfileModel.getProfileByUser(idUsuario);
 
     if (!perfil) {
       return res.redirect('/profile');
     }
 
-    res.render('post/configuracion', { perfil });
+    // Premium = plan de pago activo. Ante cualquier fallo se muestra como Gratis.
+    let usuarioPremium = false;
+    try {
+      const idCliente = await PlanModel.getClienteByUser(idUsuario);
+      const plan = idCliente ? await PlanModel.getEffectivePlan(idCliente) : null;
+      usuarioPremium = Boolean(plan && plan.esDePago);
+    } catch (e) {
+      console.error('[configuración] no se pudo resolver el plan:', e.message);
+    }
+
+    res.render('post/configuracion', { perfil, usuarioPremium });
   } catch (err) {
     console.error('[configuración] error al cargar el perfil:', err.message);
     res.status(500).send('No pudimos cargar tu configuración. Inténtalo de nuevo.');

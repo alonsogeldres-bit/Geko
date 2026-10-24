@@ -91,3 +91,127 @@
     width: 100%;
   }
 }
+
+
+/* ===========================================
+   PREMIUM - Configuración
+   Solo se aplica con la clase `is-premium` (la pone el servidor
+   cuando el usuario tiene un plan de pago activo). Los usuarios
+   Gratis no ven ningún cambio.
+   =========================================== */
+
+.profile-page.is-premium {
+  --gold-1: #fff1a8;
+  --gold-2: #ffd75e;
+  --gold-3: #d4a017;
+  --gold-soft: #e8c96a;                     /* dorado suave: etiquetas y subtítulos */
+  --gold-line: rgba(212, 160, 23, 0.38);    /* bordes finos */
+  --gold-tint: rgba(255, 215, 94, 0.10);    /* fondos al pasar el mouse */
+  --gold-glow: rgba(255, 215, 94, 0.22);
+  --on-gold: #1a1400;                       /* texto sobre dorado */
+  --gold-grad: linear-gradient(135deg, #fff1a8 0%, #ffd75e 50%, #d4a017 100%);
+}
+
+/* Texto con degradado dorado */
+.profile-page.is-premium .profile-title,
+.profile-page.is-premium .welcome-brand,
+.profile-page.is-premium .config-section-title {
+  background: var(--gold-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.profile-page.is-premium.bg-gradient {
+  background: #000000;
+}
+
+.profile-page.is-premium .step-counter,
+.profile-page.is-premium .field-label {
+  color: var(--gold-soft);
+}
+
+.profile-page.is-premium .profile-step-icon {
+  background: var(--gold-tint);
+  color: var(--gold-2);
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+
+.profile-page.is-premium .btn-logout {
+  border-color: var(--gold-line);
+  color: var(--gold-2);
+}
+.profile-page.is-premium .btn-logout:hover { background: var(--gold-tint); }
+
+/* Tarjetas de cada sección */
+.profile-page.is-premium .config-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--gold-line);
+}
+
+/* Campos de texto */
+.profile-page.is-premium .input {
+  border-color: var(--gold-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.profile-page.is-premium .input:focus {
+  border-color: var(--gold-2);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+  outline: none;
+}
+
+/* Selectores segmentados, chips y niveles */
+.profile-page.is-premium .segmented {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--gold-line);
+}
+.profile-page.is-premium .chip,
+.profile-page.is-premium .level-option,
+.profile-page.is-premium .surgery-card {
+  border-color: var(--gold-line);
+}
+
+.profile-page.is-premium .segmented-opt.active,
+.profile-page.is-premium .chip-active {
+  background: var(--gold-grad);
+  border-color: var(--gold-2);
+  color: var(--on-gold);
+}
+
+.profile-page.is-premium .level-option-active {
+  border-color: var(--gold-2);
+  background: var(--gold-tint);
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+.profile-page.is-premium .level-option-active .icon { color: var(--gold-2); }
+
+/* Botones: el principal va negro con borde y texto dorados, igual que
+   "Comenzar entrenamiento" en el dashboard. */
+.profile-page.is-premium .btn-primary {
+  background: #000000;
+  color: var(--gold-2);
+  border: 1px solid var(--gold-2);
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+.profile-page.is-premium .btn-primary:hover {
+  background: var(--gold-tint);
+  box-shadow: 0 0 20px rgba(255, 215, 94, 0.35);
+}
+
+.profile-page.is-premium .btn-ghost {
+  color: var(--gold-soft);
+  border-color: var(--gold-line);
+}
+.profile-page.is-premium .btn-ghost:hover { background: var(--gold-tint); }
+
+/* Aviso de "guardado" (success) en dorado; el de error se queda rojo. */
+.profile-page.is-premium .config-alert[data-variant="success"] {
+  background: var(--gold-tint);
+  border-color: var(--gold-line);
+  color: var(--gold-1);
+}
+.profile-page.is-premium .config-alert[data-variant="success"] .config-alert-icon {
+  background: var(--gold-2);
+  color: var(--on-gold);
+}

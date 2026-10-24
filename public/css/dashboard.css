@@ -372,86 +372,76 @@ body {
 
 /* ---------- Rutina generada con IA: ajustes en móvil ---------- */
 
-/* ---------- Rutina detallada (IA / respaldo) ---------- */
+/* ---------- Look Premium (dorado sobre el verde, solo textos y logo) ---------- */
 
-.rutina-aviso {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 0 0 22px;
-  padding: 14px 18px;
-  border: 1px dashed rgba(255, 193, 7, 0.55);
-  border-radius: 12px;
-  background: rgba(255, 193, 7, 0.08);
-  font-size: 14px;
-  line-height: 1.5;
+.is-premium {
+  --gold-1: #fff1a8;
+  --gold-2: #ffd75e;
+  --gold-3: #d4a017;
+  --gold-soft: #f3d778;
 }
 
-.rutina-aviso strong { color: #ffd76a; }
-.rutina-aviso span { color: var(--mut); }
+/* Fondo negro (solo el fondo; tarjetas, textos y botones no cambian) */
+.dash-page.is-premium { background: #000000; }
 
-.rutina-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+/* Avatar: letra dorada. El verde claro no deja leer el dorado, así que el círculo pasa a oscuro con borde dorado */
+.is-premium .avatar-btn {
+  background: #0d0d0d;
+  color: #ffd75e;
+  border-color: rgba(255, 215, 94, 0.75);
+  box-shadow: 0 0 10px rgba(255, 215, 94, 0.25);
 }
 
-.rutina-item {
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+/* Botón principal: negro con borde y texto dorado */
+.is-premium .cta {
+  background: #0d0d0d;
+  color: #ffd75e;
+  border: 1px solid rgba(255, 215, 94, 0.8);
+  box-shadow: 0 0 14px rgba(255, 215, 94, 0.18);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.is-premium .cta:hover {
+  background: rgba(255, 215, 94, 0.12);
+  box-shadow: 0 0 20px rgba(255, 215, 94, 0.32);
+  filter: none;
 }
 
-.rutina-item-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+/* Logo dorado con un leve brillo */
+.is-premium .logo-brand img {
+  filter: brightness(0) saturate(100%) invert(84%) sepia(52%) saturate(900%) hue-rotate(358deg) brightness(104%)
+          drop-shadow(0 0 6px rgba(255, 215, 94, 0.45));
 }
 
-.rutina-item-head strong { font-size: 15px; }
-
-.rutina-item .muted {
-  margin: 6px 0 0;
-  font-size: 14px;
-  line-height: 1.5;
+/* Títulos y cifras grandes: degradado dorado */
+.is-premium .brand-text,
+.is-premium .dash-title,
+.is-premium .hero-title,
+.is-premium .big {
+  background: linear-gradient(100deg, var(--gold-1) 0%, var(--gold-2) 50%, var(--gold-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
-.rutina-item .chip { white-space: nowrap; }
+/* Etiquetas y subtítulos de tarjetas: dorado suave */
+.is-premium .tag,
+.is-premium .card h3,
+.is-premium .perfil-edit,
+.is-premium .link { color: var(--gold-soft); }
 
-.rutina-descanso {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--mut);
-}
-
-/* Contador de solicitudes y mensajes de la generación sin recarga */
-.rutina-contador {
-  margin: 12px 0 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--mut);
-}
-
-.rutina-contador b { color: #ffffff; }
-
-.rutina-estado {
-  min-height: 20px;
-  margin: 0 2px 12px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--mut);
-}
-
-.rutina-estado:empty { min-height: 0; margin-bottom: 0; }
-
-@media (max-width: 600px) {
-  .rutina-item-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+/* Insignia PREMIUM junto al logo */
+.premium-badge {
+  align-self: center;
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 215, 94, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 215, 94, 0.12);
+  color: #ffd75e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 /* Menú del perfil (desplegable del avatar): negro con borde y textos dorados */

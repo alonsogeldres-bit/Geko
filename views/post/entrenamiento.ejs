@@ -2,11 +2,6 @@
   const u = locals.usuario || {};
   const p = locals.perfil || {};
   const s = locals.sugerencia || {};
-  const r = locals.rutina || null;
-  const errorRutina = locals.error || null;
-=========
-  const r = locals.rutina || {};
->>>>>>>>> Temporary merge branch 2
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
@@ -65,15 +60,12 @@
 
     <main class="dash-main">
       <h1 class="dash-title">Entrenamiento</h1>
-<<<<<<<<< Temporary merge branch 1
-      <p class="muted subtitle">La rutina que te armamos para hoy.</p>
-=========
-      <p class="muted subtitle">La rutina que armamos para hoy según tu perfil.</p>
->>>>>>>>> Temporary merge branch 2
+      <p class="muted subtitle">La rutina que te/armamos para hoy.</p>
 
-      <p id="rutina-estado" class="rutina-estado" role="status" aria-live="polite"><%= locals.aviso || '' %></p>
+      <section class="card hero">
+        <span class="tag">Rutina de hoy</span>
+        <h2 class="hero-title"><%= s.nombre %></h2>
 
-<<<<<<<<< Temporary merge branch 1
         <div class="meta">
           <span><%= s.tipo %></span>
           <span>~<%= s.minutos %> min</span>
@@ -96,18 +88,6 @@
           <a class="ghost" href="/dashboard">← Volver al dashboard</a>
         </div>
       </section>
-      <% } %>
-=========
-      <div id="rutina-contenedor" aria-live="off">
-        <%- include('../partials/rutina', {
-          rutina: rutina,
-          perfil: perfil,
-          restantes: restantes,
-          limite: limite,
-          maxSolicitudes: maxSolicitudes
-        }) %>
-      </div>
->>>>>>>>> Temporary merge branch 2
 
       <section class="card">
         <h3>Lo que ya sabemos de tu plan</h3>
@@ -126,17 +106,19 @@
           </div>
           <div class="perfil-dato">
             <span class="muted small">Dónde entrenas</span>
-            <strong><%= p.entorno || 'Sin definir' %></strong>
+            <strong><%= r.lugarEntrenamiento || p.entorno || 'Sin definir' %></strong>
           </div>
         </div>
         <p class="muted small aviso">
           Puedes ajustar cualquiera de estos datos en
           <a href="/configuracion" class="link">tu perfil</a>.
+          Si los cambias, la rutina se genera de nuevo automáticamente.
         </p>
       </section>
     </main>
   </div>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/entrenamiento.js"></script>
 </body>
 </html>

@@ -1,215 +1,11 @@
-<<<<<<<<< Temporary merge branch 1
-/* ===========================================
-   CONTROLADOR DE ENTRENAMIENTO
-   GET /entrenamiento
-   Muestra la rutina de hoy: la sugerencia del perfil
-   y el detalle ejercicio a ejercicio generado con IA.
-   =========================================== */
-
 const DashboardModel = require('../models/dashboardModel');
 const RoutineModel = require('../models/routineModel');
-const { generarRutinaPersonalizada } = require('../services/geminiService');
-
-/* Clave de la sesión donde se guarda la rutina del día. */
-const CACHE_RUTINA = 'rutinaIA';
-
-/**
- * Rutina de la sesión para hoy, si ya se generó.
- */
-const rutinaCacheada = (req) => {
-  const cache = req.session[CACHE_RUTINA];
-  if (!cache || !cache.rutina) return null;
-  if (cache.fecha !== RoutineModel.aFechaISO(new Date())) return null;
-  return cache.rutina;
-};
-
-/**
- * Genera la rutina con IA y la deja cacheada en la sesión por día,
- * para no llamar a la API en cada visita a la pantalla.
- * `?nueva=1` fuerza una rutina nueva.
- */
-const obtenerRutinaIA = async (req, perfil) => {
-  const cacheada = rutinaCacheada(req);
-  const forzar = req.query.nueva === '1';
-
-  if (cacheada && !forzar) {
-    return { rutina: cacheada, error: null };
-  }
-
-  try {
-    const rutina = await generarRutinaPersonalizada({
-      tiempoDisponible: perfil.minutosSesion,
-      lugarEntrenamiento: perfil.entorno,
-    });
-
-    req.session[CACHE_RUTINA] = {
-      fecha: RoutineModel.aFechaISO(new Date()),
-      rutina,
-    };
-
-    return { rutina, error: null };
-  } catch (err) {
-    console.error('[entrenamiento] error al generar la rutina con IA:', err.message);
-
-    /* Si ya había una rutina de hoy, se conserva y se avisa que no se pudo refrescar. */
-    if (cacheada) {
-      return {
-        rutina: cacheada,
-        error: 'No pudimos generar una rutina nueva. Te mostramos la de hoy.',
-      };
-    }
-
-    return {
-      rutina: null,
-      error: 'No pudimos generar la rutina con IA en este momento. Inténtalo de nuevo en un rato.',
-    };
-  }
-};
 
 /**
  * GET /entrenamiento
- * La sugerencia del perfil arma el encabezado; la rutina con IA arma
- * el detalle. Si la IA falla, la pantalla sigue funcionando con la
- * sugerencia y un mensaje de error.
-=========
-const crypto = require('crypto');
-const path = require('path');
-const ejs = require('ejs');
-const DashboardModel = require('../models/dashboardModel');
-const { generarRutinaPersonalizada } = require('../services/groqService');
-
-/* Estado de la rutina del día en la sesión del usuario. */
-const CLAVE_ESTADO = 'estadoEntrenamiento';
-
-/* Clave antigua, solo para migrar sesiones que ya estaban abiertas. */
-const CLAVE_ANTERIOR = 'rutinaEntrenamiento';
-
-/* Máximo de rutinas nuevas que se pueden pedir con "Generar otra rutina". */
-const MAX_SOLICITUDES = 3;
-
-/* Una rutina de respaldo se reintenta a los 5 minutos: si la API vuelve,
-   no hay que esperar hasta el día siguiente para ver la rutina con IA. */
-const TTL_RESPALDO_MS = 5 * 60 * 1000;
-
-/* Vista parcial que se devuelve al generar una rutina sin recargar la página. */
-const VISTA_RUTINA = path.join(__dirname, '..', 'views', 'partials', 'rutina.ejs');
-
-/** Fecha local en formato YYYY-MM-DD (sin el corrimiento de zona de toISOString). */
-const fechaLocalISO = (fecha = new Date()) => {
-  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-  const dia = String(fecha.getDate()).padStart(2, '0');
-  return `${fecha.getFullYear()}-${mes}-${dia}`;
-};
-
-/**
- * Huella de los datos que influyen en la rutina. Si el usuario cambia
- * su objetivo, minutos, entorno, nivel, lesiones o equipamiento en
- * /configuracion, la huella cambia y la rutina se vuelve a generar.
- */
-const huellaPerfil = (perfil) => crypto
-  .createHash('sha1')
-  .update(JSON.stringify({
-    objetivo: perfil.objetivo || null,
-    observacionObjetivo: perfil.observacionObjetivo || null,
-    entorno: perfil.entorno || null,
-    minutosSesion: perfil.minutosSesion || null,
-    nivelFisico: perfil.nivelFisico || null,
-    pesoKg: perfil.pesoKg || null,
-    alturaCm: perfil.alturaCm || null,
-    lesiones: perfil.lesiones || [],
-    equipamiento: perfil.equipamiento || [],
-    dias: perfil.dias || [],
-  }))
-  .digest('hex');
-
-/** Normaliza los datos del perfil que usan el prompt y la huella. */
-const contextoPerfil = (perfil) => {
-  const minutosSesion = Number(perfil.minutosSesion) || 45;
-  const entorno = perfil.entorno || 'gimnasio';
-  const perfilRutina = { ...perfil, minutosSesion, entorno };
-
-  return {
-    minutosSesion,
-    entorno,
-    perfilRutina,
-    huella: huellaPerfil(perfilRutina),
-    hoy: fechaLocalISO(),
-  };
-};
-
-/** Llama al servicio de IA (que ya incluye su propio respaldo local). */
-const generarRutina = (contexto) => generarRutinaPersonalizada({
-  tiempoDisponible: contexto.minutosSesion,
-  lugarEntrenamiento: contexto.entorno,
-  perfil: contexto.perfilRutina,
-});
-
-/**
- * Devuelve el estado vigente del día. Si cambió el perfil o la fecha,
- * empieza de cero (esto también reinicia el contador de solicitudes).
- */
-const obtenerEstado = (req, huella, hoy) => {
-  const actual = req.session[CLAVE_ESTADO];
-
-  if (actual && actual.huella === huella && actual.fecha === hoy) {
-    actual.solicitadas = Math.max(
-      0,
-      Math.min(MAX_SOLICITUDES, Number(actual.solicitadas) || 0)
-    );
-    if (!actual.rutina) actual.rutina = null;
-    if (!Number.isFinite(Number(actual.actualizadaEn))) actual.actualizadaEn = 0;
-    return actual;
-  }
-
-  /* Migración de la sesión anterior, que guardaba la rutina suelta. */
-  const anterior = req.session[CLAVE_ANTERIOR];
-  if (anterior && anterior.huella === huella && anterior.fecha === hoy) {
-    const migrado = {
-      huella,
-      fecha: hoy,
-      solicitadas: 0,
-      rutina: anterior,
-      actualizadaEn: anterior.generadaEn || Date.now(),
-    };
-    req.session[CLAVE_ESTADO] = migrado;
-    delete req.session[CLAVE_ANTERIOR];
-    return migrado;
-  }
-
-  const estado = {
-    huella,
-    fecha: hoy,
-    solicitadas: 0,
-    rutina: null,
-    actualizadaEn: 0,
-  };
-  req.session[CLAVE_ESTADO] = estado;
-  return estado;
-};
-
-/** Un respaldo local viejo se intenta regenerar con la IA al volver a entrar. */
-const respaldoVencido = (estado) => Boolean(
-  estado.rutina
-  && estado.rutina.fuente === 'local'
-  && Date.now() - (estado.actualizadaEn || 0) > TTL_RESPALDO_MS
-);
-
-/** Una rutina cacheada solo sirve si tiene al menos un ejercicio principal. */
-const rutinaValida = (rutina) => Boolean(
-  rutina
-  && Array.isArray(rutina.rutinaPrincipal)
-  && rutina.rutinaPrincipal.length > 0
-);
-
-/** Renderiza el parcial que sustituye la rutina en el navegador. */
-const renderRutina = (datos) => ejs.renderFile(VISTA_RUTINA, datos);
-
-/**
- * GET /entrenamiento
- * Muestra la rutina del día. Se genera con Groq bajo demanda y se
- * guarda en la sesión para no repetir la llamada en cada visita.
- * Con ?nueva=1 se fuerza una rutina nueva (fallback sin JavaScript).
->>>>>>>>> Temporary merge branch 2
+ * Placeholder: muestra la rutina que el dashboard propone para hoy, pero
+ * todavía no se puede ejecutar. El catálogo de ejercicios y el registro de
+ * sesiones se definitúan más adelante (la IA generará las rutinas).
  */
 const index = async (req, res) => {
   try {
@@ -225,55 +21,11 @@ const index = async (req, res) => {
 
     const alt = Math.max(0, parseInt(req.query.alt, 10) || 0);
     const sugerencia = RoutineModel.construirSugerencia(perfil, alt);
-=========
-    const contexto = contextoPerfil(perfil);
-    const estado = obtenerEstado(req, contexto.huella, contexto.hoy);
-
-    const forzar = req.query.nueva === '1';
-    const limiteAlcanzado = estado.solicitadas >= MAX_SOLICITUDES;
-    let aviso = null;
-
-    if (forzar) {
-      if (limiteAlcanzado) {
-        aviso = `Ya usaste las ${MAX_SOLICITUDES} solicitudes de hoy.`;
-      } else {
-        const rutina = await generarRutina(contexto);
-        if (rutina.fuente === 'groq') estado.solicitadas += 1;
-        estado.rutina = rutina;
-        estado.actualizadaEn = Date.now();
-      }
-    }
-
-    /* Un respaldo local vencido se reintenta solo si aún quedan solicitudes:
-       así el reintento no se convierte en una generación extra gratis. */
-    if (respaldoVencido(estado) && estado.solicitadas < MAX_SOLICITUDES) {
-      estado.rutina = null;
-    }
-
-    /* La primera rutina automática del día no descuenta solicitudes. */
-    if (!rutinaValida(estado.rutina)) {
-      estado.rutina = await generarRutina(contexto);
-      estado.actualizadaEn = Date.now();
-    }
-
-    const restantes = Math.max(0, MAX_SOLICITUDES - estado.solicitadas);
->>>>>>>>> Temporary merge branch 2
-
-    const { rutina, error } = await obtenerRutinaIA(req, perfil);
 
     return res.render('post/entrenamiento', {
       usuario: req.session.usuario,
       perfil,
       sugerencia,
-      rutina,
-      error,
-=========
-      rutina: estado.rutina,
-      restantes,
-      limite: restantes === 0,
-      maxSolicitudes: MAX_SOLICITUDES,
-      aviso,
->>>>>>>>> Temporary merge branch 2
     });
   } catch (err) {
     console.error('[entrenamiento] error al cargar los datos:', err.message);
@@ -281,10 +33,6 @@ const index = async (req, res) => {
   }
 };
 
-<<<<<<<<< Temporary merge branch 1
-module.exports = {
-  index,
-=========
 /**
  * POST /entrenamiento/rutina
  * Genera otra rutina y devuelve solo el HTML de la rutina para que el
@@ -354,6 +102,5 @@ const generarOtra = async (req, res) => {
 
 module.exports = {
   index,
-  generarOtra,
->>>>>>>>> Temporary merge branch 2
+  generarOtra
 };

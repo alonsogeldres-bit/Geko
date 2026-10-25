@@ -1,5 +1,6 @@
 const PlanModel = require('../models/planModel');
 const paypal = require('../config/paypal');
+const mailer = require('../config/mailer');
 
 /* Aviso único si falta PAYPAL_WEBHOOK_ID (no spamear el log). */
 let avisoWebhookSinFirmaMostrado = false;
@@ -130,7 +131,52 @@ const activarDesdeOrden = async (orden) => {
   if (pago.estado === 'Pagado') return 'aprobado';
 
   const activada = await PlanModel.activateSubscription(pago.id_suscripcion);
-  return activada ? 'aprobado' : 'invalida';
+
+if (!activada) {
+  return 'invalida';
+}
+
+// Obtener los datos del usuario para enviar el correo.
+const usuario = await PlanModel.getUserBySubscription(pago.id_suscripcion);
+
+if (usuario && usuario.correo) {
+  try {
+    await mailer.sendMail({
+      to: usuario.correo,
+      subject: '¡Tu Premium de GEKO ya está activo!',
+      text: [
+        `Hola ${usuario.nombre},`,
+        '',
+        'Recibimos tu pago correctamente.',
+        '',
+        'Tu plan Premium de GEKO ya está activo en tu cuenta.',
+        'Ahora puedes disfrutar de las funciones Premium de GEKO.',
+        '',
+        '¡Gracias por ser parte de nuestra comunidad de Gekos! 🦎💖',
+        'Si no solicitaste esta compra de 9.990$, que lamentable',
+      ].join('\n'),
+      html: [
+        `<p>Hola ${usuario.nombre},</p>`,
+        '<p>Recibimos tu pago correctamente.</p>',
+        '<p><strong>Tu plan Premium de GEKO ya está activo en tu cuenta.</strong></p>',
+        '<p>Ahora puedes disfrutar de las funciones Premium de GEKO.</p>',
+        '<p>¡Gracias por ser parte de nuestra comunidad de Gekos! 🦎💖</p>',
+        '<p>Si no solicitaste esta compra de 9.990$, que lamentable</p>',
+      ].join(''),
+    });
+
+    console.log(`[planes] correo Premium enviado a ${usuario.correo}`);
+  } catch (mailError) {
+    // El pago ya fue confirmado, así que un error de correo
+    // no debe hacer que el pago aparezca como fallido.
+    console.error(
+      `[planes] pago confirmado, pero no se pudo enviar el correo a ${usuario.correo}:`,
+      mailError.message
+    );
+  }
+}
+
+return 'aprobado';
 };
 
 /**

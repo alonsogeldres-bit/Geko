@@ -97,6 +97,22 @@ const getPaymentBySubscription = async (idSuscripcion) => {
   return rows.length ? rows[0] : null;
 };
 
+/** Obtiene los datos del usuario asociado a una suscripción. */
+const getUserBySubscription = async (idSuscripcion) => {
+  const [rows] = await pool.query(
+    `SELECT u.id_usuario, u.nombre, u.apellido, u.correo,
+            c.id_cliente
+       FROM usuarios u
+       INNER JOIN clientes c ON c.id_usuario = u.id_usuario
+       INNER JOIN suscripcion s ON s.id_cliente = c.id_cliente
+      WHERE s.id_suscripcion = ?
+      LIMIT 1`,
+    [idSuscripcion]
+  );
+
+  return rows.length ? rows[0] : null;
+};
+
 /** Pago (y suscripción) asociado a una orden de PayPal, o null. */
 const getByPaypalOrderId = async (orderId) => {
   const [rows] = await pool.query(
@@ -607,6 +623,7 @@ module.exports = {
   getPlanById,
   getSubscriptionById,
   getPaymentBySubscription,
+  getUserBySubscription,
   getByPaypalOrderId,
   createPendingCheckout,
   attachPaypalOrder,

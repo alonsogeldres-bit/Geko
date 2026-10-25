@@ -11,8 +11,7 @@
 
 | Archivo | Cambio |
 |---|---|
-| `sql/migracion-paypal-pago-unico.sql` | **Nuevo.** Migración idempotente y ya aplicada en la BD local |
-| `sql/schema.sql` | Sincronizado con la migración (evita el drift tipo E1) |
+| `sql/schema.sql` | **Actualizado.** Incluye los cambios de PayPal (`precio_usd`, `paypal_order_id`, `moneda` y `webhook_evento`). El archivo de migración se eliminó al quedar el esquema como única fuente de verdad |
 | `models/planModel.js` | Checkout pendiente, vínculo con la orden, activación idempotente, rechazos y expiración |
 | `controllers/planController.js` | Validación de monto/moneda, control de concurrencia, webhook con firma e idempotencia |
 | `config/paypal.js` | `verifyWebhookSignature` |

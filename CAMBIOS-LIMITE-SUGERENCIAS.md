@@ -2,8 +2,8 @@
 
 > **Estado:** IMPLEMENTADO — **pendiente de commit** (a pedido del usuario: sin commit)
 > **Fecha:** 24-10-2026
-> **Archivos afectados:** 4 modificados + 3 nuevos + `sql/schema.sql` sincronizado
-> **Base de datos:** **nueva tabla** `uso_sugerencia` (migración idempotente ya aplicada en la BD local)
+> **Archivos afectados:** 4 modificados + 2 nuevos + `sql/schema.sql` actualizado
+> **Base de datos:** **nueva tabla** `uso_sugerencia`, definida en `sql/schema.sql` y ya aplicada en la BD local
 > **Riesgo:** bajo — solo afecta al botón "Cambiar sugerencia" del dashboard; no toca login, registro, perfil ni pagos
 
 ---
@@ -57,8 +57,7 @@ POST /dashboard/sugerencia
 
 | Archivo | Cambio |
 |---|---|
-| `sql/migracion-limite-sugerencias.sql` | **Nuevo.** Crea `uso_sugerencia` (idempotente) |
-| `sql/schema.sql` | Sincronizado con la nueva tabla (evita drift tipo E1) |
+| `sql/schema.sql` | **Actualizado.** Crea `uso_sugerencia`; el archivo de migración se eliminó al quedar el esquema como única fuente de verdad |
 | `models/sugerenciaUsoModel.js` | **Nuevo.** `getUso()` y `avanzarUso()` |
 | `controllers/dashboardController.js` | Retoma la variante semanal; aplica el límite y responde `402` |
 | `views/post/dashboard.ejs` | Botón sin `disabled`, con `data-indice/variantes/ilimitado`; incluye el modal |
@@ -68,7 +67,7 @@ POST /dashboard/sugerencia
 
 ## 5. Verificación ejecutada
 
-- Migración aplicada: columnas `id_uso, id_cliente, semana_inicio, ultimo_indice, actualizado_en` e índices `PRIMARY`, `uq_uso_sugerencia_semana`, `idx_uso_sugerencia_semana`.
+- Tabla verificada en la BD local: columnas `id_uso, id_cliente, semana_inicio, ultimo_indice, actualizado_en` e índices `PRIMARY`, `uq_uso_sugerencia_semana`, `idx_uso_sugerencia_semana`.
 - Modelo con un cliente Gratis: `1 → 2 → 3 → alcanzado`; una cuarta llamada no consume ni cambia el índice.
 - Reinicio semanal simulado (fila de la semana pasada en 3/3): `getUso()` devuelve 1 y el primer clic crea la fila de la semana actual.
 - Controlador de punta a punta con un cliente Gratis: `200 (2/3)`, `200 (3/3)`, `402 LIMITE_SEMANAL`, `402 LIMITE_SEMANAL`; `GET /dashboard` renderiza 3/3.

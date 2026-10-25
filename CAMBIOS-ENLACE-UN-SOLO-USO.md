@@ -134,7 +134,7 @@ const motivoTokenInvalido = (verificacion, usuario) => {
 
 ## 6. Decisiones de diseño (y alternativas descartadas)
 
-- **Tabla `token_recuperacion` con `usado_en`** — descartada por ahora: exige cambio de esquema (migración + actualizar `sql/schema.sql`), limpieza de filas vencidas, y el repo ya arrastra deuda de esquema (falta `usuario_proveedor`). La huella en el token logra lo mismo sin estado.
+- **Tabla `token_recuperacion` con `usado_en`** — descartada por ahora: exige cambio de esquema (migración + actualizar `sql/schema.sql`), limpieza de filas vencidas, y el repo ya arrastraba deuda de esquema (faltaba `usuario_proveedor`, ya corregido en `schema.sql`). La huella en el token logra lo mismo sin estado.
 - **Borrar el `jti` del token** — se dejó: no estorba, mantiene el token no repetible entre emisiones y sirve para logs si algún día se quiere trazar.
 - **Verificar la huella dentro de `config/recovery.js`** — descartado: `recovery.js` es configuración pura sin SQL. La comparación vive en el controlador, que ya es quien toca el modelo (regla MVC del proyecto).
 - **Mismo mensaje para todo** — se decidió distinguir "ya fue utilizado" de "no es válido": ayuda al usuario a entender que debe pedir un enlace nuevo, y no filtra información sensible.

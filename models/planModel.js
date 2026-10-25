@@ -3,7 +3,7 @@
    - Lee el catálogo `tipo_plan` y las suscripciones del cliente.
    - Crea el checkout pendiente y lo vincula a la orden de PayPal.
    - Activa, rechaza y expira suscripciones de forma idempotente.
-   Requiere haber ejecutado sql/migracion-paypal-pago-unico.sql.
+   Requiere que la base tenga aplicado el esquema de sql/schema.sql.
    =========================================== */
 
 const pool = require('../config/db');

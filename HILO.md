@@ -168,7 +168,7 @@ Fuente completa con detalle, ubicación y arreglo: **`ERRORES-PENDIENTES.md`**.
 
 | Orden | Error | Qué falta | Esfuerzo |
 |-------|-------|-----------|----------|
-| 1 | **E1** | `sql/schema.sql` no crea `usuario_proveedor` → registro/login/reset fallan en una BD nueva | 5 min |
+| 1 | ~~E1~~ ✅ | Resuelto en `sql/schema.sql`: `usuario_proveedor` + seeds de `tipo_plan` (pendiente de commit) | — |
 | 2 | **E2** | `public/js/splash.js` lanza `ReferenceError` en cada carga | 5 min |
 | 3 | **E3** | "Recuperar contraseña" revela si el correo existe | 15 min |
 | 4 | **E10, E15, E16** | Limpieza: formulario trampa en `login.ejs`, `views/post/index.ejs` vacía, dependencia `sesion@0.0.0` sin usar | 20 min |

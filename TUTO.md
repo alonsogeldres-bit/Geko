@@ -56,17 +56,18 @@ Crea la base y las tablas ejecutando el script del proyecto:
 mysql -u root -p < sql/schema.sql
 ```
 
-> **Ojo:** `schema.sql` termina con varios `SELECT` de ejemplo. Se pueden
-> ejecutar sin problema, solo muestran datos.
+> **Nota:** `schema.sql` crea la base, las tablas y los catálogos iniciales
+> (`rol`, `objetivo`, `antecedente`, `equipamiento` y `tipo_plan`). Las
+> consultas de ejemplo están en `sql/consultas-ejemplo.sql` y son opcionales.
 
 ### Comprobar que se creó
 
 ```sql
 USE geko;
-SELECT COUNT(*) FROM usuarios;
+SELECT COUNT(*) FROM tipo_plan;
 ```
 
-Deberías ver **3**. Si aparece `0`, no se cargó el script.
+Deberías ver **2** (`Gratis` y `Premium`). Si aparece `0`, no se cargó el script.
 
 ---
 
@@ -388,7 +389,7 @@ Nunca escribas contraseñas o claves de Google directamente en el código.
 
 - [ ] Node.js instalado (`node -v` responde)
 - [ ] `git clone` + `npm install`
-- [ ] `sql/schema.sql` ejecutado, `SELECT COUNT(*)` da 3
+- [ ] `sql/schema.sql` ejecutado, `SELECT COUNT(*) FROM tipo_plan` da 2
 - [ ] `.env` creado con todas las variables
 - [ ] `SESSION_SECRET` generado con el comando del paso 4
 - [ ] API de Google activada en la consola

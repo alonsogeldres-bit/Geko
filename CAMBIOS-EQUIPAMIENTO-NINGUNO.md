@@ -105,7 +105,7 @@ Guardar **no** degrada la información: se reenvía `['Ninguno']`, el validador 
 La alternativa era persistir la elección explícita (fila sentinel en el catálogo `equipamiento` o columna nueva). Se descartó porque:
 
 - El catálogo `equipamiento` se consume en el **generador de rutinas**: una fila 'Ninguno' se filtraría por todos lados.
-- `clientes`/`cliente_equipamiento` **no tienen** columna para marcar "sin equipamiento": habría que hacer `ALTER TABLE` sobre la BD real (que ya está desalineada con `schema.sql` — ver **E1** de `ERRORES-PENDIENTES.md`).
+- `clientes`/`cliente_equipamiento` **no tienen** columna para marcar "sin equipamiento": habría que hacer `ALTER TABLE` sobre la BD real (que ya está desalineada con `schema.sql` — ver **R10** de `ERRORES-PENDIENTES.md`).
 - "Cero filas" **ya significa** "sin equipamiento" en todo el sistema; el problema era solo de ida y vuelta en el formulario, no de almacenamiento.
 
 ## 6. Seguridad

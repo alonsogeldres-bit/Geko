@@ -1,6 +1,6 @@
 # Estado de errores del proyecto GEKO
 
-> **Fecha de corte:** 21-10-2026
+> **Fecha de corte:** 24-10-2026
 > **Propósito:** inventario único de errores conocidos, con su severidad, ubicación y arreglo sugerido. Sirve como backlog de deuda técnica: se puede ir tachando de a uno.
 > **Regla:** al arreglar un error, moverlo a la sección "Resueltos" con fecha y hash del commit.
 
@@ -19,6 +19,7 @@
 | R7 | Vista `views/post/index.ejs` vacía (era E15, parte 1) | commit `c6538ce` — eliminada. **La parte 2 de E15 sigue pendiente**: `views/post/paywall.ejs` |
 | R8 | Vista `views/post/paywall.ejs` huérfana (era E15, parte 2) | HU-013 — reemplazada por `views/post/planes.ejs` con ruta real (`GET /planes`); se eliminó `paywall.ejs` y sus links rotos (`/registro`, `/premium`) |
 | R9 | "Equipamiento: Ninguno" se perdía al volver a `/configuracion` (era E25) | pendiente de commit — `getProfileByUser` devuelve `['Ninguno']`/`['Ninguna']` cuando no hay filas + fallback en `configuracion.js` — doc `CAMBIOS-EQUIPAMIENTO-NINGUNO.md` |
+| R10 | `sql/schema.sql` no definía `usuario_proveedor` (era E1) | pendiente de commit — se agregó `usuario_proveedor VARCHAR(20) NOT NULL DEFAULT 'local'` a `usuarios`; además se agregaron los seeds de `tipo_plan` que faltaban |
 
 ---
 
@@ -27,14 +28,6 @@
 Ordenados por severidad: **ALTA** = rompe algo o es explotable; **MEDIA** = ruido, trampas o fallos en escenarios específicos; **BAJA** = código muerto y limpieza.
 
 ### 🔴 Severidad ALTA
-
-#### E1 — `sql/schema.sql` no define la columna `usuario_proveedor`
-- **Ubicación:** `sql/schema.sql` (tabla `usuarios`) vs. `models/userModels.js`, `controllers/authRecoverySocialController.js`
-- **Qué pasa:** el código usa `usuario_proveedor` en el INSERT de usuarios, en el login con Google y en `updatePassword` (`WHERE usuario_proveedor = 'local'`), pero el esquema del repo nunca la crea. Si alguien arma la BD desde cero con `schema.sql`, **registro, login y reset fallan con "Unknown column"**. Solo funciona porque la BD real fue alterada a mano.
-- **Arreglo sugerido:** agregar al `CREATE TABLE usuarios`:
-  `usuario_proveedor ENUM('local','google') NOT NULL DEFAULT 'local'`
-  y aprovechar de revisar si la BD real tiene más columnas fuera del esfuerzo del repo.
-- **Esfuerzo:** 5 minutos.
 
 #### E2 — `public/js/splash.js` lanza `ReferenceError`
 - **Ubicación:** `public/js/splash.js`, líneas 18-21 (fuera del IIFE) vs. línea 3 (dentro del IIFE)

@@ -86,6 +86,13 @@ const index = async (req, res) => {
     const perfil = await DashboardModel.getPerfil(idUsuario);
     if (!perfil) return res.redirect('/profile');
 
+    // Datos reales para la estimación de la TMB.
+    const datosCalorias = await DashboardModel.getDatosCalorias(idUsuario);
+    const calorias = calcularTMB(datosCalorias);
+
+console.log('[dashboard] Datos para calorías:', datosCalorias);
+console.log('[dashboard] Resultado TMB:', calorias);
+
     // Plan Gratis: se retoma la variante de esta semana (1/3..3/3).
     // Premium: cambios ilimitados, siempre empieza por la primera.
     const esPremium = await tienePlanDePago(perfil.idCliente);
@@ -111,6 +118,7 @@ const index = async (req, res) => {
       // Rutina a medias. Sigue en null mientras no exista el registro de
       // sesiones; el modelo ya devuelve el historial cuando exista.
       enProgreso: null,
+      calorias,
     });
   } catch (err) {
     console.error('[dashboard] error al cargar los datos:', err.message);

@@ -46,7 +46,7 @@ const fmtDia = (d) => (d ? new Date(d).toLocaleDateString('es-CL') : '—');
 const dashboard = async (req, res) => {
   try {
     const [stats, auditoria] = await Promise.all([AdminModel.getStats(), AdminModel.listAuditoria(1, 8)]);
-    res.render('admin/admin', { titulo: 'Resumen', nav: 'resumen', stats, eventos: auditoria.rows, fmt });
+    res.render('Admin/admin', { titulo: 'Resumen', nav: 'resumen', stats, eventos: auditoria.rows, fmt });
   } catch (err) {
     console.error('[admin] dashboard:', err.message);
     res.status(500).send('No pudimos cargar el panel.');
@@ -62,7 +62,7 @@ const listaUsuarios = async (req, res) => {
       page: Math.max(1, parseInt(req.query.page, 10) || 1),
     };
     const data = await AdminModel.listUsers(filtros);
-    res.render('admin/usuarios', { titulo: 'Usuarios', nav: 'usuarios', filtros, ...data });
+    res.render('Admin/usuarios', { titulo: 'Usuarios', nav: 'usuarios', filtros, ...data });
   } catch (err) {
     console.error('[admin] usuarios:', err.message);
     res.status(500).send('No pudimos cargar los usuarios.');
@@ -73,7 +73,7 @@ const detalleUsuario = async (req, res) => {
   try {
     const target = await cargarObjetivo(req);
     if (!target) return res.status(404).send('Usuario no encontrado.');
-    res.render('admin/usuario', {
+    res.render('Admin/usuario', {
       titulo: `${target.nombre} ${target.apellido}`, nav: 'usuarios',
       target, gestionable: puedeGestionar(req, target), fmt, fmtDia,
     });
@@ -86,7 +86,7 @@ const detalleUsuario = async (req, res) => {
 const auditoria = async (req, res) => {
   try {
     const data = await AdminModel.listAuditoria(Math.max(1, parseInt(req.query.page, 10) || 1));
-    res.render('admin/auditoria', { titulo: 'Auditoría', nav: 'auditoria', ...data, fmt });
+    res.render('Admin/auditoria', { titulo: 'Auditoría', nav: 'auditoria', ...data, fmt });
   } catch (err) {
     console.error('[admin] auditoría:', err.message);
     res.status(500).send('No pudimos cargar la auditoría.');
@@ -200,7 +200,7 @@ const cambiarRol = async (req, res) => {
 };
 
 const formNuevoAdmin = (req, res) =>
-  res.render('admin/newAdmin', { titulo: 'Nuevo admin', nav: 'nuevo', datos: {} });
+  res.render('Admin/newAdmin', { titulo: 'Nuevo admin', nav: 'nuevo', datos: {} });
 
 const crearAdmin = async (req, res) => {
   const datos = {
@@ -211,7 +211,7 @@ const crearAdmin = async (req, res) => {
     nombre_usuario: String(req.body.nombre_usuario || '').trim(),
   };
   const contrasena = String(req.body.contrasena || '');
-  const error = (msg) => res.status(400).render('admin/newAdmin', {
+  const error = (msg) => res.status(400).render('Admin/newAdmin', {
     titulo: 'Nuevo admin', nav: 'nuevo', datos, flash: { tipo: 'error', msg },
   });
 

@@ -58,9 +58,38 @@ const findOrCreate = async (conn, table, idColumn, nameColumn, name) => {
 };
 
 /**
+ * Sincroniza una tabla puente (dueño <-> catálogo) sin borrar todo:
+ * borra solo lo que el usuario quitó e inserta solo lo nuevo.
+ * Los nombres de tabla/columna son constantes internas, no vienen del usuario.
+ */
+const syncLinks = async (conn, table, ownerCol, ownerId, otherCol, desiredIds) => {
+  const [rows] = await conn.query(
+    `SELECT ${otherCol} AS id FROM ${table} WHERE ${ownerCol} = ?`, [ownerId]
+  );
+  const existing = new Set(rows.map((r) => r.id));
+  const desired = new Set(desiredIds);
+
+  for (const id of existing) {
+    if (!desired.has(id)) {
+      await conn.query(
+        `DELETE FROM ${table} WHERE ${ownerCol} = ? AND ${otherCol} = ?`, [ownerId, id]
+      );
+    }
+  }
+  for (const id of desired) {
+    if (!existing.has(id)) {
+      await conn.query(
+        `INSERT INTO ${table} (${ownerCol}, ${otherCol}) VALUES (?, ?)`, [ownerId, id]
+      );
+    }
+  }
+};
+
+/**
  * Guarda el perfil completo en una sola transacción:
  * clientes, ficha_medica, mediciones, ficha_antecedente,
  * preferencia_entrenamiento y cliente_equipamiento.
+ * Si el perfil ya existe, MODIFICA las filas existentes en vez de crear nuevas.
  * `data` ya viene validado por validateProfile.
  */
 const saveProfile = async (idUsuario, data) => {
@@ -110,36 +139,63 @@ const saveProfile = async (idUsuario, data) => {
       idFicha = r.insertId;
     }
 
-    // --- mediciones: cada guardado agrega una medición nueva (historial) ---
-    await conn.query(
-      `INSERT INTO mediciones (id_ficha, nivel_fisico, altura_cm, peso_kg, fecha_medicion)
-       VALUES (?, ?, ?, ?, NOW())`,
-      [idFicha, LEVELS[data.level], data.heightCm, data.weightKg]
+    // --- mediciones: se modifica la medición existente (no se agrega otra) ---
+    const [meds] = await conn.query(
+      `SELECT id_medicion FROM mediciones
+        WHERE id_ficha = ?
+        ORDER BY fecha_medicion DESC, id_medicion DESC
+        LIMIT 1`,
+      [idFicha]
     );
+    if (meds.length) {
+      await conn.query(
+        `UPDATE mediciones
+            SET nivel_fisico = ?, altura_cm = ?, peso_kg = ?, fecha_medicion = NOW()
+          WHERE id_medicion = ?`,
+        [LEVELS[data.level], data.heightCm, data.weightKg, meds[0].id_medicion]
+      );
+    } else {
+      await conn.query(
+        `INSERT INTO mediciones (id_ficha, nivel_fisico, altura_cm, peso_kg, fecha_medicion)
+         VALUES (?, ?, ?, ?, NOW())`,
+        [idFicha, LEVELS[data.level], data.heightCm, data.weightKg]
+      );
+    }
 
-    // --- lesiones: se reemplaza el conjunto completo ---
-    await conn.query('DELETE FROM ficha_antecedente WHERE id_ficha = ?', [idFicha]);
+    // --- lesiones: solo se quita lo desmarcado y se agrega lo nuevo ---
+    const idsAntecedentes = [];
     for (const injury of data.injuries) {
-      const idAntecedente = await findOrCreate(conn, 'antecedente', 'id_antecedente', 'nombre', injury);
-      await conn.query(
-        'INSERT INTO ficha_antecedente (id_ficha, id_antecedente) VALUES (?, ?)',
-        [idFicha, idAntecedente]
+      idsAntecedentes.push(
+        await findOrCreate(conn, 'antecedente', 'id_antecedente', 'nombre', injury)
       );
     }
+    await syncLinks(conn, 'ficha_antecedente', 'id_ficha', idFicha, 'id_antecedente', idsAntecedentes);
 
-    // --- cirugías: se reemplaza el conjunto completo ---
-    await conn.query('DELETE FROM cirugia WHERE id_ficha = ?', [idFicha]);
-    for (const surgery of data.surgeries) {
-      await conn.query(
-        'INSERT INTO cirugia (id_ficha, descripcion, fecha_cirugia, observaciones) VALUES (?, ?, ?, ?)',
-        [idFicha, surgery.descripcion, surgery.fecha, surgery.observaciones]
-      );
+    // --- cirugías: se actualizan en orden; sobran -> se borran, faltan -> se insertan ---
+    const [cirugiasBD] = await conn.query(
+      'SELECT id_cirugia FROM cirugia WHERE id_ficha = ? ORDER BY id_cirugia', [idFicha]
+    );
+    const nuevas = data.surgeries;
+    for (let i = 0; i < nuevas.length; i++) {
+      if (i < cirugiasBD.length) {
+        await conn.query(
+          'UPDATE cirugia SET descripcion = ?, fecha_cirugia = ?, observaciones = ? WHERE id_cirugia = ?',
+          [nuevas[i].descripcion, nuevas[i].fecha, nuevas[i].observaciones, cirugiasBD[i].id_cirugia]
+        );
+      } else {
+        await conn.query(
+          'INSERT INTO cirugia (id_ficha, descripcion, fecha_cirugia, observaciones) VALUES (?, ?, ?, ?)',
+          [idFicha, nuevas[i].descripcion, nuevas[i].fecha, nuevas[i].observaciones]
+        );
+      }
+    }
+    for (let i = nuevas.length; i < cirugiasBD.length; i++) {
+      await conn.query('DELETE FROM cirugia WHERE id_cirugia = ?', [cirugiasBD[i].id_cirugia]);
     }
 
-    // --- preferencia_entrenamiento (una por cliente) ---
+    // --- preferencia_entrenamiento (una por cliente; ya usa ON DUPLICATE KEY UPDATE) ---
     // Orden fijo de la semana y sin repetidos: 'Lunes,Jueves'
     const dias = DAYS.filter((d) => (data.days || []).includes(d)).join(',');
-
     await conn.query(
       `INSERT INTO preferencia_entrenamiento (id_cliente, entorno, dias_semana, minutos_sesion)
        VALUES (?, ?, ?, ?)
@@ -150,15 +206,14 @@ const saveProfile = async (idUsuario, data) => {
       [idCliente, ENVIRONMENTS[data.environment], dias, data.minutesPerSession]
     );
 
-    // --- equipamiento: se reemplaza el conjunto completo ---
-    await conn.query('DELETE FROM cliente_equipamiento WHERE id_cliente = ?', [idCliente]);
+    // --- equipamiento: solo se quita lo desmarcado y se agrega lo nuevo ---
+    const idsEquipamiento = [];
     for (const item of data.equipment) {
-      const idEquipamiento = await findOrCreate(conn, 'equipamiento', 'id_equipamiento', 'nombre', item);
-      await conn.query(
-        'INSERT INTO cliente_equipamiento (id_cliente, id_equipamiento) VALUES (?, ?)',
-        [idCliente, idEquipamiento]
+      idsEquipamiento.push(
+        await findOrCreate(conn, 'equipamiento', 'id_equipamiento', 'nombre', item)
       );
     }
+    await syncLinks(conn, 'cliente_equipamiento', 'id_cliente', idCliente, 'id_equipamiento', idsEquipamiento);
 
     await conn.commit();
     return { idCliente, idFicha };
@@ -219,7 +274,7 @@ const getProfileByUser = async (idUsuario) => {
     let cirugias = [];
 
     if (idFicha) {
-      // Última medición (historial): la más reciente define altura/peso/nivel.
+      // Última medición: la más reciente define altura/peso/nivel.
       const [meds] = await conn.query(
         `SELECT nivel_fisico, altura_cm, peso_kg
            FROM mediciones
@@ -242,7 +297,7 @@ const getProfileByUser = async (idUsuario) => {
       // dateStrings: los DATE llegan como 'YYYY-MM-DD' sin corrimiento por zona horaria.
       const [cirs] = await conn.query(
         {
-          sql: 'SELECT descripcion, fecha_cirugia, observaciones FROM cirugia WHERE id_ficha = ? ORDER BY fecha_cirugia',
+          sql: 'SELECT descripcion, fecha_cirugia, observaciones FROM cirugia WHERE id_ficha = ? ORDER BY id_cirugia',
           dateStrings: true,
         },
         [idFicha]

@@ -2,6 +2,8 @@
   const u = locals.usuario || {};
   const p = locals.perfil || {};
   const s = locals.sugerencia || {};
+  const rutina = locals.rutina || null;
+  const errorRutina = locals.errorRutina || null;
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
@@ -12,6 +14,12 @@
     { href: '#',                icono: '', texto: 'Mi progreso',  pronto: true },
     { href: '#',                icono: '', texto: 'Ayuda',        pronto: true }
   ];
+
+  const bloques = rutina ? [
+    { titulo: 'Calentamiento',    items: rutina.calentamiento || [],   principal: false },
+    { titulo: 'Rutina principal', items: rutina.rutinaPrincipal || [], principal: true },
+    { titulo: 'Estiramiento',     items: rutina.estiramiento || [],    principal: false }
+  ] : [];
 %>
 
 <!DOCTYPE html>
@@ -60,7 +68,7 @@
 
     <main class="dash-main">
       <h1 class="dash-title">Entrenamiento</h1>
-      <p class="muted subtitle">La rutina que te/armamos para hoy.</p>
+      <p class="muted subtitle">La rutina que te armamos para hoy.</p>
 
       <section class="card hero">
         <span class="tag">Rutina de hoy</span>
@@ -75,16 +83,43 @@
         </div>
         <p class="why">Adaptada a tu perfil: <b><%= s.motivo %></b></p>
 
-        <div class="empty soon-empty">
-          <strong>Esta pantalla estará lista pronto</strong>
-          <span class="muted">
-            Estamos preparando el generador de rutinas: tu ejercicio a ejercicio,
-            con series, repeticiones y tiempos de descanso, y el registro de cada
-            sesión para que tu racha y tu progreso se actualicen solos.
-          </span>
-        </div>
+        <% if (errorRutina) { %>
+          <div class="card rutina-error">
+            <h3>No se pudo generar la rutina</h3>
+            <p class="muted"><%= errorRutina %></p>
+          </div>
+        <% } else if (rutina) { %>
 
-        <div class="acts">
+          <% if (rutina.fuente === 'local') { %>
+            <span class="chip chip-alerta">Rutina de respaldo</span>
+          <% } %>
+
+          <% bloques.forEach(function (b) { %>
+            <% if (!b.items.length) return; %>
+            <h4 class="rutina-bloque"><%= b.titulo %></h4>
+            <div class="lista-ejercicios">
+              <% b.items.forEach(function (e) { %>
+                <article class="ejercicio-card">
+                  <div class="ejercicio-head">
+                    <h5><%= e.nombre %></h5>
+                    <span class="tag">
+                      <% if (b.principal) { %>
+                        <%= e.series %> × <%= e.repeticiones %> · <%= e.descansoSeg %> s
+                      <% } else { %>
+                        <%= e.duracionMin %> min
+                      <% } %>
+                    </span>
+                  </div>
+                  <p class="muted"><%= e.descripcion %></p>
+                </article>
+              <% }) %>
+            </div>
+          <% }) %>
+
+        <% } %>
+
+        <div class="acts rutina-acts">
+          <a class="cta" href="/entrenamiento?nueva=1">Generar otra rutina</a>
           <a class="ghost" href="/dashboard">← Volver al dashboard</a>
         </div>
       </section>
@@ -119,6 +154,5 @@
   </div>
 
   <script src="/js/dashboard.js"></script>
-  <script src="/js/entrenamiento.js"></script>
 </body>
 </html>

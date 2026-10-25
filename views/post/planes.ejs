@@ -103,6 +103,8 @@
                     data-plan-precio="$<%= plan.valor.toLocaleString('es-CL') %> / mes<% if (plan.precioUsd > 0) { %> · US$<%= plan.precioUsd.toFixed(2) %><% } %>">
               Elegir Premium
             </button>
+          <% } else if (locals.usuarioPremium) { %>
+            <button type="button" class="btn-obtener" disabled>Incluido en Premium</button>
           <% } else { %>
             <button type="button" class="btn-obtener" id="btn-gratis">Continuar con el plan Gratis</button>
           <% } %>

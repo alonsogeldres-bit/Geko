@@ -24,9 +24,15 @@ document.addEventListener("DOMContentLoaded", function () {
       aprobado: ["¡Pago aprobado! Tu plan Premium ya está activo.", "success"],
       rechazado: ["El pago fue rechazado. Puedes intentarlo de nuevo.", "error"],
       cancelado: ["Pago cancelado. No se realizó ningún cobro.", "error"],
-      pendiente: ["Tu pago está en revisión. Te avisaremos cuando se confirme.", "success"],
+      pendiente: [
+        "Estamos procesando tu pago. Esto puede tardar unos segundos; recarga la página en un momento para ver tu plan actualizado.",
+        "pending",
+      ],
       reembolsado: ["El pago fue reembolsado. Contacta a soporte si tienes dudas.", "error"],
-      error: ["No pudimos verificar tu pago. Si realizaste el cobro, contáctanos.", "error"],
+      error: [
+        "Estamos procesando tu pago. Si el cobro se realizó, tu plan se activará en breve; recarga la página en unos segundos.",
+        "pending",
+      ],
     };
     var infoPago = mensajesPago[estadoPago];
     if (infoPago) showAlert(infoPago[0], infoPago[1]);

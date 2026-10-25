@@ -1,4 +1,4 @@
-<%
+﻿<%
   /* Todo lo que llega aquí viene del controlador con datos reales de la BD.
      Si algo falta, la vista degrada con honestidad en vez de inventar valores. */
   const u = locals.usuario || {};
@@ -11,7 +11,7 @@
   const r = locals.resumen || { racha: 0, mejorRacha: 0, sesiones: 0, meta: 3, dias: [], hoy: 0 };
   const prog = locals.enProgreso || null;           // { hechos: 2, total: 5 } o null
   const actividad = locals.actividad || [];          // [{ nombre, detalle }]
-
+  const calorias = locals.calorias || null;
   const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
   const diasCompletos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
@@ -191,6 +191,63 @@
           <div class="empty">
             <strong>Aún no tienes actividad</strong>
             <span class="muted">Cuando completes tu primer entrenamiento, aquí verás tu resumen y tu racha.</span>
+          </div>
+        <% } %>
+      </section>
+    
+
+  
+      <!-- Control de calorías -->
+      <section class="card calories-card">
+        <div class="calories-header">
+          <div>
+            <h3>Control de calorías</h3>
+            <p class="muted small">
+              Estimación de la energía que tu cuerpo utiliza en reposo.
+            </p>
+          </div>
+          <span class="calories-icon" aria-hidden="true">🔥</span>
+        </div>
+
+        <% if (calorias) { %>
+          <div class="calories-result">
+            <span class="muted small">Tasa metabólica basal estimada</span>
+            <div class="calories-number">
+              <%= calorias.tmb.toLocaleString('es-CL') %>
+              <span>kcal/día</span>
+            </div>
+          </div>
+
+          <div class="calories-details">
+            <div>
+              <span class="muted small">Peso registrado</span>
+              <strong><%= calorias.peso %> kg</strong>
+            </div>
+            <div>
+              <span class="muted small">Altura registrada</span>
+              <strong><%= calorias.altura %> cm</strong>
+            </div>
+            <div>
+              <span class="muted small">Edad</span>
+              <strong><%= calorias.edad %> años</strong>
+            </div>
+          </div>
+
+          <p class="calories-note muted small">
+            Es una estimación en reposo, no una recomendación de consumo
+            diario. Tus necesidades también dependen de tu actividad,
+            crecimiento y otros factores.
+          </p>
+        <% } else { %>
+          <div class="empty">
+            <strong>Necesitamos completar tus datos</strong>
+            <span class="muted">
+              No encontramos todos los datos necesarios para calcular
+              esta estimación.
+            </span>
+            <a class="cta" href="/configuracion">
+              Revisar mi perfil
+            </a>
           </div>
         <% } %>
       </section>

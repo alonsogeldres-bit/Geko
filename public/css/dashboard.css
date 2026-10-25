@@ -604,3 +604,90 @@ body.modal-abierto { overflow: hidden; }
   font-size: 12px;
   color: var(--mut);
 }
+
+
+/* ===========================================
+   CONTROL DE CALORÍAS
+   =========================================== */
+
+.calories-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.calories-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.calories-header h3 {
+  margin: 0 0 8px;
+}
+
+.calories-header p {
+  margin: 0;
+}
+
+.calories-icon {
+  font-size: 1.7rem;
+}
+
+.calories-result {
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(80, 180, 110, 0.10);
+}
+
+.calories-number {
+  margin-top: 8px;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.calories-number span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.calories-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.calories-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.calories-details strong {
+  overflow-wrap: anywhere;
+}
+
+.calories-note {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+  .calories-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilo para usuarios Premium */
+.is-premium .calories-result {
+  background: rgba(255, 215, 94, 0.08);
+  border: 1px solid rgba(255, 215, 94, 0.2);
+}
+
+.is-premium .calories-number {
+  color: #ffd75e;
+}

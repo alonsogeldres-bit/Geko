@@ -15,6 +15,63 @@ const tienePlanDePago = async (idCliente) => {
   }
 };
 
+const calcularTMB = (datos) => {
+  if (!datos) return null;
+
+  const { sexo, fechaNacimiento, peso, altura } = datos;
+
+  if (!sexo || !fechaNacimiento || peso == null || altura == null) {
+    return null;
+  }
+
+  const pesoKg = Number(peso);
+  const alturaCm = Number(altura);
+
+  if (
+    !Number.isFinite(pesoKg) ||
+    !Number.isFinite(alturaCm) ||
+    pesoKg <= 0 ||
+    alturaCm <= 0
+  ) {
+    return null;
+  }
+
+  const fecha = String(fechaNacimiento).slice(0, 10);
+  const nacimiento = new Date(`${fecha}T12:00:00`);
+
+  if (Number.isNaN(nacimiento.getTime())) return null;
+
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+
+  if (
+    hoy.getMonth() < nacimiento.getMonth() ||
+    (hoy.getMonth() === nacimiento.getMonth() &&
+      hoy.getDate() < nacimiento.getDate())
+  ) {
+    edad--;
+  }
+
+  if (edad < 0 || edad > 120) return null;
+
+  let tmb;
+
+  if (sexo === 'M') {
+    tmb = 10 * pesoKg + 6.25 * alturaCm - 5 * edad + 5;
+  } else if (sexo === 'F') {
+    tmb = 10 * pesoKg + 6.25 * alturaCm - 5 * edad - 161;
+  } else {
+    return null;
+  }
+
+  return {
+    tmb: Math.round(tmb),
+    peso: pesoKg,
+    altura: alturaCm,
+    edad,
+  };
+};
+
 /**
  * GET /dashboard
  * Muestra la sugerencia del día, el resumen de la semana y la actividad

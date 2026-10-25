@@ -34,6 +34,7 @@ const tablaExiste = async (nombre) => {
   return cacheTablas.set.has(nombre);
 };
 
+
 /**
  * Perfil de entrenamiento del cliente.
  * Devuelve `null` si el usuario todavía no completó el wizard de /profile.
@@ -134,7 +135,37 @@ const getSesiones = async (idCliente) => {
   return rows;
 };
 
+
+/**
+ * Datos para el cálculo de la tasa metabólica basal (TMB).
+ * Utiliza el sexo y fecha de nacimiento del usuario,
+ * junto con su medición física más reciente.
+ */
+const getDatosCalorias = async (idUsuario) => {
+  const [rows] = await pool.query(
+    `SELECT
+       u.sexo,
+       u.fecha_nacimiento AS fechaNacimiento,
+       m.peso_kg AS peso,
+       m.altura_cm AS altura
+     FROM usuarios u
+     INNER JOIN clientes c
+       ON c.id_usuario = u.id_usuario
+     INNER JOIN ficha_medica f
+       ON f.id_cliente = c.id_cliente
+     INNER JOIN mediciones m
+       ON m.id_ficha = f.id_ficha
+     WHERE u.id_usuario = ?
+     ORDER BY m.fecha_medicion DESC, m.id_medicion DESC
+     LIMIT 1`,
+    [idUsuario]
+  );
+
+  return rows[0] || null;
+};
+
 module.exports = {
   getPerfil,
   getSesiones,
+  getDatosCalorias,
 };

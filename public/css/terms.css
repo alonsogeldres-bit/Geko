@@ -12,15 +12,16 @@
 .terms-back {
   padding: 8px 16px;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--btn-2);
+  color: var(--text);
+  border: 1px solid var(--line);
   border-radius: 999px;
   margin-bottom: 28px;
 }
 
 .terms-back:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--sel);
+  border-color: var(--ac);
 }
 
 /* ---------- Título ---------- */
@@ -31,7 +32,7 @@
   font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--line);
 }
 
 /* ---------- Secciones ---------- */
@@ -39,10 +40,10 @@
 .terms-heading {
   margin: 28px 0 8px;
   padding-left: 14px;
-  border-left: 3px solid #4ade80;
+  border-left: 3px solid var(--ac);
   font-size: 16px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .terms-heading:first-of-type {
@@ -54,7 +55,7 @@
   padding-left: 17px;
   font-size: 14px;
   line-height: 1.75;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--mut);
 }
 
 /* ---------- Responsive ---------- */
@@ -83,15 +84,16 @@
 .terms-back {
   padding: 8px 16px;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--btn-2);
+  color: var(--text);
+  border: 1px solid var(--line);
   border-radius: 999px;
   margin-bottom: 28px;
 }
 
 .terms-back:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--sel);
+  border-color: var(--ac);
 }
 
 /* ---------- Título ---------- */
@@ -107,8 +109,8 @@
   margin: 0 0 28px;
   padding-bottom: 20px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--faint);
+  border-bottom: 1px solid var(--line);
 }
 
 /* ---------- Introducción ---------- */
@@ -117,7 +119,7 @@
   margin: 0 0 28px;
   font-size: 15px;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text);
 }
 
 /* ---------- Secciones ---------- */
@@ -125,10 +127,10 @@
 .terms-heading {
   margin: 28px 0 8px;
   padding-left: 14px;
-  border-left: 3px solid #4ade80;
+  border-left: 3px solid var(--ac);
   font-size: 16px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .terms-text {
@@ -136,7 +138,7 @@
   padding-left: 17px;
   font-size: 14px;
   line-height: 1.75;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--mut);
 }
 
 .terms-text + .terms-text {
@@ -150,10 +152,10 @@
   margin-top: 36px;
   padding-top: 20px;
   width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--line);
   font-size: 14px;
   font-weight: 600;
-  color: #4ade80;
+  color: var(--ac);
   text-decoration: none;
   transition: opacity 0.2s ease;
 }

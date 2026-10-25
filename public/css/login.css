@@ -2,6 +2,23 @@
    AUTH - Estilos
    =========================================== */
 
+/* Paleta Geko */
+:root {
+  --bg: #101C17;
+  --surface: #192820;
+  --ac: #35D995;
+  --ac-hover: #59E6A9;
+  --on-ac: #101C17;
+  --btn-2: #263C30;
+  --text: #F0F7F2;
+  --mut: #A9BDB0;
+  --line: #304438;
+  --field: #1D2D23;
+  --sel: #254A36;
+  --faint: #7F9487;
+  --glow: rgba(53, 217, 149, 0.16);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -19,18 +36,15 @@ body {
 
 .auth {
   min-height: 100vh;
-  color: #ffffff;
+  color: var(--text);
   display: flex;
   flex-direction: column;
 }
 
 .bg-gradient {
-  background: radial-gradient(
-      circle at 50% 0%,
-      #166306 50%,
-      #0a4722 55%,
-      #032309 100%
-    );
+  background:
+    radial-gradient(900px 420px at 50% -8%, rgba(53, 217, 149, 0.10), transparent 70%),
+    var(--bg);
 }
 
 /* ---------- Nav ---------- */
@@ -71,18 +85,19 @@ body {
 .auth-card {
   width: 100%;
   max-width: 400px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 20px;
   padding: 32px;
-  backdrop-filter: blur(6px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
 /* ---------- Tabs ---------- */
 
 .auth-tabs {
   display: flex;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--field);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 4px;
   margin-bottom: 28px;
@@ -93,7 +108,7 @@ body {
   padding: 10px 12px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--mut);
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -102,9 +117,12 @@ body {
   transition: background 0.2s ease, color 0.2s ease;
 }
 
+.auth-tab:hover { color: var(--text); }
+
 .auth-tab.active {
-  background: #ffffff;
-  color: #0a0d12;
+  background: var(--sel);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--ac);
 }
 
 /* ---------- Formulario ---------- */
@@ -121,7 +139,7 @@ body {
 .auth-label {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--mut);
   margin: 14px 0 6px;
 }
 
@@ -132,21 +150,22 @@ body {
 .auth-input {
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.03);
-  color: #ffffff;
+  border: 1px solid var(--line);
+  background: var(--field);
+  color: var(--text);
   font-family: inherit;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-input:focus {
-  border-color: #7c9cff;
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px var(--glow);
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--faint);
 }
 
 .auth-submit {
@@ -164,7 +183,7 @@ body {
 .auth-success {
   margin: 6px 0 0;
   font-size: 13px;
-  color: #7cffb0;
+  color: var(--ac);
   min-height: 16px;
 }
 /* ---------- Enlace de términos y condiciones ---------- */
@@ -177,9 +196,9 @@ body {
   margin-top: 18px;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+  background: var(--field);
+  color: var(--mut);
   font-size: 13px;
   line-height: 1.4;
   text-decoration: none;
@@ -187,20 +206,20 @@ body {
 }
 
 .auth-terms strong {
-  color: #ffffff;
+  color: var(--text);
   font-weight: 600;
 }
 
 .auth-terms-arrow {
   font-size: 16px;
-  color: #4ade80;
+  color: var(--ac);
   transition: transform 0.2s ease;
 }
 
 .auth-terms:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(74, 222, 128, 0.5);
-  color: #ffffff;
+  background: var(--sel);
+  border-color: var(--ac);
+  color: var(--text);
 }
 
 .auth-terms:hover .auth-terms-arrow {
@@ -219,7 +238,7 @@ body {
   font-size: 22px;
   font-weight: 700;
   text-align: center;
-  color: #ffffff;
+  color: var(--text);
 }
 
 /* ---------- Navegación entre vistas ---------- */
@@ -231,12 +250,12 @@ body {
   gap: 10px;
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--line);
 }
 
 .auth-nav-text {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--mut);
 }
 
 .auth-nav-btn {
@@ -248,14 +267,14 @@ body {
 /* ---------- Botón outline ---------- */
 
 .btn-outline {
-  background: transparent;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: var(--btn-2);
+  color: var(--text);
+  border: 1px solid var(--line);
 }
 
 .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--sel);
+  border-color: var(--ac);
 }
 
 /* ---------- Botones (reutilizado de welcome) ---------- */
@@ -270,12 +289,11 @@ body {
   font-family: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .btn:hover {
   transform: translateY(-1px);
-  opacity: 0.92;
 }
 
 .btn-lg {
@@ -284,9 +302,11 @@ body {
 }
 
 .btn-primary {
-  background: #ffffff;
-  color: #0a0d12;
+  background: var(--ac);
+  color: var(--on-ac);
 }
+
+.btn-primary:hover { background: var(--ac-hover); }
 
 
 .anim-fade-scale {
@@ -321,14 +341,14 @@ body {
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
-  color: #ffffff;
+  border: 1px solid var(--line);
+  background: var(--btn-2);
+  color: var(--text);
 }
 
 .btn-social:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.28);
+  background: var(--sel);
+  border-color: var(--ac);
 }
 
 .btn-social-icon {
@@ -346,7 +366,7 @@ body {
   gap: 12px;
   margin: 22px 0 4px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--faint);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -356,7 +376,7 @@ body {
   content: "";
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--line);
 }
 
 /* ---------- Identidad detectada (registro social) ---------- */
@@ -366,7 +386,7 @@ body {
   font-size: 13px;
   line-height: 1.5;
   text-align: center;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--mut);
 }
 
 .auth-sso-identity {
@@ -375,8 +395,8 @@ body {
   gap: 12px;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  background: var(--field);
   margin-bottom: 22px;
 }
 
@@ -397,7 +417,7 @@ body {
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -418,7 +438,7 @@ body {
   align-items: center;
   gap: 7px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--mut);
   cursor: pointer;
   user-select: none;
 }
@@ -426,14 +446,14 @@ body {
 .auth-check input {
   width: 15px;
   height: 15px;
-  accent-color: #22c55e;
+  accent-color: #35D995;
   cursor: pointer;
 }
 
 .auth-link {
   font-size: 13px;
   font-weight: 600;
-  color: #7cffb0;
+  color: var(--ac);
   text-decoration: none;
 }
 
@@ -468,7 +488,7 @@ body {
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
-  color: #0a0d12;
+  color: #101C17;
   background: #ff8080;
 }
 
@@ -501,38 +521,40 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   font-size: 12px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text);
   text-decoration: none;
 }
 
 .auth-alert-action:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--sel);
 }
 
 .auth-alert[data-variant="success"] {
-  border-color: rgba(124, 255, 176, 0.35);
-  background: rgba(124, 255, 176, 0.1);
+  border-color: rgba(53, 217, 149, 0.40);
+  background: rgba(53, 217, 149, 0.10);
 }
 
 .auth-alert[data-variant="success"] .auth-alert-icon {
-  background: #7cffb0;
+  background: var(--ac);
+  color: var(--on-ac);
 }
 
 .auth-alert[data-variant="success"] .auth-alert-msg {
-  color: #d6ffe8;
+  color: #CFF5E3;
 }
 
 .auth-alert[data-variant="info"] {
-  border-color: rgba(124, 156, 255, 0.35);
-  background: rgba(124, 156, 255, 0.1);
+  border-color: var(--line);
+  background: var(--field);
 }
 
 .auth-alert[data-variant="info"] .auth-alert-icon {
-  background: #7c9cff;
+  background: var(--mut);
+  color: var(--bg);
 }
 
 .auth-alert[data-variant="info"] .auth-alert-msg {
-  color: #dbe4ff;
+  color: var(--text);
 }
 
 /* ---------- Botón ocupado ---------- */
@@ -561,7 +583,7 @@ body {
   margin-top: 14px;
   font-size: 13px;
   line-height: 1.4;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--mut);
   cursor: pointer;
 }
 
@@ -569,27 +591,27 @@ body {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  accent-color: #4ade80;
+  accent-color: #35D995;
   cursor: pointer;
 }
 
 .auth-check a {
-  color: #ffffff;
+  color: var(--text);
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid var(--faint);
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .auth-check a:hover {
-  color: #4ade80;
-  border-color: #4ade80;
+  color: var(--ac);
+  border-color: var(--ac);
 }
 
 .auth-check em {
   font-style: normal;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--faint);
 }
 
 /* ---------- Botón deshabilitado ---------- */

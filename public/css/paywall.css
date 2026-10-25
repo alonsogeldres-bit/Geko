@@ -1,11 +1,19 @@
+/* Paleta Geko (modo Gratis). `body.is-premium` restaura el look original más abajo. */
 :root {
-  --verde-claro: #6dffa6;
-  --verde-medio: #1a6b00;
-  --verde-oscuro: #052e16;
-  --vidrio: rgba(255, 255, 255, 0.06);
-  --borde: rgba(255, 255, 255, 0.15);
-  --texto: #ffffff;
-  --texto-suave: rgba(255, 255, 255, 0.7);
+  --verde-claro: #35D995;      /* botón principal / acento */
+  --verde-hover: #59E6A9;      /* hover del botón principal */
+  --verde-medio: #254A36;      /* selección activa */
+  --verde-oscuro: #101C17;     /* fondo general (y texto sobre el acento) */
+  --vidrio: #192820;           /* tarjetas y modales */
+  --borde: #304438;            /* bordes y separadores */
+  --texto: #F0F7F2;            /* texto principal */
+  --texto-suave: #A9BDB0;      /* texto secundario */
+  --btn-2: #263C30;            /* botón secundario */
+  --premium-tint: rgba(53, 217, 149, 0.08);
+  --acento-glow: rgba(53, 217, 149, 0.20);
+  --acento-glow-fuerte: rgba(53, 217, 149, 0.30);
+  --overlay: rgba(16, 28, 23, 0.82);
+  --modal-bg: #192820;
 }
 
 * {
@@ -19,7 +27,7 @@ body {
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   color: var(--texto);
   background:
-    radial-gradient(circle at 50% 35%, var(--verde-medio) 0%, #0d4d1a 40%, var(--verde-oscuro) 80%),
+    radial-gradient(900px 420px at 50% -8%, rgba(53, 217, 149, 0.10), transparent 70%),
     var(--verde-oscuro);
   display: flex;
   flex-direction: column;
@@ -88,8 +96,8 @@ body {
 }
 
 .planes-alert[data-variant="success"] {
-  background: rgba(109, 255, 166, 0.14);
-  border-color: rgba(109, 255, 166, 0.45);
+  background: rgba(53, 217, 149, 0.12);
+  border-color: rgba(53, 217, 149, 0.45);
 }
 
 .planes-alert[data-variant="pending"] {
@@ -144,14 +152,13 @@ body {
   background: var(--vidrio);
   border: 1px solid var(--borde);
   border-radius: 24px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .plan:hover {
   transform: translateY(-6px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  border-color: var(--verde-claro);
 }
 
 .plan h2 {
@@ -220,8 +227,8 @@ body {
   font-family: inherit;
   font-size: 1rem;
   font-weight: 600;
-  color: #111;
-  background: #ffffff;
+  color: var(--verde-oscuro);
+  background: var(--verde-claro);
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -229,9 +236,9 @@ body {
 }
 
 .btn-obtener:hover:not(:disabled) {
-  background: #e9ffe9;
+  background: var(--verde-hover);
   transform: scale(1.02);
-  box-shadow: 0 8px 20px rgba(109, 255, 166, 0.25);
+  box-shadow: 0 8px 20px var(--acento-glow);
 }
 
 .btn-obtener:disabled {
@@ -241,21 +248,21 @@ body {
 
 /* Plan gratis: botón más discreto */
 .plan-gratis .btn-obtener {
-  background: transparent;
+  background: var(--btn-2);
   color: var(--texto);
   border: 1px solid var(--borde);
 }
 
 .plan-gratis .btn-obtener:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--verde-medio);
   box-shadow: none;
 }
 
 /* Plan premium: destacado */
 .plan-premium {
   border-color: var(--verde-claro);
-  background: rgba(109, 255, 166, 0.08);
-  box-shadow: 0 0 40px rgba(109, 255, 166, 0.2);
+  background: linear-gradient(180deg, var(--verde-medio) 0%, var(--vidrio) 55%);
+  box-shadow: 0 0 40px var(--acento-glow);
 }
 
 .plan-premium::after {
@@ -274,7 +281,7 @@ body {
 }
 
 .plan-premium:hover {
-  box-shadow: 0 20px 50px rgba(109, 255, 166, 0.3);
+  box-shadow: 0 20px 50px var(--acento-glow-fuerte);
 }
 
 /* Insignia "Tu plan actual" */
@@ -287,8 +294,9 @@ body {
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #111;
-  background: #ffffff;
+  color: var(--texto);
+  background: var(--btn-2);
+  border: 1px solid var(--borde);
   border-radius: 999px;
 }
 
@@ -316,7 +324,7 @@ body.paywall-abierto { overflow: hidden; }
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: rgba(2, 16, 8, 0.78);
+  background: var(--overlay);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -328,10 +336,10 @@ body.paywall-abierto { overflow: hidden; }
   width: 100%;
   max-width: 440px;
   padding: 36px 32px 30px;
-  background: rgba(5, 46, 22, 0.92);
+  background: var(--modal-bg);
   border: 1px solid var(--verde-claro);
   border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(109, 255, 166, 0.15);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 40px var(--acento-glow);
   animation: paywall-entra 0.25s ease;
 }
 
@@ -352,7 +360,7 @@ body.paywall-abierto { overflow: hidden; }
   font-size: 1.3rem;
   line-height: 1;
   color: var(--texto-suave);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--btn-2);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -360,7 +368,7 @@ body.paywall-abierto { overflow: hidden; }
 }
 
 .paywall-close:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--verde-medio);
   color: var(--texto);
 }
 
@@ -462,7 +470,7 @@ body.paywall-abierto { overflow: hidden; }
   height: 13px;
   margin-left: 9px;
   vertical-align: -2px;
-  border: 2px solid rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(16, 28, 23, 0.35);
   border-top-color: transparent;
   border-radius: 50%;
   animation: paywall-spin 0.7s linear infinite;
@@ -489,6 +497,20 @@ body.paywall-abierto { overflow: hidden; }
    =========================================== */
 
 body.is-premium {
+  /* valores originales de la hoja (antes de la paleta Geko) */
+  --verde-claro: #6dffa6;
+  --verde-hover: #e9ffe9;
+  --verde-medio: #1a6b00;
+  --verde-oscuro: #052e16;
+  --vidrio: rgba(255, 255, 255, 0.06);
+  --borde: rgba(255, 255, 255, 0.15);
+  --texto: #ffffff;
+  --texto-suave: rgba(255, 255, 255, 0.7);
+  --btn-2: transparent;
+  --acento-glow: rgba(109, 255, 166, 0.2);
+  --acento-glow-fuerte: rgba(109, 255, 166, 0.3);
+  --overlay: rgba(2, 16, 8, 0.78);
+  --modal-bg: rgba(5, 46, 22, 0.92);
   --gold-1: #fff1a8;
   --gold-2: #ffd75e;
   --gold-3: #d4a017;
@@ -557,6 +579,7 @@ body.is-premium .plan-premium::after,
 body.is-premium .plan-badge {
   background: var(--gold-grad);
   color: var(--on-gold);
+  border: none;
 }
 
 /* Botones: negro con borde y texto dorados */

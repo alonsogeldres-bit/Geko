@@ -6,8 +6,8 @@
    =========================================== */
 
 .config-section {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  background: var(--surface);
   border-radius: 14px;
   padding: 20px;
   margin-bottom: 18px;
@@ -18,7 +18,7 @@
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text);
 }
 
 .config-actions {
@@ -72,14 +72,14 @@
 }
 
 .config-alert[data-variant="success"] {
-  background: rgba(99, 255, 148, 0.1);
-  border: 1px solid rgba(99, 255, 148, 0.35);
-  color: #a9f5c3;
+  background: rgba(53, 217, 149, 0.10);
+  border: 1px solid rgba(53, 217, 149, 0.40);
+  color: #A8F0D0;
 }
 
 .config-alert[data-variant="success"] .config-alert-icon {
-  background: #63ff94;
-  color: #0a3a1c;
+  background: #35D995;
+  color: #101C17;
 }
 
 @media (max-width: 560px) {
@@ -101,6 +101,20 @@
    =========================================== */
 
 .profile-page.is-premium {
+  /* valores originales (los que usaba la hoja antes de la paleta Geko) */
+  --bg: transparent;
+  --surface: rgba(255, 255, 255, 0.03);
+  --text: #ffffff;
+  --mut: rgba(255, 255, 255, 0.75);
+  --faint: rgba(255, 255, 255, 0.4);
+  --line: rgba(255, 255, 255, 0.12);
+  --field: rgba(255, 255, 255, 0.03);
+  --sel: rgba(255, 255, 255, 0.1);
+  --btn-2: transparent;
+  --ac: #ffd75e;
+  --ac-hover: #ffd75e;
+  --on-ac: #1a1400;
+  --glow: rgba(255, 215, 94, 0.22);
   --gold-1: #fff1a8;
   --gold-2: #ffd75e;
   --gold-3: #d4a017;

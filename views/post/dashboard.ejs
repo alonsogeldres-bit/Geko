@@ -1,4 +1,4 @@
-<%
+﻿<%
   /* Todo lo que llega aquí viene del controlador con datos reales de la BD.
      Si algo falta, la vista degrada con honestidad en vez de inventar valores. */
   const u = locals.usuario || {};
@@ -37,6 +37,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="stylesheet" href="/css/themes.css" />`r`n  <link rel="stylesheet" href="/css/dark-unified.css" />
+  <script src="/js/theme-toggle.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GEKO - Dashboard</title>
@@ -53,7 +55,9 @@
         <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
       </div>
 
-      <details class="user-menu" id="user-menu">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button type="button" id="theme-toggle" aria-label="Cambiar tema" style="border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:6px 10px;cursor:pointer">🌓</button>
+        <details class="user-menu" id="user-menu">
         <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
 
         <div class="dropdown" role="menu">
@@ -78,7 +82,23 @@
           </form>
         </div>
       </details>
+      </div>
     </header>
+
+    <script>
+      (function(){
+        const btn = document.getElementById('theme-toggle');
+        if(btn && window.GekoTheme){
+          btn.addEventListener('click', function(){
+            const t = window.GekoTheme.toggleTheme();
+            btn.setAttribute('aria-pressed', t === 'dark');
+          });
+        }
+        if(window.GekoTheme && '<%= esPremium ? "premium" : "freemium" %>' === 'premium'){
+          window.GekoTheme.setPlan('premium');
+        }
+      })();
+    </script>
 
     <!-- ========== Contenido ========== -->
     <main class="dash-main">
@@ -190,3 +210,6 @@
   <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
+
+

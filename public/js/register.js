@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
   console.log("[register.js] Script cargado y DOM listo");
 
   var formRegister = document.getElementById("form-register");
@@ -71,5 +71,20 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(function () {
         errorEl.textContent = "Error de conexión con el servidor.";
       });
+  });
+});
+// Toggle password visibility
+document.querySelectorAll('.toggle-pass').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var targetId = btn.getAttribute('data-target');
+    var input = document.getElementById(targetId);
+    if(!input) return;
+    if(input.type === 'password'){
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
   });
 });

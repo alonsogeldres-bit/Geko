@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
   console.log("[login.js] Script cargado y DOM listo");
 
   var tabLogin = document.getElementById("tab-login");
@@ -236,4 +236,20 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   leerErrorDeUrl();
+});
+
+// Toggle password visibility
+document.querySelectorAll('.toggle-pass').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var targetId = btn.getAttribute('data-target');
+    var input = document.getElementById(targetId);
+    if(!input) return;
+    if(input.type === 'password'){
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  });
 });

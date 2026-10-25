@@ -1,0 +1,94 @@
+﻿/* Dark mode unificado para todas las vistas */
+html[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .auth,
+html[data-theme="dark"] .profile-page,
+html[data-theme="dark"] .planes-wrap {
+  background: radial-gradient(1200px 600px at 50% -10%, rgba(53, 217, 149, 0.08), transparent 60%), var(--bg) !important;
+}
+
+html[data-theme="dark"] .auth-card,
+html[data-theme="dark"] .profile-main,
+html[data-theme="dark"] .config-card,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .planes,
+html[data-theme="dark"] .plan {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .auth-input,
+html[data-theme="dark"] .input,
+html[data-theme="dark"] .textarea,
+html[data-theme="dark"] .select {
+  background: var(--input-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .auth-label,
+html[data-theme="dark"] .field-label,
+html[data-theme="dark"] .config-section-title,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3 {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .auth-link,
+html[data-theme="dark"] .planes-back {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .btn-primary,
+html[data-theme="dark"] .btn-obtener,
+html[data-theme="dark"] .cta {
+  background: var(--accent) !important;
+  color: var(--accent-contrast) !important;
+  border-color: var(--accent) !important;
+}
+
+html[data-theme="dark"] .btn-primary:hover,
+html[data-theme="dark"] .btn-obtener:hover,
+html[data-theme="dark"] .cta:hover {
+  background: var(--accent-hover) !important;
+}
+
+html[data-theme="dark"] .btn-outline,
+html[data-theme="dark"] .ghost {
+  background: var(--surface-alt) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .dropdown {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .dropdown-item {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .dropdown-item:hover {
+  background: var(--accent-soft) !important;
+}
+
+html[data-theme="dark"] .nav-item {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .nav-item.active {
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+}
+
+html[data-theme="dark"] .splash {
+  background: radial-gradient(1200px 600px at 50% -10%, rgba(53, 217, 149, 0.12), transparent 60%), var(--bg) !important;
+}

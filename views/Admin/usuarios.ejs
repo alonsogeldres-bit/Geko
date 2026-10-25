@@ -1,0 +1,46 @@
+<%- include('partials/headerAdmin') %>
+<h1>Usuarios <span class="muted small">(<%= total %>)</span></h1>
+<form class="card filters" method="GET" action="/admin/usuarios">
+  <div class="field"><label for="q">Buscar</label>
+    <input id="q" name="q" value="<%= filtros.q %>" placeholder="Nombre, correo o usuario" style="width:100%" /></div>
+  <div><label for="rol">Rol</label>
+    <select id="rol" name="rol">
+      <option value="">Todos</option>
+      <option value="2" <%= filtros.rol === '2' ? 'selected' : '' %>>Cliente</option>
+      <option value="1" <%= filtros.rol === '1' ? 'selected' : '' %>>Admin</option>
+      <option value="3" <%= filtros.rol === '3' ? 'selected' : '' %>>Super admin</option>
+    </select></div>
+  <div><label for="estado">Estado</label>
+    <select id="estado" name="estado">
+      <option value="">Sin eliminados</option>
+      <option value="Activo" <%= filtros.estado === 'Activo' ? 'selected' : '' %>>Activo</option>
+      <option value="Bloqueado" <%= filtros.estado === 'Bloqueado' ? 'selected' : '' %>>Bloqueado</option>
+      <option value="Eliminado" <%= filtros.estado === 'Eliminado' ? 'selected' : '' %>>Eliminado</option>
+    </select></div>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Plan</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+    <% rows.forEach(function (u) { %>
+      <tr>
+        <td><%= u.nombre %> <%= u.apellido %><br><span class="muted small">@<%= u.nombre_usuario %></span></td>
+        <td><%= u.correo %></td>
+        <td><span class="tag <%= u.id_rol === 3 ? 'sa' : '' %>"><%= u.nombre_rol %></span></td>
+        <td><%= !u.id_cliente ? '—' : (Number(u.valor_plan) > 0 ? 'Premium' : 'Gratis') %></td>
+        <td><span class="tag <%= u.estado === 'Activo' ? 'ok' : (u.estado === 'Bloqueado' ? 'warn' : 'bad') %>"><%= u.estado %></span></td>
+        <td><a class="btn ghost sm" href="/admin/usuarios/<%= u.id_usuario %>">Ver</a></td>
+      </tr>
+    <% }) %>
+    <% if (!rows.length) { %><tr><td colspan="6" class="muted">Sin resultados.</td></tr><% } %>
+    </tbody>
+  </table>
+  <% var qs = '&q=' + encodeURIComponent(filtros.q) + '&rol=' + filtros.rol + '&estado=' + filtros.estado; %>
+  <div class="pager">
+    <% if (page > 1) { %><a class="btn ghost sm" href="?page=<%= page - 1 %><%= qs %>">← Anterior</a><% } %>
+    <span class="muted small">Página <%= page %> de <%= pages %></span>
+    <% if (page < pages) { %><a class="btn ghost sm" href="?page=<%= page + 1 %><%= qs %>">Siguiente →</a><% } %>
+  </div>
+</div>
+<%- include('partials/footerAdmin') %>

@@ -1,0 +1,23 @@
+<%- include('partials/headerAdmin') %>
+<h1>Nuevo administrador</h1>
+<form class="card" method="POST" action="/admin/admins/nuevo" autocomplete="off">
+  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+  <div class="row">
+    <div class="field"><label for="nombre">Nombre</label><input id="nombre" name="nombre" value="<%= datos.nombre || '' %>" maxlength="50" required style="width:100%" /></div>
+    <div class="field"><label for="apellido">Apellido</label><input id="apellido" name="apellido" value="<%= datos.apellido || '' %>" maxlength="50" required style="width:100%" /></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <div class="field"><label for="correo">Correo</label><input id="correo" type="email" name="correo" value="<%= datos.correo || '' %>" maxlength="100" required style="width:100%" /></div>
+    <div class="field"><label for="numero">Teléfono</label><input id="numero" name="numero" value="<%= datos.numero || '' %>" maxlength="20" required style="width:100%" /></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <div class="field"><label for="nombre_usuario">Nombre de usuario</label><input id="nombre_usuario" name="nombre_usuario" value="<%= datos.nombre_usuario || '' %>" maxlength="50" required style="width:100%" /></div>
+    <div class="field"><label for="contrasena">Contraseña inicial (mín. 8)</label><input id="contrasena" type="password" name="contrasena" minlength="8" required autocomplete="new-password" style="width:100%" /></div>
+  </div>
+  <div class="act">
+    <div class="field"><label for="ca">Tu contraseña (confirmación)</label>
+      <input id="ca" type="password" name="contrasena_actual" required autocomplete="current-password" style="width:100%;max-width:320px" /></div>
+  </div>
+  <p><button class="btn" type="submit">Crear administrador</button></p>
+</form>
+<%- include('partials/footerAdmin') %>

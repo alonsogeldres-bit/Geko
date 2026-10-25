@@ -216,6 +216,8 @@ document.addEventListener("DOMContentLoaded", function () {
     sso_denied: "Google no autorizó el acceso a tu cuenta.",
     sso_cancelled: "Cancelaste el inicio de sesión con Google.",
     sso_error: "No pudimos completar el inicio de sesión con Google.",
+    cuenta_inactiva: "Tu cuenta está suspendida o fue eliminada. Contacta a soporte.",
+    sso_superadmin: "Esta cuenta solo puede entrar con correo y contraseña.",
     sso_state: "La solicitud de acceso no es válida o expiró.",
     sso_email: "Google no entregó un correo verificado para esa cuenta.",
     sso_registration: "Tu sesión de registro expiró. Vuelve a entrar con Google."

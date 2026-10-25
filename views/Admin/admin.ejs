@@ -1,0 +1,26 @@
+<%- include('partials/headerAdmin') %>
+<h1>Resumen</h1>
+<div class="grid">
+  <div class="stat"><span class="muted small">Clientes activos</span><b><%= stats.clientes %></b></div>
+  <div class="stat"><span class="muted small">Premium</span><b><%= stats.premium %></b></div>
+  <div class="stat"><span class="muted small">Gratis</span><b><%= stats.gratis %></b></div>
+  <div class="stat"><span class="muted small">Ingresos (USD)</span><b>$<%= stats.ingresosUsd.toFixed(2) %></b></div>
+  <div class="stat"><span class="muted small">Admins activos</span><b><%= stats.staff %></b></div>
+  <div class="stat"><span class="muted small">Cuentas bloqueadas</span><b><%= stats.bloqueados %></b></div>
+</div>
+<div class="card">
+  <h2>Actividad reciente</h2>
+  <% if (!eventos.length) { %><p class="muted">Aún no hay acciones registradas.</p><% } else { %>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Fecha</th><th>Quién</th><th>Acción</th><th>Detalle</th></tr></thead>
+    <tbody>
+    <% eventos.forEach(function (e) { %>
+      <tr><td><%= fmt(e.creado_en) %></td><td><%= e.nombre ? e.nombre + ' ' + e.apellido : '—' %></td>
+          <td><%= e.accion %></td><td><%= e.detalle || '' %></td></tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <p><a href="/admin/auditoria">Ver todo el registro →</a></p>
+  <% } %>
+</div>
+<%- include('partials/footerAdmin') %>

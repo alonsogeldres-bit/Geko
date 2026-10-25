@@ -1,0 +1,93 @@
+<%- include('partials/headerAdmin') %>
+<p><a href="/admin/usuarios">← Usuarios</a></p>
+<h1><%= target.nombre %> <%= target.apellido %>
+  <span class="tag <%= target.id_rol === 3 ? 'sa' : '' %>"><%= target.nombre_rol %></span>
+  <span class="tag <%= target.estado === 'Activo' ? 'ok' : (target.estado === 'Bloqueado' ? 'warn' : 'bad') %>"><%= target.estado %></span>
+</h1>
+
+<div class="two">
+  <div class="card">
+    <h2>Cuenta</h2>
+    <dl class="kv">
+      <dt>Correo</dt><dd><%= target.correo %></dd>
+      <dt>Usuario</dt><dd>@<%= target.nombre_usuario %></dd>
+      <dt>Teléfono</dt><dd><%= target.numero %></dd>
+      <dt>Acceso</dt><dd><%= target.usuario_proveedor === 'local' ? 'Contraseña local' : 'Google' %></dd>
+      <dt>Perfil creado</dt><dd><%= fmt(target.perfil_creado) %></dd>
+      <dt>Plan vigente</dt><dd><%= !target.id_cliente ? 'Sin perfil' : (Number(target.valor_plan) > 0 ? 'Premium' : 'Gratis') %></dd>
+      <% if (target.eliminado_en) { %><dt>Eliminado</dt><dd><%= fmt(target.eliminado_en) %></dd><% } %>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Suscripciones y pagos</h2>
+    <% if (!target.suscripciones.length) { %><p class="muted">Sin suscripciones.</p><% } else { %>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Plan</th><th>Estado</th><th>Inicio</th><th>Término</th></tr></thead>
+      <tbody><% target.suscripciones.forEach(function (s) { %>
+        <tr><td><%= s.nombre_plan %></td><td><%= s.estado %></td><td><%= fmtDia(s.fecha_inicio) %></td><td><%= fmtDia(s.fecha_termino) %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+    <% if (target.pagos.length) { %>
+    <div class="table-wrap" style="margin-top:12px"><table>
+      <thead><tr><th>Monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+      <tbody><% target.pagos.forEach(function (p) { %>
+        <tr><td><%= p.monto %> <%= p.moneda %></td><td><%= p.estado %></td><td><%= fmtDia(p.fecha_pago) %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+</div>
+
+<% if (gestionable && target.estado !== 'Eliminado') { %>
+<div class="card">
+  <h2>Acciones</h2>
+
+  <form method="POST" action="/admin/usuarios/<%= target.id_usuario %>/estado" class="row">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+    <button class="btn ghost" type="submit"><%= target.estado === 'Bloqueado' ? 'Desbloquear cuenta' : 'Bloquear cuenta' %></button>
+  </form>
+
+  <% if (target.id_cliente) { %>
+  <form method="POST" action="/admin/usuarios/<%= target.id_usuario %>/premium" class="row act">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+    <div><label for="dias">Días de Premium gratis</label><input id="dias" type="number" name="dias" value="30" min="1" max="365" /></div>
+    <button class="btn" type="submit" name="accion" value="otorgar">Dar Premium</button>
+    <button class="btn ghost" type="submit" name="accion" value="cancelar">Cancelar Premium</button>
+  </form>
+  <% } %>
+
+  <% if (target.usuario_proveedor === 'local') { %>
+  <form method="POST" action="/admin/usuarios/<%= target.id_usuario %>/reset-password" class="row act">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+    <button class="btn ghost" type="submit">Enviar enlace para restablecer contraseña</button>
+  </form>
+  <% } %>
+
+  <% if (esSuper) { %>
+  <form method="POST" action="/admin/usuarios/<%= target.id_usuario %>/rol" class="row act">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+    <div><label for="id_rol">Rol</label>
+      <select id="id_rol" name="id_rol">
+        <option value="2" <%= target.id_rol === 2 ? 'selected' : '' %>>Cliente</option>
+        <option value="1" <%= target.id_rol === 1 ? 'selected' : '' %>>Admin</option>
+      </select></div>
+    <div class="field"><label for="pw1">Tu contraseña (confirmación)</label>
+      <input id="pw1" type="password" name="contrasena_actual" autocomplete="current-password" required style="width:100%" /></div>
+    <button class="btn" type="submit">Cambiar rol</button>
+  </form>
+  <% } %>
+
+  <form method="POST" action="/admin/usuarios/<%= target.id_usuario %>/eliminar" class="row act"
+        onsubmit="return confirm('¿Eliminar esta cuenta? El usuario no podrá volver a entrar.');">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+    <div class="field"><label for="pw2">Tu contraseña (confirmación)</label>
+      <input id="pw2" type="password" name="contrasena_actual" autocomplete="current-password" required style="width:100%" /></div>
+    <button class="btn danger" type="submit">Eliminar cuenta</button>
+  </form>
+</div>
+<% } else if (!gestionable) { %>
+<p class="muted">No puedes modificar esta cuenta (es la tuya, la del super admin, o un admin y solo el super admin puede gestionarlos).</p>
+<% } %>
+<%- include('partials/footerAdmin') %>

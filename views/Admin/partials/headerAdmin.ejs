@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title><%= titulo %> · GEKO Admin</title>
+  <link rel="icon" href="/assets/geko.png" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <header class="ad-nav">
+    <a class="ad-brand" href="/admin">GEKO <span>Admin</span></a>
+    <nav class="ad-links">
+      <a href="/admin" class="<%= nav === 'resumen' ? 'on' : '' %>">Resumen</a>
+      <a href="/admin/usuarios" class="<%= nav === 'usuarios' ? 'on' : '' %>">Usuarios</a>
+      <% if (esSuper) { %><a href="/admin/admins/nuevo" class="<%= nav === 'nuevo' ? 'on' : '' %>">Nuevo admin</a><% } %>
+      <a href="/admin/auditoria" class="<%= nav === 'auditoria' ? 'on' : '' %>">Auditoría</a>
+    </nav>
+    <div class="ad-user">
+      <span><%= usuario.nombre %> · <span class="tag <%= esSuper ? 'sa' : '' %>"><%= esSuper ? 'Super admin' : 'Admin' %></span></span>
+      <a href="/dashboard">Ir a la app</a>
+      <form action="/logout" method="POST"><button class="btn ghost sm" type="submit">Salir</button></form>
+    </div>
+  </header>
+  <main class="ad-main">
+    <% if (typeof flash !== 'undefined' && flash) { %>
+      <div class="ad-flash <%= flash.tipo %>" role="status"><%= flash.msg %></div>
+    <% } %>

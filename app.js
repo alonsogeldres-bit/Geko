@@ -12,6 +12,8 @@ const trainingRoutes = require('./routes/trainingRoutes');
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes');
 const planRoutes = require('./routes/planRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const { guardAccount } = require('./middlewares/accountGuard');
 
 const app = express();
 
@@ -37,12 +39,16 @@ app.use(
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
+            sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 2 
         }
     })
 )
 
 
+
+// Revalida rol y estado de la cuenta (bloqueos y cambios de rol al instante)
+app.use(guardAccount);
 
 // Programar rutas
 app.get('/', (req, res) => {
@@ -56,13 +62,9 @@ app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 app.use('/', profileRoutes);
 app.use('/', planRoutes);
+app.use('/admin', adminRoutes);
 
 // Levantar el servidor
 app.listen(port, () => {
     console.log(`Servidor arriba en http://localhost:${port}`);
 });
-
-
-
-
-

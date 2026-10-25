@@ -190,6 +190,10 @@ const googleCallback = async (req, res) => {
     const user = await UserModel.findByEmail(profile.correo);
 
     if (user) {
+      if (user.estado && user.estado !== 'Activo') return res.redirect('/login?error=cuenta_inactiva');
+      // El super admin solo entra con contraseña local.
+      if (user.id_rol === UserModel.ID_ROL_SUPERADMIN) return res.redirect('/login?error=sso_superadmin');
+      if (user.id_rol === UserModel.ID_ROL_ADMIN) return startSession(req, res, user, '/admin');
       const idCliente = await ProfileModel.hasProfile(user.id_usuario);
       return startSession(req, res, user, idCliente ? '/dashboard' : '/profile');
     }

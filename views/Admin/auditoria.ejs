@@ -1,0 +1,23 @@
+<%- include('partials/headerAdmin') %>
+<h1>Auditoría <span class="muted small">(<%= total %> registros)</span></h1>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Fecha</th><th>Quién</th><th>Rol</th><th>Acción</th><th>Entidad</th><th>Detalle</th><th>IP</th></tr></thead>
+    <tbody>
+    <% rows.forEach(function (e) { %>
+      <tr><td><%= fmt(e.creado_en) %></td>
+          <td><%= e.nombre ? e.nombre + ' ' + e.apellido : '—' %></td>
+          <td><%= e.rol_actor || '' %></td><td><%= e.accion %></td>
+          <td><%= e.entidad ? e.entidad + ' #' + e.id_entidad : '' %></td>
+          <td><%= e.detalle || '' %></td><td><%= e.ip || '' %></td></tr>
+    <% }) %>
+    <% if (!rows.length) { %><tr><td colspan="7" class="muted">Aún no hay acciones registradas.</td></tr><% } %>
+    </tbody>
+  </table>
+  <div class="pager">
+    <% if (page > 1) { %><a class="btn ghost sm" href="?page=<%= page - 1 %>">← Anterior</a><% } %>
+    <span class="muted small">Página <%= page %> de <%= pages %></span>
+    <% if (page < pages) { %><a class="btn ghost sm" href="?page=<%= page + 1 %>">Siguiente →</a><% } %>
+  </div>
+</div>
+<%- include('partials/footerAdmin') %>

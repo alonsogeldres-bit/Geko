@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModels');
+const { ID_ROL_ADMIN, ID_ROL_SUPERADMIN } = UserModel;
 const ProfileModel = require('../models/profileModel');
 const sso = require('../config/sso');
 const { sendWelcomeEmail } = require('../config/welcomeMail');
@@ -69,9 +70,14 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos.' });
     }
 
-    // Si ya completó el wizard (existe fila en clientes), el destino es el dashboard.
-    const idCliente = await ProfileModel.hasProfile(usuario.id_usuario);
-    const destino = idCliente ? '/dashboard' : '/profile';
+    if (usuario.estado && usuario.estado !== 'Activo') {
+      return res.status(403).json({ success: false, message: 'Tu cuenta está suspendida o fue eliminada. Contacta a soporte.' });
+    }
+
+    // Admin y super admin entran directo a su panel; el resto, según su perfil.
+    const esStaff = usuario.id_rol === ID_ROL_ADMIN || usuario.id_rol === ID_ROL_SUPERADMIN;
+    const idCliente = esStaff ? null : await ProfileModel.hasProfile(usuario.id_usuario);
+    const destino = esStaff ? '/admin' : (idCliente ? '/dashboard' : '/profile');
 
     req.session.regenerate((err) => {
       if (err) {
@@ -82,7 +88,8 @@ const login = async (req, res) => {
       req.session.usuario = {
         id_usuario: usuario.id_usuario,
         id_rol: usuario.id_rol,
-        nombre: usuario.nombre
+        nombre: usuario.nombre,
+        chequeadoEn: Date.now()
       };
 
       res.json({ success: true, message: 'Inicio de sesión exitoso.', redirect: destino });
@@ -115,7 +122,8 @@ const startSession = (req, res, user, destination) => {
     req.session.usuario = {
       id_usuario: user.id_usuario,
       id_rol: user.id_rol,
-      nombre: user.nombre
+      nombre: user.nombre,
+      chequeadoEn: Date.now()
     };
 
     res.redirect(destination);

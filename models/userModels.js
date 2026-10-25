@@ -2,6 +2,7 @@ const pool = require('../config/db');
 
 const ID_ROL_ADMIN = 1;
 const ID_ROL_CLIENTE = 2;
+const ID_ROL_SUPERADMIN = 3;
 
 const findByEmail = async (correo) => {
   const [rows] = await pool.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
@@ -59,6 +60,7 @@ const updatePassword = async (id_usuario, contrasena_hash) => {
 module.exports = {
   ID_ROL_ADMIN,
   ID_ROL_CLIENTE,
+  ID_ROL_SUPERADMIN,
   findByEmail,
   findById,
   existsByEmail,

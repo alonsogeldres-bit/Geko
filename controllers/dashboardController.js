@@ -15,17 +15,24 @@ const tienePlanDePago = async (idCliente) => {
   }
 };
 
+
 const calcularTMB = (datos) => {
-  if (!datos) return null;
+  console.log('[TMB] Entrada:', datos);
 
-  const { sexo, fechaNacimiento, peso, altura } = datos;
-
-  if (!sexo || !fechaNacimiento || peso == null || altura == null) {
+  if (!datos) {
+    console.log('[TMB] Fallo: no hay datos');
     return null;
   }
 
-  const pesoKg = Number(peso);
-  const alturaCm = Number(altura);
+  const sexo = String(datos.sexo || '').trim().toUpperCase();
+  const pesoKg = Number(datos.peso);
+  const alturaCm = Number(datos.altura);
+  const fechaNacimiento = datos.fechaNacimiento;
+
+  if (!fechaNacimiento) {
+    console.log('[TMB] Fallo: falta fecha de nacimiento');
+    return null;
+  }
 
   if (
     !Number.isFinite(pesoKg) ||
@@ -33,13 +40,19 @@ const calcularTMB = (datos) => {
     pesoKg <= 0 ||
     alturaCm <= 0
   ) {
+    console.log('[TMB] Fallo: peso o altura inválidos', {
+      pesoKg,
+      alturaCm
+    });
     return null;
   }
 
-  const fecha = String(fechaNacimiento).slice(0, 10);
-  const nacimiento = new Date(`${fecha}T12:00:00`);
+  const nacimiento = new Date(fechaNacimiento);
 
-  if (Number.isNaN(nacimiento.getTime())) return null;
+  if (Number.isNaN(nacimiento.getTime())) {
+    console.log('[TMB] Fallo: fecha inválida', fechaNacimiento);
+    return null;
+  }
 
   const hoy = new Date();
   let edad = hoy.getFullYear() - nacimiento.getFullYear();
@@ -52,25 +65,34 @@ const calcularTMB = (datos) => {
     edad--;
   }
 
-  if (edad < 0 || edad > 120) return null;
-
-  let tmb;
-
-  if (sexo === 'M') {
-    tmb = 10 * pesoKg + 6.25 * alturaCm - 5 * edad + 5;
-  } else if (sexo === 'F') {
-    tmb = 10 * pesoKg + 6.25 * alturaCm - 5 * edad - 161;
-  } else {
+  if (edad < 0 || edad > 120) {
+    console.log('[TMB] Fallo: edad inválida', edad);
     return null;
   }
 
-  return {
+  if (!['M', 'F'].includes(sexo)) {
+    console.log('[TMB] Fallo: sexo inválido', sexo);
+    return null;
+  }
+
+  const tmb =
+    10 * pesoKg +
+    6.25 * alturaCm -
+    5 * edad +
+    (sexo === 'M' ? 5 : -161);
+
+  const resultado = {
     tmb: Math.round(tmb),
     peso: pesoKg,
     altura: alturaCm,
-    edad,
+    edad
   };
+
+  console.log('[TMB] Resultado calculado:', resultado);
+
+  return resultado;
 };
+
 
 /**
  * GET /dashboard

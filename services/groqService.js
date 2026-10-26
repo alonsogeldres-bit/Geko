@@ -1,21 +1,4 @@
-/* ===========================================
-   SERVICIO DE RUTINAS CON GROQ (Qwen)
-   Cliente de la API de Groq (compatible con OpenAI), sin SDK.
 
-   No toca la base de datos: solo arma la rutina.
-
-   Contrato:
-     generarRutinaPersonalizada({ perfil })
-       perfil = lo que devuelve DashboardModel.getPerfil()
-     (también acepta { tiempoDisponible, lugarEntrenamiento } sueltos,
-      que tienen prioridad sobre el perfil: sirve para pruebas)
-
-     -> { calentamiento[], rutinaPrincipal[], estiramiento[], tiempoTotalMin,
-          lugar, fuente }
-
-   `fuente` vale 'groq' cuando la rutina la escribió el modelo y
-   'local' cuando se usó el generador de respaldo.
-   =========================================== */
 
 const { generarRutinaLocal, normalizarLugar } = require('./localRoutineService');
 

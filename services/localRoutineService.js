@@ -1,20 +1,4 @@
-/* ===========================================
-   SERVICIO DE RUTINAS LOCAL (RESPALDO)
-   Genera una rutina completa sin llamar a ninguna API.
-   Se usa cuando Groq no está disponible (sin clave, error,
-   timeout o saturación), para que /entrenamiento siga
-   funcionando igual.
 
-   Contrato (mismo que groqService):
-     generarRutinaLocal({ tiempoDisponible, lugarEntrenamiento, perfil })
-     -> { calentamiento[], rutinaPrincipal[], estiramiento[],
-          tiempoTotalMin, lugarEntrenamiento, fuente: 'local' }
-
-   No toca la base de datos: solo recibe el perfil ya leído.
-   =========================================== */
-
-/* Valores que puede traer la base ('gimnasio', 'aire_libre', ...)
-   y también las etiquetas que ya usa la vista. */
 const LUGARES_PERMITIDOS = ['Gimnasio', 'Casa', 'Aire libre', 'Mixto'];
 
 const MAPA_LUGARES = {

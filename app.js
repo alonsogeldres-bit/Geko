@@ -58,6 +58,10 @@ app.get('/', (req, res) => {
 app.use('/splash', postRouter);
 app.use('/dashboard', dashboardRoutes);
 app.use('/entrenamiento', trainingRoutes);
+// Vista visual solo frontend
+app.get('/entrenamientoActivo', (req, res) => {
+    res.render('post/entrenamientoActivo');
+});
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 app.use('/', profileRoutes);

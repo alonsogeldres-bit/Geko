@@ -1,0 +1,496 @@
+/* ===========================================
+   ENTRENAMIENTO ACTIVO - Estilos
+   =========================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100dvh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #101C17;
+  color: #F0F7F2;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+  --bg: #101C17;
+  --surface: #192820;
+  --surface-2: #1D2D23;
+  --line: #304438;
+  --mut: #A9BDB0;
+  --text: #F0F7F2;
+  --ac: #35D995;
+  --ac-hover: #59E6A9;
+  --on-ac: #101C17;
+  --btn-2: #263C30;
+  --hover: #254A36;
+  --glow: rgba(53, 217, 149, 0.18);
+}
+
+.ea-bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 520px at 50% -12%, rgba(53, 217, 149, 0.16), transparent 72%),
+    radial-gradient(800px 380px at 80% 0%, rgba(53, 217, 149, 0.08), transparent 70%);
+  z-index: 0;
+}
+
+.ea-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: soft-light;
+  z-index: 0;
+}
+
+/* Header con logo */
+.ea-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.ea-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+  pointer-events: auto;
+}
+
+.ea-logo-text {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ea-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, rgba(53, 217, 149, 0.22) 0%, rgba(53, 217, 149, 0.14) 100%);
+  color: var(--ac);
+  border: 1px solid rgba(53, 217, 149, 0.5);
+}
+
+/* Contenedor principal */
+.ta-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  height: 100dvh;
+  padding: 82px 16px 20px 16px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+/* Contenedor con borde general */
+.ta-container {
+  flex: 1 1 auto;
+  display: flex;
+  width: 86%;
+  height: 86%;
+  margin: 0 auto;
+  border: 1px solid rgba(48, 68, 56, 0.9);
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(25, 40, 32, 0.98) 0%, rgba(16, 28, 23, 0.98) 100%);
+  box-shadow: 0 60px 120px -80px rgba(53, 217, 149, 0.5), inset 0 1px 0 rgba(89, 230, 169, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+/* Columna izquierda: Video Template (~55%) */
+.video-template {
+  flex: 0 0 55%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-right: 1px solid var(--line);
+  background:
+    radial-gradient(900px 420px at 50% 12%, rgba(53, 217, 149, 0.14), transparent 70%),
+    radial-gradient(700px 320px at 50% 90%, rgba(53, 217, 149, 0.08), transparent 70%),
+    var(--surface);
+  text-align: center;
+  padding: 20px;
+}
+
+.video-placeholder {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(53, 217, 149, 0.28) 0%, rgba(25, 40, 32, 0.92) 100%);
+  border: 1px solid rgba(89, 230, 169, 0.7);
+  box-shadow: 0 0 0 14px rgba(53, 217, 149, 0.08), 0 30px 60px -40px rgba(53, 217, 149, 0.9);
+  position: relative;
+}
+
+.video-placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial(circle, transparent 60%, rgba(53, 217, 149, 0.12) 100%);
+}
+
+.video-play {
+  width: 0;
+  height: 0;
+  border-left: 24px solid var(--text);
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  margin-left: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.video-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.video-sub {
+  font-size: 13px;
+  color: var(--mut);
+}
+
+/* Columna derecha (~45%) */
+.ta-right {
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Sección Cronómetro (~40% del alto) */
+.cronometro {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  background: linear-gradient(180deg, rgba(29, 45, 35, 0.95) 0%, rgba(25, 40, 32, 0.98) 100%);
+  position: relative;
+}
+
+.cronometro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px 200px at 50% 0%, rgba(53, 217, 149, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.cronometro-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mut);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.cronometro-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: clamp(52px, 7vw, 98px);
+  line-height: 1;
+  letter-spacing: 0.18em;
+  color: var(--text);
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 30px 70px rgba(53, 217, 149, 0.18);
+}
+
+.cronometro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.cronometro-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: linear-gradient(180deg, rgba(53, 217, 149, 0.16) 0%, rgba(38, 60, 48, 0.9) 100%);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+  white-side: nowrap;
+  box-shadow: inset 0 1px 0 rgba(89, 230, 169, 0.12);
+}
+
+.cronometro-btn:hover {
+  background: linear-gradient(180deg, rgba(89, 230, 169, 0.24) 0%, rgba(38, 60, 48, 0.95) 100%);
+  transform: translateY(-1px);
+}
+
+.cronometro-btn:active {
+  transform: translateY(0);
+}
+
+.cronometro-btn:focus-visible {
+  outline: 2px solid rgba(89, 230, 169, 0.9);
+  outline-offset: 2px;
+}
+
+/* Sección Desc (~60% del alto) */
+.desc {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px 28px;
+  background: var(--surface);
+}
+
+.desc-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.desc-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.desc-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--mut);
+}
+
+.desc-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text);
+  line-height: 1.9;
+  font-size: 15px;
+}
+
+.desc-body p {
+  margin: 0;
+}
+
+.desc-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.desc-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.desc-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(53, 217, 149, 0.4) 0%, rgba(48, 68, 56, 0.9) 100%);
+  border-radius: 8px;
+}
+
+.desc-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(89, 230, 169, 0.6) 0%, rgba(48, 68, 56, 0.9) 100%);
+}
+
+/* Acciones debajo del cuadro */
+.ea-actions {
+  position: fixed;
+  right: 7%;
+  bottom: calc((100dvh - 86dvh) / 2 - 12px);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  z-index: 2;
+}
+
+.ea-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  backdrop-filter: blur(8px);
+}
+
+.ea-btn-ghost {
+  background: linear-gradient(180deg, rgba(38, 60, 48, 0.9) 0%, rgba(25, 40, 32, 0.9) 100%);
+  color: var(--text);
+  border: 1px solid rgba(48, 68, 56, 0.9);
+  box-shadow: inset 0 1px 0 rgba(89, 230, 169, 0.08);
+}
+
+.ea-btn-ghost:hover {
+  background: linear-gradient(180deg, rgba(89, 230, 169, 0.18) 0%, rgba(38, 60, 48, 0.95) 100%);
+}
+
+.ea-btn-ghost:focus-visible {
+  outline: 2px solid rgba(89, 230, 169, 0.9);
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .ta-wrapper {
+    padding: 82px 12px 22px 12px;
+  }
+
+  .ta-container {
+    width: 92%;
+    height: 82%;
+    flex-direction: column;
+    border-radius: 14px;
+  }
+
+  .video-template {
+    flex: 0 0 auto;
+    height: 38dvh;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ta-right {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .cronometro {
+    flex: 0 0 auto;
+    min-height: 230px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .desc {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .ea-actions {
+    right: 4%;
+    bottom: 18px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 640px) {
+  .ea-header {
+    padding: 12px 16px;
+  }
+
+  .ea-badge {
+    display: none;
+  }
+
+  .ta-wrapper {
+    padding: 74px 10px 22px 10px;
+  }
+
+  .ta-container {
+    width: 96%;
+    height: 80%;
+    border-radius: 12px;
+  }
+
+  .video-template {
+    height: 34dvh;
+    gap: 10px;
+  }
+
+  .video-placeholder {
+    width: 88px;
+    height: 88px;
+    box-shadow: 0 0 0 12px rgba(53, 217, 149, 0.06);
+  }
+
+  .video-play {
+    border-left-width: 20px;
+    border-top-width: 14px;
+    border-bottom-width: 14px;
+  }
+
+  .video-label {
+    letter-spacing: 0.18em;
+  }
+
+  .cronometro {
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .cronometro-time {
+    letter-spacing: 0.14em;
+  }
+
+  .desc {
+    padding: 18px 18px 22px;
+  }
+
+  .ea-actions {
+    right: 2%;
+    bottom: 14px;
+    gap: 8px;
+  }
+
+  .ea-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}

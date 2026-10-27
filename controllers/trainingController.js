@@ -2,7 +2,20 @@ const crypto = require('crypto');
 const DashboardModel = require('../models/dashboardModel');
 const RoutineModel = require('../models/routineModel');
 const PlanEntrenamientoModel = require('../models/trainingModel.js');
+const PlanModel = require('../models/planModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
+
+/** true si el cliente tiene un plan de pago activo (Premium). Ante cualquier fallo, Gratis. */
+const tienePlanDePago = async (idCliente) => {
+  try {
+    if (!idCliente) return false;
+    const plan = await PlanModel.getEffectivePlan(idCliente);
+    return Boolean(plan && plan.esDePago);
+  } catch (err) {
+    console.error('[entrenamiento] no se pudo resolver el plan:', err.message);
+    return false;
+  }
+};
 
 const COOLDOWN_MS = 30 * 1000; // evita gastar la API con ?nueva=1 repetido
 
@@ -63,8 +76,11 @@ const index = async (req, res) => {
       }
     }
 
+    const esPremium = await tienePlanDePago(perfil.idCliente);
+
     return res.render('post/entrenamiento', {
       usuario: req.session.usuario,
+      esPremium,
       perfil,
       sugerencia,
       rutina,

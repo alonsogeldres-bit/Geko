@@ -2,6 +2,7 @@
   const u = locals.usuario || {};
   const p = locals.perfil || {};
   const s = locals.sugerencia || {};
+  const esPremium = Boolean(locals.esPremium);       // plan de pago activo: look dorado
   const rutina = locals.rutina || null;
   const errorRutina = locals.errorRutina || null;
   const nombre = u.nombre || 'Atleta';
@@ -31,12 +32,13 @@
   <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
-  <div class="dash-page">
+  <div class="dash-page entrenamiento-page<%= esPremium ? ' is-premium' : '' %>">
 
     <header class="dash-nav">
       <div class="logo-brand">
         <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
         <span class="brand-text">GEKO</span>
+        <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
       </div>
 
       <details class="user-menu" id="user-menu">

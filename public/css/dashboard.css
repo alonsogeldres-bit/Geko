@@ -513,6 +513,29 @@ body {
   border: 1px solid rgba(212, 160, 23, 0.38);
 }
 
+/* Pantalla de entrenamiento (Premium): bordes, bloques y botones en dorado.
+   Van con .entrenamiento-page para no tocar el dashboard. */
+.entrenamiento-page.is-premium .hero { border-color: rgba(255, 215, 94, 0.55); }
+.entrenamiento-page.is-premium .card:not(.hero) { border-color: rgba(212, 160, 23, 0.25); }
+.entrenamiento-page.is-premium .ejercicio-card {
+  border-color: rgba(212, 160, 23, 0.38);
+  background: rgba(255, 215, 94, 0.04);
+}
+.entrenamiento-page.is-premium .rutina-bloque { color: var(--gold-soft); }
+.entrenamiento-page.is-premium .meta span {
+  background: rgba(255, 215, 94, 0.10);
+  color: var(--gold-1);
+}
+.entrenamiento-page.is-premium .ghost {
+  background: transparent;
+  color: var(--gold-soft);
+  border-color: rgba(212, 160, 23, 0.38);
+}
+.entrenamiento-page.is-premium .ghost:hover {
+  background: rgba(255, 215, 94, 0.10);
+  border-color: var(--gold-2);
+}
+
 /* ---------- Móvil ---------- */
 
 @media (max-width: 600px) {

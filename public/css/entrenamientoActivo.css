@@ -1,11 +1,11 @@
 /* ===========================================
    ENTRENAMIENTO ACTIVO - Estilos
    =========================================== */
-
+ 
 * {
   box-sizing: border-box;
 }
-
+ 
 html,
 body {
   margin: 0;
@@ -18,7 +18,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+ 
 :root {
   --bg: #101C17;
   --surface: #192820;
@@ -33,7 +33,7 @@ body {
   --hover: #254A36;
   --glow: rgba(53, 217, 149, 0.18);
 }
-
+ 
 .ea-bg-glow {
   position: fixed;
   inset: 0;
@@ -43,7 +43,7 @@ body {
     radial-gradient(800px 380px at 80% 0%, rgba(53, 217, 149, 0.08), transparent 70%);
   z-index: 0;
 }
-
+ 
 .ea-noise {
   position: fixed;
   inset: 0;
@@ -54,7 +54,7 @@ body {
   mix-blend-mode: soft-light;
   z-index: 0;
 }
-
+ 
 /* Header con logo */
 .ea-header {
   position: fixed;
@@ -67,7 +67,7 @@ body {
   pointer-events: none;
   z-index: 6;
 }
-
+ 
 .ea-logo {
   display: flex;
   align-items: center;
@@ -76,12 +76,12 @@ body {
   color: var(--text);
   pointer-events: auto;
 }
-
+ 
 .ea-logo-text {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
-
+ 
 .ea-badge {
   display: inline-flex;
   align-items: center;
@@ -95,7 +95,7 @@ body {
   color: var(--ac);
   border: 1px solid rgba(53, 217, 149, 0.5);
 }
-
+ 
 /* Contenedor principal */
 .ta-wrapper {
   position: relative;
@@ -107,7 +107,7 @@ body {
   align-items: stretch;
   justify-content: stretch;
 }
-
+ 
 /* Contenedor con borde general */
 .ta-container {
   flex: 1 1 auto;
@@ -122,7 +122,7 @@ body {
   box-shadow: 0 60px 120px -80px rgba(53, 217, 149, 0.5), inset 0 1px 0 rgba(89, 230, 169, 0.08);
   backdrop-filter: blur(6px);
 }
-
+ 
 /* Columna izquierda: Video Template (~55%) */
 .video-template {
   flex: 0 0 55%;
@@ -139,7 +139,7 @@ body {
   text-align: center;
   padding: 20px;
 }
-
+ 
 .video-placeholder {
   width: 104px;
   height: 104px;
@@ -152,15 +152,15 @@ body {
   box-shadow: 0 0 0 14px rgba(53, 217, 149, 0.08), 0 30px 60px -40px rgba(53, 217, 149, 0.9);
   position: relative;
 }
-
+ 
 .video-placeholder::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial(circle, transparent 60%, rgba(53, 217, 149, 0.12) 100%);
+  background: radial-gradient(circle, transparent 60%, rgba(53, 217, 149, 0.12) 100%);
 }
-
+ 
 .video-play {
   width: 0;
   height: 0;
@@ -171,7 +171,7 @@ body {
   position: relative;
   z-index: 1;
 }
-
+ 
 .video-label {
   font-size: 13px;
   font-weight: 600;
@@ -179,12 +179,12 @@ body {
   text-transform: uppercase;
   color: var(--text);
 }
-
+ 
 .video-sub {
   font-size: 13px;
   color: var(--mut);
 }
-
+ 
 /* Columna derecha (~45%) */
 .ta-right {
   flex: 0 0 45%;
@@ -192,7 +192,7 @@ body {
   flex-direction: column;
   min-width: 0;
 }
-
+ 
 /* Sección Cronómetro (~40% del alto) */
 .cronometro {
   flex: 0 0 40%;
@@ -200,14 +200,14 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  padding: 20px;
+  gap: 12px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--line);
   text-align: center;
   background: linear-gradient(180deg, rgba(29, 45, 35, 0.95) 0%, rgba(25, 40, 32, 0.98) 100%);
   position: relative;
 }
-
+ 
 .cronometro::before {
   content: "";
   position: absolute;
@@ -215,7 +215,11 @@ body {
   background: radial-gradient(600px 200px at 50% 0%, rgba(53, 217, 149, 0.1), transparent 70%);
   pointer-events: none;
 }
-
+ 
+.cronometro.is-sugerido-used {
+  box-shadow: inset 0 0 0 1px rgba(89, 230, 169, 0.4);
+}
+ 
 .cronometro-title {
   margin: 0;
   font-size: 12px;
@@ -226,20 +230,33 @@ body {
   position: relative;
   z-index: 1;
 }
-
+ 
+.cronometro-sugerido {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mut);
+  position: relative;
+  z-index: 1;
+}
+ 
+.cronometro-sugerido span {
+  color: var(--text);
+  font-weight: 600;
+}
+ 
 .cronometro-time {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: clamp(52px, 7vw, 98px);
+  font-size: clamp(44px, 6.6vw, 88px);
   line-height: 1;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   color: var(--text);
   position: relative;
   z-index: 1;
   text-shadow: 0 30px 70px rgba(53, 217, 149, 0.18);
 }
-
+ 
 .cronometro-actions {
   display: flex;
   flex-wrap: wrap;
@@ -249,7 +266,7 @@ body {
   position: relative;
   z-index: 1;
 }
-
+ 
 .cronometro-btn {
   appearance: none;
   border: 1px solid transparent;
@@ -258,28 +275,49 @@ body {
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  padding: 10px 20px;
+  padding: 10px 18px;
   border-radius: 999px;
   cursor: pointer;
   transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
-  white-side: nowrap;
+  white-space: nowrap;
   box-shadow: inset 0 1px 0 rgba(89, 230, 169, 0.12);
+  text-decoration: none;
 }
-
+ 
 .cronometro-btn:hover {
   background: linear-gradient(180deg, rgba(89, 230, 169, 0.24) 0%, rgba(38, 60, 48, 0.95) 100%);
   transform: translateY(-1px);
 }
-
+ 
 .cronometro-btn:active {
   transform: translateY(0);
 }
-
+ 
 .cronometro-btn:focus-visible {
   outline: 2px solid rgba(89, 230, 169, 0.9);
   outline-offset: 2px;
 }
-
+ 
+.cronometro-btn-next {
+  background: linear-gradient(180deg, rgba(89, 230, 169, 0.28) 0%, rgba(38, 60, 48, 0.95) 100%);
+  border: 1px solid rgba(89, 230, 169, 0.4);
+}
+ 
+.cronometro-btn-next.is-pulse {
+  animation: cronPulse 900ms ease-in-out infinite;
+}
+ 
+.cronometro-btn-next.is-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+ 
+@keyframes cronPulse {
+  0% { box-shadow: 0 0 0 0 rgba(89, 230, 169, 0.25); }
+  70% { box-shadow: 0 0 0 8px rgba(89, 230, 169, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(89, 230, 169, 0); }
+}
+ 
 /* Sección Desc (~60% del alto) */
 .desc {
   flex: 1 1 auto;
@@ -290,27 +328,35 @@ body {
   padding: 26px 28px;
   background: var(--surface);
 }
-
+ 
 .desc-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
-
+ 
+.desc-kicker {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--mut);
+}
+ 
 .desc-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text);
 }
-
+ 
 .desc-subtitle {
-  margin: 4px 0 0 0;
+  margin: 6px 0 0 0;
   font-size: 13px;
   color: var(--mut);
 }
-
+ 
 .desc-body {
   flex: 1 1 auto;
   min-height: 0;
@@ -323,28 +369,50 @@ body {
   line-height: 1.9;
   font-size: 15px;
 }
-
-.desc-body p {
+ 
+.desc-descripcion {
   margin: 0;
 }
-
+ 
+.desc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+ 
+.desc-meta span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(38, 60, 48, 0.9);
+  border: 1px solid rgba(48, 68, 56, 0.9);
+  color: var(--mut);
+  font-size: 13px;
+}
+ 
+.desc-meta strong {
+  color: var(--text);
+  margin-left: 6px;
+}
+ 
 .desc-body::-webkit-scrollbar {
   width: 8px;
 }
-
+ 
 .desc-body::-webkit-scrollbar-track {
   background: transparent;
 }
-
+ 
 .desc-body::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, rgba(53, 217, 149, 0.4) 0%, rgba(48, 68, 56, 0.9) 100%);
   border-radius: 8px;
 }
-
+ 
 .desc-body::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(89, 230, 169, 0.6) 0%, rgba(48, 68, 56, 0.9) 100%);
 }
-
+ 
 /* Acciones debajo del cuadro */
 .ea-actions {
   position: fixed;
@@ -355,7 +423,7 @@ body {
   align-items: center;
   z-index: 2;
 }
-
+ 
 .ea-btn {
   display: inline-flex;
   align-items: center;
@@ -369,59 +437,59 @@ body {
   border: 1px solid transparent;
   backdrop-filter: blur(8px);
 }
-
+ 
 .ea-btn-ghost {
   background: linear-gradient(180deg, rgba(38, 60, 48, 0.9) 0%, rgba(25, 40, 32, 0.9) 100%);
   color: var(--text);
   border: 1px solid rgba(48, 68, 56, 0.9);
   box-shadow: inset 0 1px 0 rgba(89, 230, 169, 0.08);
 }
-
+ 
 .ea-btn-ghost:hover {
   background: linear-gradient(180deg, rgba(89, 230, 169, 0.18) 0%, rgba(38, 60, 48, 0.95) 100%);
 }
-
+ 
 .ea-btn-ghost:focus-visible {
   outline: 2px solid rgba(89, 230, 169, 0.9);
   outline-offset: 2px;
 }
-
+ 
 /* Responsive */
 @media (max-width: 980px) {
   .ta-wrapper {
     padding: 82px 12px 22px 12px;
   }
-
+ 
   .ta-container {
     width: 92%;
     height: 82%;
     flex-direction: column;
     border-radius: 14px;
   }
-
+ 
   .video-template {
     flex: 0 0 auto;
     height: 38dvh;
     border-right: none;
     border-bottom: 1px solid var(--line);
   }
-
+ 
   .ta-right {
     flex: 1 1 auto;
     min-height: 0;
   }
-
+ 
   .cronometro {
     flex: 0 0 auto;
-    min-height: 230px;
+    min-height: 250px;
     border-bottom: 1px solid var(--line);
   }
-
+ 
   .desc {
     flex: 1 1 auto;
     min-height: 0;
   }
-
+ 
   .ea-actions {
     right: 4%;
     bottom: 18px;
@@ -429,68 +497,301 @@ body {
     justify-content: flex-end;
   }
 }
-
+ 
 @media (max-width: 640px) {
   .ea-header {
     padding: 12px 16px;
   }
-
+ 
   .ea-badge {
     display: none;
   }
-
+ 
   .ta-wrapper {
     padding: 74px 10px 22px 10px;
   }
-
+ 
   .ta-container {
     width: 96%;
     height: 80%;
     border-radius: 12px;
   }
-
+ 
   .video-template {
     height: 34dvh;
     gap: 10px;
   }
-
+ 
   .video-placeholder {
     width: 88px;
     height: 88px;
     box-shadow: 0 0 0 12px rgba(53, 217, 149, 0.06);
   }
-
+ 
   .video-play {
     border-left-width: 20px;
     border-top-width: 14px;
     border-bottom-width: 14px;
   }
-
+ 
   .video-label {
     letter-spacing: 0.18em;
   }
-
+ 
   .cronometro {
-    gap: 14px;
-    padding: 16px;
+    gap: 10px;
+    padding: 14px;
   }
-
+ 
   .cronometro-time {
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
   }
-
+ 
+  .cronometro-actions {
+    gap: 8px;
+  }
+ 
+  .cronometro-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+ 
   .desc {
     padding: 18px 18px 22px;
   }
-
+ 
+  .desc-title {
+    font-size: 18px;
+  }
+ 
   .ea-actions {
     right: 2%;
     bottom: 14px;
     gap: 8px;
   }
-
+ 
   .ea-btn {
     padding: 8px 14px;
     font-size: 13px;
   }
 }
+ 
+/* ===========================================
+   LOOK PREMIUM (negro + dorado)
+   Se activa con body.is-premium (lo pone el servidor).
+   Misma paleta que dashboard.css. Los usuarios Gratis siguen en verde.
+   =========================================== */
+ 
+body.is-premium {
+  --gold-1: #fff1a8;
+  --gold-2: #ffd75e;
+  --gold-3: #d4a017;
+  --gold-soft: #f3d778;
+ 
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #101010;
+  --line: rgba(212, 160, 23, 0.38);
+  --mut: #f3d778;
+  --text: #ffffff;
+  --ac: #ffd75e;
+  --ac-hover: #fff1a8;
+  --on-ac: #000000;
+  --btn-2: #0d0d0d;
+  --hover: rgba(255, 215, 94, 0.10);
+  --glow: rgba(255, 215, 94, 0.18);
+ 
+  background: #000000;
+}
+ 
+html:has(body.is-premium) {
+  background: #000000;
+}
+ 
+/* Fondo: brillo dorado en lugar del verde */
+.is-premium .ea-bg-glow {
+  background:
+    radial-gradient(1100px 520px at 50% -12%, rgba(255, 215, 94, 0.14), transparent 72%),
+    radial-gradient(800px 380px at 80% 0%, rgba(212, 160, 23, 0.08), transparent 70%);
+}
+ 
+/* Header: logo dorado + insignia */
+.is-premium .ea-logo img {
+  filter: brightness(0) saturate(100%) invert(84%) sepia(52%) saturate(900%) hue-rotate(358deg) brightness(104%)
+          drop-shadow(0 0 6px rgba(255, 215, 94, 0.45));
+}
+ 
+.is-premium .ea-logo-text {
+  background: linear-gradient(100deg, var(--gold-1) 0%, var(--gold-2) 50%, var(--gold-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+ 
+.is-premium .ea-badge {
+  background: rgba(255, 215, 94, 0.12);
+  color: #ffd75e;
+  border: 1px solid rgba(255, 215, 94, 0.7);
+}
+ 
+/* Contenedor principal */
+.is-premium .ta-container {
+  border-color: rgba(255, 215, 94, 0.55);
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%);
+  box-shadow: 0 60px 120px -80px rgba(255, 215, 94, 0.45), inset 0 1px 0 rgba(255, 215, 94, 0.12);
+}
+ 
+/* Video */
+.is-premium .video-template {
+  border-right-color: rgba(212, 160, 23, 0.38);
+  background:
+    radial-gradient(900px 420px at 50% 12%, rgba(255, 215, 94, 0.10), transparent 70%),
+    radial-gradient(700px 320px at 50% 90%, rgba(212, 160, 23, 0.06), transparent 70%),
+    #050505;
+}
+ 
+.is-premium .video-placeholder {
+  background: radial-gradient(circle, rgba(255, 215, 94, 0.22) 0%, rgba(5, 5, 5, 0.95) 100%);
+  border-color: rgba(255, 215, 94, 0.75);
+  box-shadow: 0 0 0 14px rgba(255, 215, 94, 0.07), 0 30px 60px -40px rgba(255, 215, 94, 0.8);
+}
+ 
+.is-premium .video-placeholder::after {
+  background: radial-gradient(circle, transparent 60%, rgba(255, 215, 94, 0.12) 100%);
+}
+ 
+.is-premium .video-play {
+  border-left-color: #ffd75e;
+}
+ 
+.is-premium .video-label {
+  color: var(--gold-1);
+}
+ 
+.is-premium .video-sub {
+  color: var(--gold-soft);
+}
+ 
+/* Cronómetro */
+.is-premium .cronometro {
+  border-bottom-color: rgba(212, 160, 23, 0.38);
+  background: linear-gradient(180deg, rgba(14, 14, 14, 0.98) 0%, rgba(5, 5, 5, 0.98) 100%);
+}
+ 
+.is-premium .cronometro::before {
+  background: radial-gradient(600px 200px at 50% 0%, rgba(255, 215, 94, 0.09), transparent 70%);
+}
+ 
+.is-premium .cronometro.is-sugerido-used {
+  box-shadow: inset 0 0 0 1px rgba(255, 215, 94, 0.45);
+}
+ 
+.is-premium .cronometro-title,
+.is-premium .cronometro-sugerido {
+  color: var(--gold-soft);
+}
+ 
+.is-premium .cronometro-sugerido span {
+  color: var(--gold-1);
+}
+ 
+.is-premium .cronometro-time {
+  background: linear-gradient(100deg, var(--gold-1) 0%, var(--gold-2) 50%, var(--gold-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 10px 30px rgba(255, 215, 94, 0.25));
+}
+ 
+/* Botones del cronómetro: negro con borde y texto dorado */
+.is-premium .cronometro-btn {
+  background: #0d0d0d;
+  color: #ffd75e;
+  border: 1px solid rgba(255, 215, 94, 0.8);
+  box-shadow: 0 0 14px rgba(255, 215, 94, 0.18);
+}
+ 
+.is-premium .cronometro-btn:hover {
+  background: rgba(255, 215, 94, 0.12);
+  box-shadow: 0 0 20px rgba(255, 215, 94, 0.32);
+}
+ 
+.is-premium .cronometro-btn:focus-visible {
+  outline-color: rgba(255, 215, 94, 0.9);
+}
+ 
+.is-premium .cronometro-btn-next {
+  background: rgba(255, 215, 94, 0.14);
+  border-color: rgba(255, 215, 94, 0.9);
+}
+ 
+.is-premium .cronometro-btn-next.is-pulse {
+  animation-name: cronPulsePremium;
+}
+ 
+@keyframes cronPulsePremium {
+  0% { box-shadow: 0 0 0 0 rgba(255, 215, 94, 0.3); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 215, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 215, 94, 0); }
+}
+ 
+/* Descripción */
+.is-premium .desc {
+  background: #050505;
+}
+ 
+.is-premium .desc-kicker,
+.is-premium .desc-subtitle {
+  color: var(--gold-soft);
+}
+ 
+.is-premium .desc-title {
+  background: linear-gradient(100deg, var(--gold-1) 0%, var(--gold-2) 50%, var(--gold-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+ 
+.is-premium .desc-body {
+  color: #ffffff;
+}
+ 
+.is-premium .desc-meta span {
+  background: rgba(255, 215, 94, 0.10);
+  border-color: rgba(212, 160, 23, 0.38);
+  color: var(--gold-soft);
+}
+ 
+.is-premium .desc-meta strong {
+  color: var(--gold-1);
+}
+ 
+.is-premium .desc-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255, 215, 94, 0.55) 0%, rgba(212, 160, 23, 0.35) 100%);
+}
+ 
+.is-premium .desc-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(255, 241, 168, 0.8) 0%, rgba(212, 160, 23, 0.55) 100%);
+}
+ 
+/* Botones inferiores */
+.is-premium .ea-btn-ghost {
+  background: #0d0d0d;
+  color: var(--gold-soft);
+  border: 1px solid rgba(212, 160, 23, 0.55);
+  box-shadow: none;
+}
+ 
+.is-premium .ea-btn-ghost:hover {
+  background: rgba(255, 215, 94, 0.12);
+  border-color: var(--gold-2);
+}
+ 
+.is-premium .ea-btn-ghost:focus-visible {
+  outline-color: rgba(255, 215, 94, 0.9);
+}
+ 

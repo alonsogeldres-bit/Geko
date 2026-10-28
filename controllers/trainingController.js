@@ -5,6 +5,62 @@ const PlanEntrenamientoModel = require('../models/trainingModel.js');
 const PlanModel = require('../models/planModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
 
+const obtenerTiempoSugeridoSeg = (ejercicio = {}, bloque = '') => {
+  if (!ejercicio) return null;
+
+  const duracionSegDirecta =
+    ejercicio.duracionSeg ??
+    ejercicio.duracion_seg ??
+    ejercicio.tiempoSeg ??
+    ejercicio.tiempo_seg;
+  if (duracionSegDirecta !== undefined && duracionSegDirecta !== null && duracionSegDirecta !== '') {
+    const seg = Math.round(Number(duracionSegDirecta));
+    if (Number.isFinite(seg) && seg > 0) return seg;
+  }
+
+  const duracionMinDirecta =
+    ejercicio.duracionMin ??
+    ejercicio.duracion_min ??
+    ejercicio.tiempoMin ??
+    ejercicio.tiempo_min;
+  if (duracionMinDirecta !== undefined && duracionMinDirecta !== null && duracionMinDirecta !== '') {
+    const min = Number(duracionMinDirecta);
+    if (Number.isFinite(min) && min > 0) return Math.max(0, Math.round(min * 60));
+  }
+
+  if (bloque === 'Rutina principal') {
+    return null;
+  }
+
+  return null;
+};
+
+const aplanarRutina = (rutina = {}) => {
+  const lista = [];
+  if (Array.isArray(rutina.calentamiento)) {
+    rutina.calentamiento.forEach((ej) => {
+      if (ej && typeof ej === 'object') {
+        lista.push({ ...ej, bloque: 'Calentamiento' });
+      }
+    });
+  }
+  if (Array.isArray(rutina.rutinaPrincipal)) {
+    rutina.rutinaPrincipal.forEach((ej) => {
+      if (ej && typeof ej === 'object') {
+        lista.push({ ...ej, bloque: 'Rutina principal' });
+      }
+    });
+  }
+  if (Array.isArray(rutina.estiramiento)) {
+    rutina.estiramiento.forEach((ej) => {
+      if (ej && typeof ej === 'object') {
+        lista.push({ ...ej, bloque: 'Estiramiento' });
+      }
+    });
+  }
+  return lista;
+};
+
 /** true si el cliente tiene un plan de pago activo (Premium). Ante cualquier fallo, Gratis. */
 const tienePlanDePago = async (idCliente) => {
   try {
@@ -92,4 +148,63 @@ const index = async (req, res) => {
   }
 };
 
-module.exports = { index };
+const activo = async (req, res) => {
+  try {
+    const idUsuario = req.session.usuario.id_usuario;
+
+    const perfil = await DashboardModel.getPerfil(idUsuario);
+    if (!perfil) return res.redirect('/profile');
+    if (!perfil.minutosSesion || !perfil.entorno) return res.redirect('/configuracion');
+
+    let rutina = req.session.rutinaIA?.rutina || null;
+
+    if (!rutina) {
+      try {
+        if (typeof PlanEntrenamientoModel.getUltimaRutinaIA === 'function') {
+          rutina = await PlanEntrenamientoModel.getUltimaRutinaIA(perfil.idCliente);
+        }
+      } catch (errFallback) {
+        console.error('[entrenamiento/activo] no se pudo obtener rutina desde BD:', errFallback.message);
+      }
+    }
+
+    if (!rutina) {
+      return res.redirect('/entrenamiento');
+    }
+
+    const ejerciciosLista = aplanarRutina(rutina);
+    if (!ejerciciosLista.length) {
+      return res.redirect('/entrenamiento');
+    }
+
+    let idx = parseInt(req.query.i, 10);
+    if (Number.isNaN(idx)) idx = 0;
+    if (idx < 0) idx = 0;
+    if (idx >= ejerciciosLista.length) idx = ejerciciosLista.length - 1;
+
+    const ejercicioActual = ejerciciosLista[idx];
+    const bloque = ejercicioActual?.bloque || '';
+    const tiempoSugeridoSeg = obtenerTiempoSugeridoSeg(ejercicioActual, bloque);
+    const haySugerido = tiempoSugeridoSeg !== null && tiempoSugeridoSeg > 0;
+
+    const esPremium = await tienePlanDePago(perfil.idCliente);
+
+    return res.render('post/entrenamientoActivo', {
+      usuario: req.session.usuario,
+      esPremium,
+      rutina,
+      ejerciciosLista,
+      ejercicioActual,
+      bloque,
+      indice: idx,
+      total: ejerciciosLista.length,
+      tiempoSugeridoSeg,
+      haySugerido,
+    });
+  } catch (err) {
+    console.error('[entrenamiento/activo] error al cargar el entrenamiento activo:', err.message);
+    return res.status(500).send('No pudimos cargar el entrenamiento activo. Inténtalo de nuevo.');
+  }
+};
+
+module.exports = { index, activo };

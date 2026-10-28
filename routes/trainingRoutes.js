@@ -4,5 +4,6 @@ const { requireAuth } = require('../middlewares/authMiddlewares');
 const trainingController = require('../controllers/trainingController');
 
 router.get('/', requireAuth, trainingController.index);
+router.get('/activo', requireAuth, trainingController.activo);
 
 module.exports = router;

@@ -1,5 +1,7 @@
 <%
-  // SOLO FRONTEND VISUAL - SIN BACKEND
+  const esPremium = Boolean(locals.esPremium);
+  const haySugerido = Boolean(locals.haySugerido);
+  const tiempoSugeridoSeg = Number(locals.tiempoSugeridoSeg) || 0;
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -11,14 +13,14 @@
   <link rel="stylesheet" href="/css/entrenamientoActivo.css" />
 </head>
 
-<body>
+<body class="<%= esPremium ? 'is-premium' : '' %>">
   <div class="ea-bg-glow"></div>
   <div class="ea-noise"></div>
   <header class="ea-header">
     <a class="ea-logo" href="/dashboard" aria-label="Volver al dashboard">
       <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
       <span class="ea-logo-text">GEKO</span>
-      <span class="ea-badge">Gratis</span>
+      <span class="ea-badge"><%= esPremium ? 'Premium' : 'Gratis' %></span>
     </a>
   </header>
 

@@ -2,9 +2,28 @@
    PROFILE - Estilos
    =========================================== */
 
-/* Paleta Geko (modo Gratis). El tema Premium restaura los valores
-   originales en configuracion.css (.profile-page.is-premium). */
+/* Paleta Geko (modo Gratis) CLARA = predeterminada. El tema Premium restaura
+   los valores originales en configuracion.css (.profile-page.is-premium). */
 :root {
+  --bg: #F5FAF6;
+  --surface: #FFFFFF;
+  --ac: #16A36A;
+  --ac-hover: #128456;
+  --on-ac: #FFFFFF;
+  --btn-2: #E4F5EA;
+  --text: #17352A;
+  --mut: #587064;
+  --line: #DCE8DF;
+  --field: #F0F6F1;
+  --sel: #D5F2E1;
+  --faint: #7A9085;
+  --glow: rgba(22, 163, 106, 0.14);
+  --halo: rgba(22, 163, 106, 0.10);
+  --danger: #C53030;
+}
+
+/* Paleta Geko (modo Gratis) OSCURA */
+:root[data-theme="dark"] {
   --bg: #101C17;
   --surface: #192820;
   --ac: #35D995;
@@ -18,6 +37,8 @@
   --sel: #254A36;
   --faint: #7F9487;
   --glow: rgba(53, 217, 149, 0.16);
+  --halo: rgba(53, 217, 149, 0.10);
+  --danger: #ff8080;
 }
 
 * {
@@ -44,7 +65,7 @@ body {
 
 .bg-gradient {
   background:
-    radial-gradient(900px 420px at 50% -8%, rgba(53, 217, 149, 0.10), transparent 70%),
+    radial-gradient(900px 420px at 50% -8%, var(--halo), transparent 70%),
     var(--bg);
 }
 
@@ -207,7 +228,7 @@ body {
 .field-error {
   display: block;
   font-size: 12px;
-  color: #ff8080;
+  color: var(--danger);
   min-height: 16px;
   margin-top: 6px;
 }
@@ -470,7 +491,7 @@ body {
 .surgery-remove {
   background: transparent;
   border: none;
-  color: #ff8080;
+  color: var(--danger);
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;

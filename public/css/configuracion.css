@@ -5,6 +5,33 @@
    y la caja de alerta.
    =========================================== */
 
+/* Colores de las alertas: claro (predeterminado) / oscuro / Premium (original) */
+:root {
+  --alert-err-bg: rgba(197, 48, 48, 0.08);
+  --alert-err-line: rgba(197, 48, 48, 0.35);
+  --alert-err-text: #9B2C2C;
+  --alert-err-icon: #C53030;
+  --alert-err-on: #FFFFFF;
+  --alert-ok-bg: rgba(22, 163, 106, 0.10);
+  --alert-ok-line: rgba(22, 163, 106, 0.40);
+  --alert-ok-text: #0F6B45;
+  --alert-ok-icon: #16A36A;
+  --alert-ok-on: #FFFFFF;
+}
+
+:root[data-theme="dark"] {
+  --alert-err-bg: rgba(255, 99, 99, 0.12);
+  --alert-err-line: rgba(255, 99, 99, 0.4);
+  --alert-err-text: #ffb3b3;
+  --alert-err-icon: #ff8080;
+  --alert-err-on: #3a0d0d;
+  --alert-ok-bg: rgba(53, 217, 149, 0.10);
+  --alert-ok-line: rgba(53, 217, 149, 0.40);
+  --alert-ok-text: #A8F0D0;
+  --alert-ok-icon: #35D995;
+  --alert-ok-on: #101C17;
+}
+
 .config-section {
   border: 1px solid var(--line);
   background: var(--surface);
@@ -61,25 +88,25 @@
 }
 
 .config-alert[data-variant="error"] {
-  background: rgba(255, 99, 99, 0.12);
-  border: 1px solid rgba(255, 99, 99, 0.4);
-  color: #ffb3b3;
+  background: var(--alert-err-bg);
+  border: 1px solid var(--alert-err-line);
+  color: var(--alert-err-text);
 }
 
 .config-alert[data-variant="error"] .config-alert-icon {
-  background: #ff8080;
-  color: #3a0d0d;
+  background: var(--alert-err-icon);
+  color: var(--alert-err-on);
 }
 
 .config-alert[data-variant="success"] {
-  background: rgba(53, 217, 149, 0.10);
-  border: 1px solid rgba(53, 217, 149, 0.40);
-  color: #A8F0D0;
+  background: var(--alert-ok-bg);
+  border: 1px solid var(--alert-ok-line);
+  color: var(--alert-ok-text);
 }
 
 .config-alert[data-variant="success"] .config-alert-icon {
-  background: #35D995;
-  color: #101C17;
+  background: var(--alert-ok-icon);
+  color: var(--alert-ok-on);
 }
 
 @media (max-width: 560px) {
@@ -102,6 +129,18 @@
 
 .profile-page.is-premium {
   /* valores originales (los que usaba la hoja antes de la paleta Geko) */
+  --halo: rgba(53, 217, 149, 0.10);
+  --danger: #ff8080;
+  --alert-err-bg: rgba(255, 99, 99, 0.12);
+  --alert-err-line: rgba(255, 99, 99, 0.4);
+  --alert-err-text: #ffb3b3;
+  --alert-err-icon: #ff8080;
+  --alert-err-on: #3a0d0d;
+  --alert-ok-bg: rgba(53, 217, 149, 0.10);
+  --alert-ok-line: rgba(53, 217, 149, 0.40);
+  --alert-ok-text: #A8F0D0;
+  --alert-ok-icon: #35D995;
+  --alert-ok-on: #101C17;
   --bg: transparent;
   --surface: rgba(255, 255, 255, 0.03);
   --text: #ffffff;

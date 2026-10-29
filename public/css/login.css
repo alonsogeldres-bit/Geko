@@ -2,8 +2,36 @@
    AUTH - Estilos
    =========================================== */
 
-/* Paleta Geko */
+/* Paleta Geko - CLARA (predeterminada) */
 :root {
+  --bg: #F5FAF6;
+  --surface: #FFFFFF;
+  --ac: #16A36A;
+  --ac-hover: #128456;
+  --on-ac: #FFFFFF;
+  --btn-2: #E4F5EA;
+  --text: #17352A;
+  --mut: #587064;
+  --line: #DCE8DF;
+  --field: #F0F6F1;
+  --sel: #D5F2E1;
+  --faint: #7A9085;
+  --glow: rgba(22, 163, 106, 0.14);
+  --halo: rgba(22, 163, 106, 0.10);
+  --danger: #C53030;
+  --danger-bg: rgba(197, 48, 48, 0.08);
+  --danger-line: rgba(197, 48, 48, 0.35);
+  --danger-text: #9B2C2C;
+  --on-danger: #FFFFFF;
+  --ok-bg: rgba(22, 163, 106, 0.10);
+  --ok-line: rgba(22, 163, 106, 0.40);
+  --ok-text: #0F6B45;
+  --shadow-card: rgba(23, 53, 42, 0.10);
+  --btn-line: rgba(23, 53, 42, 0.25);
+}
+
+/* Paleta Geko - OSCURA */
+:root[data-theme="dark"] {
   --bg: #101C17;
   --surface: #192820;
   --ac: #35D995;
@@ -17,6 +45,17 @@
   --sel: #254A36;
   --faint: #7F9487;
   --glow: rgba(53, 217, 149, 0.16);
+  --halo: rgba(53, 217, 149, 0.10);
+  --danger: #ff8080;
+  --danger-bg: rgba(255, 128, 128, 0.1);
+  --danger-line: rgba(255, 128, 128, 0.35);
+  --danger-text: #ffd9d9;
+  --on-danger: #101C17;
+  --ok-bg: rgba(53, 217, 149, 0.10);
+  --ok-line: rgba(53, 217, 149, 0.40);
+  --ok-text: #CFF5E3;
+  --shadow-card: rgba(0, 0, 0, 0.35);
+  --btn-line: rgba(255, 255, 255, 0.3);
 }
 
 * {
@@ -43,7 +82,7 @@ body {
 
 .bg-gradient {
   background:
-    radial-gradient(900px 420px at 50% -8%, rgba(53, 217, 149, 0.10), transparent 70%),
+    radial-gradient(900px 420px at 50% -8%, var(--halo), transparent 70%),
     var(--bg);
 }
 
@@ -89,7 +128,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 18px 50px var(--shadow-card);
 }
 
 /* ---------- Tabs ---------- */
@@ -176,7 +215,7 @@ body {
 .auth-error {
   margin: 14px 0 0;
   font-size: 13px;
-  color: #ff8080;
+  color: var(--danger);
   min-height: 16px;
 }
 
@@ -446,7 +485,7 @@ body {
 .auth-check input {
   width: 15px;
   height: 15px;
-  accent-color: #35D995;
+  accent-color: var(--ac);
   cursor: pointer;
 }
 
@@ -470,8 +509,8 @@ body {
   margin: 18px 0 0;
   padding: 13px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 128, 128, 0.35);
-  background: rgba(255, 128, 128, 0.1);
+  border: 1px solid var(--danger-line);
+  background: var(--danger-bg);
 }
 
 .auth-alert[hidden] {
@@ -488,8 +527,8 @@ body {
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
-  color: #101C17;
-  background: #ff8080;
+  color: var(--on-danger);
+  background: var(--danger);
 }
 
 .auth-alert-body {
@@ -501,7 +540,7 @@ body {
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
-  color: #ffd9d9;
+  color: var(--danger-text);
 }
 
 .auth-alert-actions {
@@ -518,7 +557,7 @@ body {
 .auth-alert-action {
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--btn-line);
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
@@ -530,8 +569,8 @@ body {
 }
 
 .auth-alert[data-variant="success"] {
-  border-color: rgba(53, 217, 149, 0.40);
-  background: rgba(53, 217, 149, 0.10);
+  border-color: var(--ok-line);
+  background: var(--ok-bg);
 }
 
 .auth-alert[data-variant="success"] .auth-alert-icon {
@@ -540,7 +579,7 @@ body {
 }
 
 .auth-alert[data-variant="success"] .auth-alert-msg {
-  color: #CFF5E3;
+  color: var(--ok-text);
 }
 
 .auth-alert[data-variant="info"] {
@@ -591,7 +630,7 @@ body {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  accent-color: #35D995;
+  accent-color: var(--ac);
   cursor: pointer;
 }
 
@@ -629,6 +668,10 @@ body {
 
 /* Calendario legible sobre el fondo oscuro */
 .auth-input[type="date"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] .auth-input[type="date"] {
   color-scheme: dark;
 }
 

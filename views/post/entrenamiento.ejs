@@ -29,6 +29,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GEKO - Entrenamiento</title>
+  <script src="/js/theme.js"></script>
   <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
@@ -36,7 +37,7 @@
 
     <header class="dash-nav">
       <div class="logo-brand">
-        <img src="/assets/geko.png" alt="GEKO" width="30" height="30" />
+        <img src="/assets/Geko_nigger.png" alt="GEKO" width="30" height="30" data-logo />
         <span class="brand-text">GEKO</span>
         <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
       </div>
@@ -58,6 +59,15 @@
               <% if (item.pronto) { %><span class="soon-tag">Pronto</span><% } %>
             </a>
           <% }) %>
+
+          <% if (!esPremium) { %>
+            <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
+                    aria-checked="false" data-theme-toggle>
+              <span class="dropdown-ico" data-theme-icon>☀️</span>
+              Modo oscuro
+              <span class="theme-switch" aria-hidden="true"></span>
+            </button>
+          <% } %>
 
           <form action="/auth/logout" method="POST" class="dropdown-logout">
             <button type="submit" class="dropdown-item" role="menuitem">

@@ -1,3 +1,24 @@
+/* Paleta Geko: clara (predeterminada) y oscura */
+:root {
+  --splash-text: #17352A;
+  --splash-mut: #587064;
+  --splash-c1: #D5F2E1;
+  --splash-c2: #FFFFFF;
+  --splash-c3: #F5FAF6;
+  --splash-ring: rgba(22, 163, 106, 0.22);
+  --splash-ring-2: rgba(22, 163, 106, 0.38);
+}
+
+:root[data-theme="dark"] {
+  --splash-text: #F0F7F2;
+  --splash-mut: #A9BDB0;
+  --splash-c1: #254A36;
+  --splash-c2: #192820;
+  --splash-c3: #101C17;
+  --splash-ring: rgba(53, 217, 149, 0.18);
+  --splash-ring-2: rgba(53, 217, 149, 0.32);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -22,16 +43,16 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  color: #F0F7F2;
+  color: var(--splash-text);
   text-align: center;
 }
 
 .bg-gradient {
   background: radial-gradient(
       circle at 50% 35%,
-      #254A36 0%,
-      #192820 45%,
-      #101C17 100%
+      var(--splash-c1) 0%,
+      var(--splash-c2) 45%,
+      var(--splash-c3) 100%
     );
 }
 
@@ -39,7 +60,7 @@ body {
 .splash-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(53, 217, 149, 0.18);
+  border: 1px solid var(--splash-ring);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -55,7 +76,7 @@ body {
 .ring-inner {
   width: 220px;
   height: 220px;
-  border-color: rgba(53, 217, 149, 0.32);
+  border-color: var(--splash-ring-2);
   animation-delay: 0s;
 }
 
@@ -93,7 +114,7 @@ body {
 }
 
 .muted {
-  color: #A9BDB0;
+  color: var(--splash-mut);
 }
 
 

@@ -839,3 +839,150 @@ html:has(body.is-premium) {
   outline-color: rgba(255, 215, 94, 0.9);
 }
  
+
+/* ===========================================
+   PREMIUM CLARO (predeterminado para Premium)
+   El look negro + dorado de arriba es ahora el modo oscuro.
+   =========================================== */
+
+:root:not([data-theme="dark"]) body.is-premium {
+  --gold-1: #E5A900;
+  --gold-2: #E5A900;
+  --gold-3: #9A7000;
+  --gold-soft: #9A7000;
+
+  --bg: #FFF9E8;
+  --surface: #FFFFFF;
+  --surface-2: #F8F4E9;
+  --line: #E9E0C9;
+  --mut: #6E6758;
+  --text: #29251A;
+  --ac: #9A7000;
+  --ac-hover: #795700;
+  --on-ac: #FFFFFF;
+  --btn-2: #F8E9B9;
+  --hover: #F5E5AC;
+  --glow: rgba(229, 169, 0, 0.20);
+  --noise-opacity: 0.02;
+
+  --ac-rgb: 229, 169, 0;
+  --ach-rgb: 154, 112, 0;
+  --line-rgb: 233, 224, 201;
+  --surface-rgb: 255, 255, 255;
+  --bg-rgb: 255, 249, 232;
+  --btn2-rgb: 248, 233, 185;
+  --field-rgb: 248, 244, 233;
+
+  background: var(--bg);
+}
+
+:root:not([data-theme="dark"]) html:has(body.is-premium) { background: #FFF9E8; }
+
+:root:not([data-theme="dark"]) .is-premium .ea-bg-glow {
+  background:
+    radial-gradient(1100px 520px at 50% -12%, rgba(229, 169, 0, 0.16), transparent 72%),
+    radial-gradient(800px 380px at 80% 0%, rgba(229, 169, 0, 0.08), transparent 70%);
+}
+
+:root:not([data-theme="dark"]) .is-premium .ea-logo img {
+  filter: brightness(0) saturate(100%) invert(50%) sepia(99%) saturate(1128%) hue-rotate(17deg) brightness(111%)
+          drop-shadow(0 0 6px rgba(229, 169, 0, 0.35));
+}
+:root:not([data-theme="dark"]) .is-premium .ea-logo-text,
+:root:not([data-theme="dark"]) .is-premium .desc-title,
+:root:not([data-theme="dark"]) .is-premium .cronometro-time {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: var(--ac);
+  color: var(--ac);
+}
+:root:not([data-theme="dark"]) .is-premium .ea-badge {
+  background: rgba(229, 169, 0, 0.14);
+  color: #795700;
+  border: 1px solid rgba(229, 169, 0, 0.70);
+}
+
+:root:not([data-theme="dark"]) .is-premium .ta-container {
+  border-color: rgba(229, 169, 0, 0.60);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8F4E9 100%);
+  box-shadow: 0 60px 120px -80px rgba(229, 169, 0, 0.45), inset 0 1px 0 rgba(229, 169, 0, 0.18);
+}
+
+:root:not([data-theme="dark"]) .is-premium .video-template {
+  border-right-color: var(--line);
+  background:
+    radial-gradient(900px 420px at 50% 12%, rgba(229, 169, 0, 0.12), transparent 70%),
+    radial-gradient(700px 320px at 50% 90%, rgba(229, 169, 0, 0.08), transparent 70%),
+    #F8F4E9;
+}
+:root:not([data-theme="dark"]) .is-premium .video-placeholder {
+  background: radial-gradient(circle, rgba(229, 169, 0, 0.25) 0%, #FFFFFF 100%);
+  border-color: rgba(229, 169, 0, 0.80);
+  box-shadow: 0 0 0 14px rgba(229, 169, 0, 0.10), 0 30px 60px -40px rgba(229, 169, 0, 0.70);
+}
+:root:not([data-theme="dark"]) .is-premium .video-placeholder::after {
+  background: radial-gradient(circle, transparent 60%, rgba(229, 169, 0, 0.14) 100%);
+}
+:root:not([data-theme="dark"]) .is-premium .video-play { border-left-color: #E5A900; }
+:root:not([data-theme="dark"]) .is-premium .video-label { color: var(--ac); }
+
+:root:not([data-theme="dark"]) .is-premium .cronometro {
+  border-bottom-color: var(--line);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8F4E9 100%);
+}
+:root:not([data-theme="dark"]) .is-premium .cronometro::before {
+  background: radial-gradient(600px 200px at 50% 0%, rgba(229, 169, 0, 0.12), transparent 70%);
+}
+:root:not([data-theme="dark"]) .is-premium .cronometro.is-sugerido-used {
+  box-shadow: inset 0 0 0 1px rgba(229, 169, 0, 0.55);
+}
+:root:not([data-theme="dark"]) .is-premium .cronometro-sugerido span { color: var(--ac); }
+:root:not([data-theme="dark"]) .is-premium .cronometro-time {
+  filter: drop-shadow(0 10px 30px rgba(229, 169, 0, 0.25));
+}
+
+/* Botones del cronómetro: secundario claro con borde dorado; "siguiente" en botón principal */
+:root:not([data-theme="dark"]) .is-premium .cronometro-btn {
+  background: var(--btn-2);
+  color: #795700;
+  border: 1px solid rgba(229, 169, 0, 0.80);
+  box-shadow: 0 0 14px rgba(229, 169, 0, 0.15);
+}
+:root:not([data-theme="dark"]) .is-premium .cronometro-btn:hover {
+  background: var(--hover);
+  box-shadow: 0 0 20px rgba(229, 169, 0, 0.30);
+}
+:root:not([data-theme="dark"]) .is-premium .cronometro-btn:focus-visible { outline-color: #E5A900; }
+:root:not([data-theme="dark"]) .is-premium .cronometro-btn-next {
+  background: var(--ac);
+  color: var(--on-ac);
+  border-color: #E5A900;
+}
+:root:not([data-theme="dark"]) .is-premium .cronometro-btn-next:hover { background: var(--ac-hover); }
+
+:root:not([data-theme="dark"]) .is-premium .desc { background: #FFFFFF; }
+:root:not([data-theme="dark"]) .is-premium .desc-body { color: var(--text); }
+:root:not([data-theme="dark"]) .is-premium .desc-meta span {
+  background: rgba(229, 169, 0, 0.14);
+  border-color: rgba(229, 169, 0, 0.40);
+  color: #795700;
+}
+:root:not([data-theme="dark"]) .is-premium .desc-meta strong { color: var(--text); }
+:root:not([data-theme="dark"]) .is-premium .desc-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(229, 169, 0, 0.70) 0%, rgba(154, 112, 0, 0.50) 100%);
+}
+:root:not([data-theme="dark"]) .is-premium .desc-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(229, 169, 0, 0.95) 0%, rgba(154, 112, 0, 0.75) 100%);
+}
+
+:root:not([data-theme="dark"]) .is-premium .ea-btn-ghost {
+  background: var(--btn-2);
+  color: var(--ac);
+  border: 1px solid rgba(229, 169, 0, 0.60);
+}
+:root:not([data-theme="dark"]) .is-premium .ea-btn-ghost:hover {
+  background: var(--hover);
+  border-color: #E5A900;
+}
+:root:not([data-theme="dark"]) .is-premium .ea-btn-ghost:focus-visible { outline-color: #E5A900; }

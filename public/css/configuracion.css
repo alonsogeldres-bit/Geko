@@ -268,3 +268,80 @@
   background: var(--gold-2);
   color: var(--on-gold);
 }
+
+/* ===========================================
+   PREMIUM CLARO (predeterminado para Premium)
+   El look negro + dorado de arriba es ahora el modo oscuro.
+   =========================================== */
+
+:root:not([data-theme="dark"]) .profile-page.is-premium {
+  --bg: #FFF9E8;
+  --surface: #FFFFFF;
+  --text: #29251A;
+  --mut: #6E6758;
+  --faint: #8C8472;
+  --line: #E9E0C9;
+  --field: #F8F4E9;
+  --sel: #F5E5AC;
+  --btn-2: #F8E9B9;
+  --ac: #9A7000;
+  --ac-hover: #795700;
+  --on-ac: #FFFFFF;
+  --glow: rgba(229, 169, 0, 0.25);
+  --halo: rgba(229, 169, 0, 0.12);
+  --danger: #C53030;
+  --alert-err-bg: rgba(197, 48, 48, 0.08);
+  --alert-err-line: rgba(197, 48, 48, 0.35);
+  --alert-err-text: #9B2C2C;
+  --alert-err-icon: #C53030;
+  --alert-err-on: #FFFFFF;
+  --gold-1: #E5A900;
+  --gold-2: #E5A900;
+  --gold-3: #9A7000;
+  --gold-soft: #9A7000;
+  --gold-line: rgba(229, 169, 0, 0.50);
+  --gold-tint: rgba(229, 169, 0, 0.12);
+  --gold-glow: rgba(229, 169, 0, 0.25);
+  --on-gold: #FFFFFF;
+  --gold-grad: linear-gradient(135deg, #9A7000 0%, #795700 100%);
+}
+
+:root:not([data-theme="dark"]) .profile-page.is-premium.bg-gradient {
+  background:
+    radial-gradient(900px 420px at 50% -8%, var(--halo), transparent 70%),
+    var(--bg);
+}
+
+:root:not([data-theme="dark"]) .profile-page.is-premium .profile-step-icon { color: var(--ac); }
+:root:not([data-theme="dark"]) .profile-page.is-premium .btn-logout { color: var(--ac); }
+
+:root:not([data-theme="dark"]) .profile-page.is-premium .config-section {
+  background: var(--surface);
+  border-color: var(--line);
+}
+:root:not([data-theme="dark"]) .profile-page.is-premium .input {
+  border-color: var(--line);
+  background: var(--field);
+}
+:root:not([data-theme="dark"]) .profile-page.is-premium .input:focus { border-color: #E5A900; }
+:root:not([data-theme="dark"]) .profile-page.is-premium .segmented {
+  background: var(--field);
+  border-color: var(--line);
+}
+:root:not([data-theme="dark"]) .profile-page.is-premium .chip,
+:root:not([data-theme="dark"]) .profile-page.is-premium .level-option,
+:root:not([data-theme="dark"]) .profile-page.is-premium .surgery-card { border-color: var(--line); }
+:root:not([data-theme="dark"]) .profile-page.is-premium .level-option-active .icon { color: var(--ac); }
+
+:root:not([data-theme="dark"]) .profile-page.is-premium .btn-primary {
+  background: var(--ac);
+  color: var(--on-ac);
+  border: 1px solid #E5A900;
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+:root:not([data-theme="dark"]) .profile-page.is-premium .btn-primary:hover {
+  background: var(--ac-hover);
+  box-shadow: 0 0 20px rgba(229, 169, 0, 0.40);
+}
+
+:root:not([data-theme="dark"]) .profile-page.is-premium .config-alert[data-variant="success"] { color: #795700; }

@@ -60,14 +60,12 @@
             </a>
           <% }) %>
 
-          <% if (!esPremium) { %>
-            <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
-                    aria-checked="false" data-theme-toggle>
-              <span class="dropdown-ico" data-theme-icon>☀️</span>
-              Modo oscuro
-              <span class="theme-switch" aria-hidden="true"></span>
-            </button>
-          <% } %>
+          <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
+                  aria-checked="false" data-theme-toggle>
+            <span class="dropdown-ico" data-theme-icon>☀️</span>
+            Modo oscuro
+            <span class="theme-switch" aria-hidden="true"></span>
+          </button>
 
           <form action="/auth/logout" method="POST" class="dropdown-logout">
             <button type="submit" class="dropdown-item" role="menuitem">

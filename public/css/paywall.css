@@ -656,3 +656,101 @@ body.is-premium .paywall-precio { color: var(--gold-2); }
 body.is-premium .paywall-beneficios li,
 body.is-premium .paywall-note { color: var(--gold-soft); }
 body.is-premium .paywall-close:hover { background: var(--gold-tint); color: var(--gold-1); }
+
+/* ===========================================
+   PREMIUM CLARO (predeterminado para Premium)
+   El look negro + dorado de arriba es ahora el modo oscuro.
+   =========================================== */
+
+:root:not([data-theme="dark"]) body.is-premium {
+  --verde-claro: #9A7000;      /* botón principal / acento */
+  --verde-hover: #795700;      /* hover del botón principal */
+  --verde-medio: #F5E5AC;      /* selección activa */
+  --verde-oscuro: #FFF9E8;     /* fondo general (y texto sobre el acento) */
+  --vidrio: #FFFFFF;           /* tarjetas y modales */
+  --borde: #E9E0C9;
+  --texto: #29251A;
+  --texto-suave: #6E6758;
+  --btn-2: #F8E9B9;
+  --acento-glow: rgba(229, 169, 0, 0.20);
+  --acento-glow-fuerte: rgba(229, 169, 0, 0.30);
+  --overlay: rgba(41, 37, 26, 0.45);
+  --modal-bg: #FFFFFF;
+  --halo: rgba(229, 169, 0, 0.12);
+  --icon-bg: rgba(41, 37, 26, 0.10);
+  --shadow-hover: rgba(41, 37, 26, 0.16);
+  --shadow-modal: rgba(41, 37, 26, 0.22);
+  --spin-line: rgba(255, 255, 255, 0.55);
+  --gold-1: #E5A900;
+  --gold-2: #E5A900;
+  --gold-3: #9A7000;
+  --gold-soft: #9A7000;
+  --gold-line: rgba(229, 169, 0, 0.50);
+  --gold-tint: rgba(229, 169, 0, 0.12);
+  --gold-glow: rgba(229, 169, 0, 0.25);
+  --on-gold: #FFFFFF;
+  --gold-grad: linear-gradient(135deg, #9A7000 0%, #795700 100%);
+}
+
+:root:not([data-theme="dark"]) body.is-premium {
+  background:
+    radial-gradient(900px 420px at 50% -8%, var(--halo), transparent 70%),
+    var(--verde-oscuro);
+}
+
+:root:not([data-theme="dark"]) body.is-premium .planes-head h1,
+:root:not([data-theme="dark"]) body.is-premium .planes-brand span,
+:root:not([data-theme="dark"]) body.is-premium .plan h2,
+:root:not([data-theme="dark"]) body.is-premium .paywall-card h2 {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: var(--verde-claro);
+  color: var(--verde-claro);
+}
+
+:root:not([data-theme="dark"]) body.is-premium .planes-back:hover { color: var(--verde-hover); }
+:root:not([data-theme="dark"]) body.is-premium .planes-estado strong { color: var(--texto); }
+
+:root:not([data-theme="dark"]) body.is-premium .plan {
+  background: var(--vidrio);
+  border-color: var(--gold-line);
+}
+:root:not([data-theme="dark"]) body.is-premium .plan:hover {
+  box-shadow: 0 20px 40px var(--shadow-hover), 0 0 24px var(--gold-glow);
+}
+:root:not([data-theme="dark"]) body.is-premium .plan-precio { color: var(--verde-claro); }
+:root:not([data-theme="dark"]) body.is-premium .plan-premium { background: rgba(229, 169, 0, 0.10); }
+:root:not([data-theme="dark"]) body.is-premium .plan-premium:hover {
+  box-shadow: 0 20px 50px rgba(229, 169, 0, 0.30);
+}
+
+:root:not([data-theme="dark"]) body.is-premium .btn-obtener,
+:root:not([data-theme="dark"]) body.is-premium .plan-gratis .btn-obtener {
+  background: var(--verde-claro);
+  color: #FFFFFF;
+  border: 1px solid #E5A900;
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+:root:not([data-theme="dark"]) body.is-premium .btn-obtener:hover:not(:disabled),
+:root:not([data-theme="dark"]) body.is-premium .plan-gratis .btn-obtener:hover:not(:disabled) {
+  background: var(--verde-hover);
+  box-shadow: 0 8px 22px rgba(229, 169, 0, 0.30);
+}
+:root:not([data-theme="dark"]) body.is-premium .btn-obtener.is-loading::after {
+  border-color: rgba(255, 255, 255, 0.55);
+  border-top-color: transparent;
+}
+
+:root:not([data-theme="dark"]) body.is-premium .paywall-overlay { background: rgba(41, 37, 26, 0.50); }
+:root:not([data-theme="dark"]) body.is-premium .paywall-card {
+  background: var(--modal-bg);
+  border-color: var(--gold-2);
+  box-shadow: 0 24px 60px var(--shadow-modal), 0 0 40px var(--gold-glow);
+}
+:root:not([data-theme="dark"]) body.is-premium .paywall-kicker,
+:root:not([data-theme="dark"]) body.is-premium .paywall-precio { color: var(--verde-claro); }
+:root:not([data-theme="dark"]) body.is-premium .paywall-close:hover {
+  background: var(--gold-tint);
+  color: var(--texto);
+}

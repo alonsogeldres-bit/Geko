@@ -72,14 +72,12 @@
             </a>
           <% }) %>
 
-          <% if (!esPremium) { %>
-            <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
-                    aria-checked="false" data-theme-toggle>
-              <span class="dropdown-ico" data-theme-icon>☀️</span>
-              Modo oscuro
-              <span class="theme-switch" aria-hidden="true"></span>
-            </button>
-          <% } %>
+          <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
+                  aria-checked="false" data-theme-toggle>
+            <span class="dropdown-ico" data-theme-icon>☀️</span>
+            Modo oscuro
+            <span class="theme-switch" aria-hidden="true"></span>
+          </button>
 
           <% if (usuario && (usuario.id_rol === 1 || usuario.id_rol === 3)) { %>
             <a href="/admin" role="menuitem" class="dropdown-item">

@@ -1,0 +1,83 @@
+/* ===========================================
+   MASCOTA GEKO (dashboard)
+   Capa fija sobre toda la ventana. No bloquea clics salvo en Geko.
+   Las clases cortas del SVG (.g, .d, .b ...) van acotadas a #geko-layer
+   para no chocar con el resto de estilos del dashboard.
+   =========================================== */
+
+#geko-layer {
+  --g: #6bc04d; --d: #389b5d; --dd: #389b5d; --b: #cae781;
+  --tl: #7cc452; --pk: #e96977; --mo: #4a2f45; --sh: #0000001f;
+  position: fixed;
+  inset: 0;
+  z-index: 15;               /* sobre el contenido; el menú (30) y el modal (100) quedan por encima */
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+:root[data-theme="dark"] #geko-layer { --sh: #00000066; }
+
+#geko-shadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--sh);
+  pointer-events: none;
+  transition: opacity 0.25s;
+  will-change: transform;
+}
+
+#geko {
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  outline: none;
+  will-change: transform;
+}
+
+#geko:focus-visible { outline: 3px solid var(--ac, #16A36A); outline-offset: 4px; border-radius: 16px; }
+#geko.zz { clip-path: inset(42% -10% -10% -10%); }
+#geko svg { width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
+
+/* Franja inferior: solo en pantallas angostas, donde no hay márgenes laterales.
+   Es opaca para que Geko nunca camine por encima de los datos. */
+#geko-strip { display: none; }
+
+body.geko-strip #geko-strip {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--gk-strip, 140px) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  pointer-events: auto;
+}
+
+.dash-page.is-premium #geko-strip { background: #000000; }
+:root:not([data-theme="dark"]) .dash-page.is-premium #geko-strip { background: var(--bg); }
+
+body.geko-strip .dash-page {
+  padding-bottom: calc(var(--gk-strip, 140px) + env(safe-area-inset-bottom, 0px));
+}
+
+/* ----- Piezas del SVG: copiadas tal cual del html original -----
+   Van SIN prefijo #geko-layer a propósito: las piezas del SVG se dibujan
+   con <use>, y varios navegadores (Firefox, Safari) no aplican selectores
+   con ancestro dentro de esos <use>, por eso se veían partes negras. */
+.view{display:none}.view.on{display:inline}
+.g{fill:var(--g)}.d{fill:var(--d)}.dd{fill:var(--dd)}.b{fill:var(--b)}.tl{fill:var(--tl)}.k{fill:#1a3d2c}.w{fill:#fff}
+.gs{stroke:var(--g);fill:none}.sl{stroke:var(--d);fill:none;stroke-width:5.5;stroke-linecap:round}
+.far{filter:brightness(.88)}.m{fill:var(--mo)}.tn{fill:var(--pk)}
+.hp{display:none;stroke:#1a3d2c;stroke-width:6;stroke-linecap:round;fill:none}
+.view.happy .hp{display:inline}.view.happy .eye{display:none}
+.bl{fill:#f4868b;opacity:0;transition:opacity .2s}.view.happy .bl{opacity:.6}

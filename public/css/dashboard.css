@@ -982,3 +982,34 @@ body.modal-abierto { overflow: hidden; }
 
 /* Interruptor de tema dentro del menú Premium: encendido en dorado */
 .is-premium .theme-toggle[aria-checked="true"] .theme-switch { background: var(--gold-2); }
+
+/* ===========================================
+   MASCOTA GEKO: márgenes para que camine
+   Solo en el dashboard (.has-geko). El contenido se estrecha (de 1080 a 920 px)
+   para dejar dos carriles laterales de al menos 140 px. En pantallas de
+   900 px o menos no hay carriles: el contenido vuelve a ocupar todo el ancho
+   y Geko camina por una franja inferior (ver geko-mascot.css).
+   =========================================== */
+
+.dash-page.has-geko .dash-main {
+  width: min(920px, 100% - 280px);
+  max-width: none;
+}
+
+/* Con el contenido más estrecho, las 3 tarjetas de resumen pasan a una columna antes */
+@media (max-width: 1100px) {
+  .dash-page.has-geko .grid { grid-template-columns: 1fr; gap: 0; }
+}
+
+@media (max-width: 900px) {
+  .dash-page.has-geko .dash-main { width: 100%; max-width: var(--max-w); }
+}
+
+/* Logo y avatar se quedan por encima de Geko y siguen siendo clicables;
+   el resto de la barra deja pasar los clics a Geko. */
+.dash-page.has-geko .dash-nav {
+  position: relative;
+  z-index: 30;
+  pointer-events: none;
+}
+.dash-page.has-geko .dash-nav > * { pointer-events: auto; }

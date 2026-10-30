@@ -42,9 +42,13 @@
   <title>GEKO - Dashboard</title>
   <script src="/js/theme.js"></script>
   <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/geko-mascot.css" />
 </head>
 <body>
-  <div class="dash-page<%= esPremium ? ' is-premium' : '' %>">
+  <div class="dash-page has-geko<%= esPremium ? ' is-premium' : '' %>">
+
+    <!-- ========== Mascota Geko (camina por los laterales) ========== -->
+    <%- include('../partials/geko_mascot') %>
 
     <!-- ========== Barra superior ========== -->
     <header class="dash-nav">
@@ -265,5 +269,6 @@
   <%- include('../partials/upgrade_modal') %>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/geko-mascot.js"></script>
 </body>
 </html>

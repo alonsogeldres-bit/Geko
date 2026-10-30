@@ -1,0 +1,104 @@
+<%
+  const c = locals.cuenta || {};
+  const plan = locals.plan || { nombre: 'Gratis', esDePago: false };
+  const nombre = c.nombre || 'Atleta';
+  const inicial = nombre.charAt(0).toUpperCase();
+
+  const secciones = [
+    {
+      href: '/configuracion/datos',
+      icono: '👤',
+      titulo: 'Datos personales',
+      desc: 'Nombre, correo, teléfono y fecha de nacimiento.'
+    },
+    {
+      href: '/configuracion/entrenamiento',
+      icono: '🏋️',
+      titulo: 'Perfil de entrenamiento',
+      desc: 'Objetivos, nivel, lesiones, equipamiento y disponibilidad.'
+    },
+    {
+      href: '/configuracion/seguridad',
+      icono: '🔒',
+      titulo: 'Seguridad',
+      desc: 'Cambia la contraseña de tu cuenta.'
+    },
+    {
+      href: '/configuracion/cuenta',
+      icono: '💳',
+      titulo: 'Mi cuenta',
+      desc: 'Consulta tu plan y cierra sesión.'
+    }
+  ];
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Configuración</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/configuracion.css" />
+</head>
+<body>
+
+  <div class="profile-page bg-gradient<%= locals.usuarioPremium ? ' is-premium' : '' %>">
+
+    <%- include('partials/header') %>
+
+    <main class="profile-main">
+
+      <div class="profile-head anim-fade-in">
+        <div class="profile-step-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <div>
+          <h1 class="profile-title">Configuración</h1>
+          <p class="muted step-desc">Administra tu cuenta, tu entrenamiento y tu experiencia en Geko.</p>
+        </div>
+      </div>
+
+      <!-- Resumen de la cuenta -->
+      <section class="config-account anim-slide-up">
+        <span class="config-avatar" aria-hidden="true"><%= inicial %></span>
+        <div class="config-account-info">
+          <strong><%= nombre %></strong>
+          <span class="muted small"><%= c.correo || '' %></span>
+        </div>
+        <span class="config-badge<%= plan.esDePago ? ' is-paid' : '' %>"><%= plan.nombre %></span>
+      </section>
+
+      <!-- Tema claro / oscuro, directo desde el hub -->
+      <section class="config-theme anim-slide-up" aria-labelledby="config-theme-title">
+        <span class="config-theme-icon" data-theme-icon aria-hidden="true">☀️</span>
+        <div class="config-theme-text">
+          <strong id="config-theme-title">Modo oscuro</strong>
+          <span class="muted small" data-theme-state>Desactivado</span>
+        </div>
+        <button type="button" class="theme-switch-btn" data-theme-toggle role="switch"
+                aria-checked="false" aria-label="Activar modo oscuro">
+          <span class="theme-switch" aria-hidden="true"></span>
+        </button>
+      </section>
+
+      <!-- Secciones -->
+      <nav class="config-grid anim-slide-up" aria-label="Secciones de configuración">
+        <% secciones.forEach(function (s) { %>
+          <a class="config-card" href="<%= s.href %>">
+            <span class="config-card-icon" aria-hidden="true"><%= s.icono %></span>
+            <span class="config-card-body">
+              <span class="config-card-title"><%= s.titulo %></span>
+              <span class="config-card-desc"><%= s.desc %></span>
+            </span>
+            <span class="config-card-arrow" aria-hidden="true">›</span>
+          </a>
+        <% }) %>
+      </nav>
+
+    </main>
+  </div>
+
+</body>
+</html>

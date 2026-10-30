@@ -168,7 +168,7 @@ const index = async (req, res) => {
 
     const perfil = await DashboardModel.getPerfil(idUsuario);
     if (!perfil) return res.redirect('/profile');
-    if (!perfil.minutosSesion || !perfil.entorno) return res.redirect('/configuracion');
+    if (!perfil.minutosSesion || !perfil.entorno) return res.redirect('/configuracion/entrenamiento');
 
     const alt = Math.max(0, parseInt(req.query.alt, 10) || 0);
     const sugerencia = RoutineModel.construirSugerencia(perfil, alt);
@@ -231,7 +231,7 @@ const activo = async (req, res) => {
 
     const perfil = await DashboardModel.getPerfil(idUsuario);
     if (!perfil) return res.redirect('/profile');
-    if (!perfil.minutosSesion || !perfil.entorno) return res.redirect('/configuracion');
+    if (!perfil.minutosSesion || !perfil.entorno) return res.redirect('/configuracion/entrenamiento');
 
     let rutina = req.session.rutinaIA?.rutina || null;
 

@@ -246,6 +246,81 @@ const validateProfile = (req, res, next) => {
   next();
 };
 
+const validateAccountUpdate = (req, res, next) => {
+  const b = req.body || {};
+  const fail = (message) => res.status(400).json({ success: false, message });
+
+  const nombre = typeof b.nombre === 'string' ? b.nombre.trim() : '';
+  const apellido = typeof b.apellido === 'string' ? b.apellido.trim() : '';
+  const nombre_usuario = typeof b.nombre_usuario === 'string' ? b.nombre_usuario.trim() : '';
+  const correo = typeof b.correo === 'string' ? b.correo.trim().toLowerCase() : '';
+  const numero = typeof b.numero === 'string' ? b.numero.trim() : '';
+  const fecha_nacimiento = typeof b.fecha_nacimiento === 'string' ? b.fecha_nacimiento.trim() : '';
+
+  if (!nombre || !apellido || !nombre_usuario || !correo || !numero || !fecha_nacimiento) {
+    return fail('Completa todos los campos.');
+  }
+
+  if (nombre.length < 2 || nombre.length > 50) {
+    return fail('El nombre debe tener entre 2 y 50 caracteres.');
+  }
+
+  if (apellido.length > 50) {
+    return fail('El apellido no puede superar los 50 caracteres.');
+  }
+
+  if (nombre_usuario.length < 3 || nombre_usuario.length > 50) {
+    return fail('El nombre de usuario debe tener entre 3 y 50 caracteres.');
+  }
+
+  if (correo.length > 100 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    return fail('El correo no tiene un formato válido.');
+  }
+
+  if (!/^[\d\s+]{8,20}$/.test(numero)) {
+    return fail('El número de teléfono no es válido.');
+  }
+
+  const errorFecha = validarFechaNacimiento(fecha_nacimiento);
+  if (errorFecha) return fail(errorFecha);
+
+  req.accountData = { nombre, apellido, nombre_usuario, correo, numero, fecha_nacimiento };
+  next();
+};
+
+const validatePasswordChange = (req, res, next) => {
+  const b = req.body || {};
+  const fail = (message) => res.status(400).json({ success: false, message });
+
+  const actual = typeof b.actual === 'string' ? b.actual : '';
+  const nueva = typeof b.nueva === 'string' ? b.nueva : '';
+  const confirmacion = typeof b.confirmacion === 'string' ? b.confirmacion : '';
+
+  if (!actual || !nueva || !confirmacion) {
+    return fail('Completa todos los campos.');
+  }
+
+  if (nueva.length < 6) {
+    return fail('La contraseña debe tener al menos 6 caracteres.');
+  }
+
+  // 72 bytes es el límite real de bcrypt: más allá se ignora el resto.
+  if (nueva.length > 72) {
+    return fail('La contraseña no puede superar los 72 caracteres.');
+  }
+
+  if (nueva !== confirmacion) {
+    return fail('Las contraseñas no coinciden.');
+  }
+
+  if (nueva === actual) {
+    return fail('La nueva contraseña debe ser distinta a la actual.');
+  }
+
+  req.passwordData = { actual, nueva };
+  next();
+};
+
 module.exports = {
   validateRegister,
   validateLogin,
@@ -253,4 +328,6 @@ module.exports = {
   validateForgotPassword,
   validateResetPassword,
   validateProfile,
+  validateAccountUpdate,
+  validatePasswordChange,
 };

@@ -1,0 +1,109 @@
+<%
+  const c = locals.cuenta || {};
+  const plan = locals.plan || { nombre: 'Gratis', esDePago: false, fechaTermino: null };
+  const proveedor = c.usuario_proveedor === 'local' ? 'Correo y contraseña' : 'Google';
+
+  const fecha = plan.fechaTermino
+    ? new Date(plan.fechaTermino).toLocaleDateString('es-CL', { dateStyle: 'long' })
+    : null;
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Mi cuenta</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/configuracion.css" />
+</head>
+<body>
+
+  <div class="profile-page bg-gradient<%= locals.usuarioPremium ? ' is-premium' : '' %>">
+
+    <%- include('partials/header', { navVolver: true }) %>
+
+    <main class="profile-main">
+
+      <div class="profile-head anim-fade-in">
+        <div class="profile-step-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path></svg>
+        </div>
+        <div>
+          <h1 class="profile-title">Mi cuenta</h1>
+          <p class="muted step-desc">Tu plan actual y los datos de acceso.</p>
+        </div>
+      </div>
+
+      <div class="anim-slide-up">
+
+        <section class="config-section">
+          <h2 class="config-section-title">Plan</h2>
+
+          <div class="config-plan">
+            <div>
+              <strong class="config-plan-name"><%= plan.nombre %></strong>
+              <p class="muted small">
+                <% if (plan.esDePago) { %>
+                  Tienes acceso a todas las funciones Premium.
+                  <% if (fecha) { %>Válido hasta el <%= fecha %>.<% } %>
+                <% } else { %>
+                  Plan gratuito. Puedes mejorar cuando quieras.
+                <% } %>
+              </p>
+            </div>
+            <span class="config-badge<%= plan.esDePago ? ' is-paid' : '' %>"><%= plan.esDePago ? 'Premium' : 'Gratis' %></span>
+          </div>
+
+          <div class="config-actions config-actions-inline">
+            <a href="/planes" class="btn btn-ghost">Ver planes</a>
+            <% if (!plan.esDePago) { %>
+              <a href="/planes" class="btn btn-primary">Mejorar plan</a>
+            <% } %>
+          </div>
+        </section>
+
+        <section class="config-section">
+          <h2 class="config-section-title">Datos de acceso</h2>
+
+          <dl class="config-info">
+            <div class="config-info-row">
+              <dt>Nombre de usuario</dt>
+              <dd><%= c.nombre_usuario || '—' %></dd>
+            </div>
+            <div class="config-info-row">
+              <dt>Correo</dt>
+              <dd><%= c.correo || '—' %></dd>
+            </div>
+            <div class="config-info-row">
+              <dt>Método de acceso</dt>
+              <dd><%= proveedor %></dd>
+            </div>
+          </dl>
+
+          <p class="config-note">
+            ¿Quieres cambiar tus datos? Hazlo desde
+            <a href="/configuracion/datos">Datos personales</a>.
+          </p>
+        </section>
+
+        <section class="config-section">
+          <h2 class="config-section-title">Sesión</h2>
+          <p class="muted small">Cierra sesión si usas un dispositivo compartido.</p>
+
+          <form action="/auth/logout" method="POST">
+            <button type="submit" class="btn btn-ghost">Cerrar sesión</button>
+          </form>
+        </section>
+
+        <div class="config-actions">
+          <a href="/configuracion" class="btn btn-ghost">Volver</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

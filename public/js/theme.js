@@ -61,8 +61,13 @@
     var oscuro = root.getAttribute('data-theme') === 'dark';
     document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
       btn.setAttribute('aria-checked', oscuro ? 'true' : 'false');
-      var ico = btn.querySelector('[data-theme-icon]');
-      if (ico) ico.textContent = oscuro ? '🌙' : '☀️';
+      btn.setAttribute('aria-label', oscuro ? 'Desactivar modo oscuro' : 'Activar modo oscuro');
+    });
+    document.querySelectorAll('[data-theme-icon]').forEach(function (ico) {
+      ico.textContent = oscuro ? '🌙' : '☀️';
+    });
+    document.querySelectorAll('[data-theme-state]').forEach(function (el) {
+      el.textContent = oscuro ? 'Activado' : 'Desactivado';
     });
   }
 

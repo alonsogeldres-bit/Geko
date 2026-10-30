@@ -1,5 +1,6 @@
 /* ===========================================
-   CONFIGURACION - Edición del perfil guardado
+   CONFIGURACION - Perfil de entrenamiento
+   Sección /configuracion/entrenamiento.
    Carga el estado inicial desde window.__PERFIL__
    (lo embebe la vista) y guarda vía POST /profile,
    el mismo endpoint del wizard.

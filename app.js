@@ -11,6 +11,7 @@ const dashboardRoutes = require('./routes/DashboardRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 const planRoutes = require('./routes/planRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { guardAccount } = require('./middlewares/accountGuard');
@@ -73,6 +74,7 @@ app.get('/entrenamientoActivo', (req, res) => res.redirect('/entrenamiento/activ
 app.use('/', authRoutes)
 app.use('/auth', authRoutes)
 app.use('/', profileRoutes);
+app.use('/configuracion', settingsRoutes);
 app.use('/', planRoutes);
 app.use('/admin', adminRoutes);
 

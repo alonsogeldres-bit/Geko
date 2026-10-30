@@ -1,0 +1,110 @@
+<%
+  const c = locals.cuenta || {};
+  const esLocal = c.usuario_proveedor === 'local';
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Datos personales</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/configuracion.css" />
+</head>
+<body>
+
+  <div class="profile-page bg-gradient<%= locals.usuarioPremium ? ' is-premium' : '' %>">
+
+    <%- include('partials/header', { navVolver: true }) %>
+
+    <main class="profile-main">
+
+      <div class="profile-head anim-fade-in">
+        <div class="profile-step-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div>
+          <h1 class="profile-title">Datos personales</h1>
+          <p class="muted step-desc">Actualiza la información con la que te identificamos.</p>
+        </div>
+      </div>
+
+      <div class="anim-slide-up">
+
+        <%- include('partials/alert') %>
+
+        <section class="config-section">
+          <h2 class="config-section-title">Identidad</h2>
+
+          <div class="profile-grid-2">
+            <div class="field">
+              <label class="field-label" for="nombre">Nombre</label>
+              <input type="text" id="nombre" class="input" maxlength="50" autocomplete="given-name" value="<%= c.nombre || '' %>" />
+              <span class="field-error" id="err-nombre"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="apellido">Apellido</label>
+              <input type="text" id="apellido" class="input" maxlength="50" autocomplete="family-name" value="<%= c.apellido || '' %>" />
+              <span class="field-error" id="err-apellido"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="nombre_usuario">Nombre de usuario</label>
+            <input type="text" id="nombre_usuario" class="input" maxlength="50" autocomplete="username" value="<%= c.nombre_usuario || '' %>" />
+            <span class="field-hint">Así te verás dentro de Geko.</span>
+            <span class="field-error" id="err-nombre_usuario"></span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="fecha_nacimiento">Fecha de nacimiento</label>
+            <input type="date" id="fecha_nacimiento" class="input" min="1900-01-01" max="<%= new Date().toISOString().slice(0, 10) %>" value="<%= c.fecha_nacimiento || '' %>" />
+            <span class="field-error" id="err-fecha_nacimiento"></span>
+          </div>
+        </section>
+
+        <section class="config-section">
+          <h2 class="config-section-title">Contacto</h2>
+
+          <div class="field">
+            <label class="field-label" for="correo">Correo electrónico</label>
+            <input type="email" id="correo" class="input" maxlength="100" autocomplete="email"
+                   value="<%= c.correo || '' %>"<%= esLocal ? '' : ' disabled' %> />
+            <% if (!esLocal) { %>
+              <span class="field-hint">Tu correo lo gestiona Google y no se puede cambiar desde aquí.</span>
+            <% } %>
+            <span class="field-error" id="err-correo"></span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="numero">Número de teléfono</label>
+            <input type="tel" id="numero" class="input" maxlength="20" autocomplete="tel" value="<%= c.numero || '' %>" placeholder="+56 9 1234 5678" />
+            <span class="field-error" id="err-numero"></span>
+          </div>
+        </section>
+
+        <div class="config-actions">
+          <a href="/configuracion" class="btn btn-ghost">Volver</a>
+          <button type="button" class="btn btn-primary" id="btn-save">Guardar cambios</button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.__CUENTA__ = <%- JSON.stringify({
+      nombre: c.nombre || '',
+      apellido: c.apellido || '',
+      nombre_usuario: c.nombre_usuario || '',
+      correo: c.correo || '',
+      numero: c.numero || '',
+      fecha_nacimiento: c.fecha_nacimiento || '',
+      esLocal: esLocal
+    }).replace(/</g, '\\u003c') %>;
+  </script>
+  <script src="/js/configuracion-datos.js" defer></script>
+</body>
+</html>

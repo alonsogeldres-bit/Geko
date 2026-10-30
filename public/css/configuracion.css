@@ -345,3 +345,356 @@
 }
 
 :root:not([data-theme="dark"]) .profile-page.is-premium .config-alert[data-variant="success"] { color: #795700; }
+
+/* ===========================================
+   HUB DE CONFIGURACIÓN
+   Resumen de cuenta + tarjetas de secciones.
+   =========================================== */
+
+.config-nav-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.config-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.config-avatar {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sel);
+  border: 1px solid var(--ac);
+  color: var(--ac);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.config-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.config-account-info strong {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.config-account-info .small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.config-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--field);
+  color: var(--mut);
+}
+
+.config-badge.is-paid {
+  border-color: var(--ac);
+  background: var(--sel);
+  color: var(--ac);
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.config-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.config-card:hover {
+  border-color: var(--ac);
+  background: var(--field);
+  transform: translateY(-1px);
+}
+
+.config-card:focus-visible {
+  outline: none;
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+.config-card-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--field);
+  border: 1px solid var(--line);
+  font-size: 18px;
+}
+
+.config-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.config-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.config-card-desc {
+  font-size: 12.5px;
+  color: var(--mut);
+  line-height: 1.35;
+}
+
+.config-card-arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--faint);
+}
+
+/* ---------- Avisos informativos ---------- */
+
+.config-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+  background: var(--field);
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.config-note a {
+  color: var(--ac);
+  font-weight: 600;
+}
+
+/* ---------- Plan / cuenta ---------- */
+
+.config-plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.config-plan-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.config-plan p {
+  margin: 4px 0 0;
+}
+
+.config-actions-inline {
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.config-info {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-info-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.config-info-row:last-child {
+  border-bottom: none;
+}
+
+.config-info-row dt {
+  font-size: 13px;
+  color: var(--mut);
+}
+
+.config-info-row dd {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* ---------- Tema claro / oscuro ---------- */
+
+.config-theme {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+
+.config-theme-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--field);
+  border: 1px solid var(--line);
+  font-size: 18px;
+}
+
+.config-theme-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.config-theme-text strong {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.theme-switch-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: 6px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.theme-switch-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+.theme-switch {
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 0.2s ease;
+}
+
+.theme-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.theme-switch-btn[aria-checked="true"] .theme-switch {
+  background: var(--ac);
+}
+
+.theme-switch-btn[aria-checked="true"] .theme-switch::after {
+  transform: translateX(18px);
+}
+
+@media (min-width: 560px) {
+  .config-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .config-account {
+    flex-wrap: wrap;
+  }
+  .config-badge {
+    margin-left: 0;
+  }
+}
+
+/* ---------- Premium ---------- */
+
+.profile-page.is-premium .config-card-title,
+.profile-page.is-premium .config-plan-name {
+  color: var(--gold-soft);
+}
+
+.profile-page.is-premium .config-card:hover {
+  border-color: var(--gold-2);
+  background: var(--gold-tint);
+}
+
+.profile-page.is-premium .config-badge.is-paid {
+  border-color: var(--gold-line);
+  background: var(--gold-tint);
+  color: var(--gold-2);
+}
+
+.profile-page.is-premium .config-avatar {
+  border-color: var(--gold-line);
+  background: var(--gold-tint);
+  color: var(--gold-2);
+}
+
+.profile-page.is-premium .config-note {
+  border-color: var(--gold-line);
+}
+
+.profile-page.is-premium .config-note a {
+  color: var(--gold-2);
+}

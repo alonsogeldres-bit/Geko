@@ -1,0 +1,18 @@
+<header class="profile-nav">
+  <a href="/dashboard" class="logo-brand">
+    <img src="/assets/geko-logo.png" alt="GEKO" class="logo-img-small" width="30" height="30" data-logo />
+    <span class="welcome-brand">GEKO</span>
+  </a>
+
+  <div class="nav-right">
+    <% if (typeof navVolver !== 'undefined' && navVolver) { %>
+      <a href="/configuracion" class="btn-logout config-nav-link">← Configuración</a>
+    <% } else { %>
+      <span class="muted step-counter">Configuración</span>
+    <% } %>
+
+    <form action="/auth/logout" method="POST">
+      <button type="submit" class="btn-logout">Cerrar sesión</button>
+    </form>
+  </div>
+</header>

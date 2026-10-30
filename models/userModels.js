@@ -29,6 +29,59 @@ const existsByPhone = async (numero) => {
   return rows.length > 0;
 };
 
+/* ---------- Datos de cuenta (configuración) ---------- */
+
+// dateStrings evita el corrimiento de zona horaria en fecha_nacimiento (DATE).
+const getAccountById = async (id_usuario) => {
+  const [rows] = await pool.query(
+    {
+      sql: `SELECT id_usuario, nombre, apellido, correo, numero, nombre_usuario,
+                   sexo, fecha_nacimiento, usuario_proveedor, id_rol
+              FROM usuarios
+             WHERE id_usuario = ?`,
+      dateStrings: true,
+    },
+    [id_usuario]
+  );
+  return rows[0] || null;
+};
+
+const updateAccount = async (id_usuario, { nombre, apellido, correo, numero, nombre_usuario, fecha_nacimiento }) => {
+  const [result] = await pool.query(
+    `UPDATE usuarios
+        SET nombre = ?, apellido = ?, correo = ?, numero = ?,
+            nombre_usuario = ?, fecha_nacimiento = ?
+      WHERE id_usuario = ?`,
+    [nombre, apellido, correo, numero, nombre_usuario, fecha_nacimiento, id_usuario]
+  );
+  return result.affectedRows;
+};
+
+// Variantes "excepto yo": al editar, el valor actual del propio usuario no cuenta como duplicado.
+const existsByEmailExcept = async (correo, id_usuario) => {
+  const [rows] = await pool.query(
+    'SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario <> ?',
+    [correo, id_usuario]
+  );
+  return rows.length > 0;
+};
+
+const existsByUsernameExcept = async (nombre_usuario, id_usuario) => {
+  const [rows] = await pool.query(
+    'SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? AND id_usuario <> ?',
+    [nombre_usuario, id_usuario]
+  );
+  return rows.length > 0;
+};
+
+const existsByPhoneExcept = async (numero, id_usuario) => {
+  const [rows] = await pool.query(
+    'SELECT id_usuario FROM usuarios WHERE numero = ? AND id_usuario <> ?',
+    [numero, id_usuario]
+  );
+  return rows.length > 0;
+};
+
 const create = async ({
   nombre,
   apellido,
@@ -66,6 +119,11 @@ module.exports = {
   existsByEmail,
   existsByUsername,
   existsByPhone,
+  getAccountById,
+  updateAccount,
+  existsByEmailExcept,
+  existsByUsernameExcept,
+  existsByPhoneExcept,
   create,
   updatePassword,
 };

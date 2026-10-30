@@ -1,9 +1,11 @@
 /* ===========================================
    MASCOTA GEKO (dashboard)
-   - Camina sola por los márgenes laterales; el contenido (tarjetas) es un muro.
-   - Si sale por un lado de la pantalla reaparece por el opuesto (también arriba/abajo).
-   - En pantallas angostas (sin márgenes) camina por una franja inferior opaca.
-   - Se duerme cada 20-30 s; al hacerle clic despierta y saluda.
+   - Escritorio: camina sola por los márgenes laterales; el contenido
+     (tarjetas) es un muro. Si sale por un lado de la pantalla reaparece
+     por el opuesto (también arriba/abajo).
+   - Teléfono (pantallas angostas, sin márgenes): se queda quieta en la
+     esquina inferior derecha del viewport.
+   - En ambos casos se duerme cada 20-30 s; al hacerle clic despierta y saluda.
    - Al hacer clic emite "geko:click" en window (futuro chat con IA).
    =========================================== */
 (function () {
@@ -14,7 +16,7 @@
 
   var G = document.getElementById('geko');
   var SH = document.getElementById('geko-shadow');
-  var STRIP = document.getElementById('geko-strip');
+  var SAFE = document.getElementById('geko-safe');
   var ZG = document.getElementById('zg');
   var CLMP = document.getElementById('cl-mp');
   var SV = G.querySelector('svg');
@@ -47,9 +49,10 @@
   });
 
   var GAP = 10;                    /* separación mínima con las tarjetas */
+  var CORNER_X = 14, CORNER_Y = 10; /* margen de la esquina en el teléfono */
   var Wd = 0, Ht = 0, W = 0, H = 0, hw = 0, vis = 0, SPD = 120;
-  var mode = 'side';               /* 'side' = márgenes laterales · 'strip' = franja inferior */
-  var wallL = 0, wallR = 0, fMin = 0, fMax = 0;
+  var mode = 'side';               /* 'side' = camina por los márgenes · 'corner' = quieta en la esquina */
+  var wallL = 0, wallR = 0;
   var x = null, y = 0;
   var dir = 'down', view = 'front', flip = 1;
   var phase = 0, walkK = 0, hk = 0, happy = 0, idle = 1, sst = 0, sT = 0, slp = 25, aw = 0;
@@ -74,10 +77,10 @@
     if (!isFinite(l)) { l = Wd / 2; r = Wd / 2; }
 
     var laneMin = Math.min(l - GAP, Wd - r - GAP);
-    var next = laneMin >= 110 ? 'side' : 'strip';
+    var next = laneMin >= 110 ? 'side' : 'corner';
 
     if (next === 'side') W = cl(Math.min(laneMin / 0.8, Ht * 0.3, 170), 96, 170);
-    else W = cl(Wd * 0.23, 80, 120);
+    else W = cl(Wd * 0.23, 76, 116);
     H = W * 1.2;
     hw = W * 0.36;                 /* media anchura del cuerpo (colisión) */
     vis = W * 0.5;                 /* media anchura visible (para salir de pantalla) */
@@ -91,18 +94,18 @@
 
     var firstTime = x === null;
     mode = next;
-    document.body.classList.toggle('geko-strip', mode === 'strip');
+    document.body.classList.toggle('geko-corner', mode === 'corner');
 
-    if (mode === 'strip') {
-      document.documentElement.style.setProperty('--gk-strip', Math.ceil(H + 22) + 'px');
-      var top = STRIP.getBoundingClientRect().top;
-      var pad = parseFloat(getComputedStyle(STRIP).paddingBottom) || 0;
-      fMax = Ht - pad - 4;
-      fMin = Math.min(fMax, top + H + 3);
-      if (firstTime) { x = Wd / 2; y = fMax; }
-      y = cl(y, fMin, fMax);
+    if (mode === 'corner') {
+      /* Teléfono: quieta en la esquina inferior derecha, mirando al frente.
+         #geko-safe es una sonda invisible que mide el safe-area inferior,
+         para que la mascota no quede bajo el gesto del sistema. */
+      var inset = SAFE ? SAFE.getBoundingClientRect().height : 0;
+      x = Wd - CORNER_X - W / 2;
+      y = Ht - CORNER_Y - inset;
+      dir = 'down';
+      route = null;
     } else {
-      document.documentElement.style.removeProperty('--gk-strip');
       if (firstTime) {
         /* Empieza en el margen más ancho */
         x = (l >= Wd - r) ? wallL / 2 : (wallR + Wd) / 2;
@@ -116,30 +119,25 @@
   }
 
   var onScreen = function () {
-    var ok = x - vis >= 2 && x + vis <= Wd - 2;
-    if (mode === 'side') ok = ok && y - H >= 2 && y <= Ht - 2;
-    return ok;
+    if (mode === 'corner') return true;       /* quieta y siempre entera a la vista */
+    return x - vis >= 2 && x + vis <= Wd - 2 && y - H >= 2 && y <= Ht - 2;
   };
 
   /* Distancia que puede avanzar antes de chocar. Infinity = da la vuelta y reaparece. */
   function room(d) {
-    if (mode === 'side') {
-      if (d === 'up' || d === 'down') return Infinity;
-      var left = x < (wallL + wallR) / 2;
-      if (d === 'left') return left ? Infinity : Math.max(0, x - hw - wallR);
-      return left ? Math.max(0, wallL - hw - x) : Infinity;
-    }
-    if (d === 'left' || d === 'right') return Infinity;
-    return d === 'up' ? Math.max(0, y - fMin) : Math.max(0, fMax - y);
+    if (mode === 'corner') return 0;          /* en el teléfono no camina */
+    if (d === 'up' || d === 'down') return Infinity;
+    var left = x < (wallL + wallR) / 2;
+    if (d === 'left') return left ? Infinity : Math.max(0, x - hw - wallR);
+    return left ? Math.max(0, wallL - hw - x) : Infinity;
   }
 
   function wrap() {
+    if (mode === 'corner') return;
     if (x + vis < 0) x = Wd + vis;
     else if (x - vis > Wd) x = -vis;
-    if (mode === 'side') {
-      if (y - H > Ht) y = 0;
-      else if (y < 0) y = Ht + H;
-    }
+    if (y - H > Ht) y = 0;
+    else if (y < 0) y = Ht + H;
   }
 
   /* ---------- Sueño ---------- */
@@ -163,8 +161,9 @@
   });
   window.addEventListener('pointermove', function (e) { ptr = { x: e.clientX, y: e.clientY }; });
 
-  /* ---------- Paseo autónomo ---------- */
+  /* ---------- Paseo autónomo (solo escritorio) ---------- */
   function startWander() {
+    if (mode !== 'side') return;
     var c = [];
     ['left', 'right', 'up', 'down'].forEach(function (d) {
       var r = room(d);
@@ -214,7 +213,7 @@
     if (!moved) {
       idle += dt;
       if (idle > 1.2 && !route) dir = 'down';
-      if (!RM && !sst && !route && idle > wt && !happy) startWander();
+      if (mode === 'side' && !RM && !sst && !route && idle > wt && !happy) startWander();
     }
 
     /* Vista según la dirección: arriba = espalda, abajo = frente, lados = perfil */

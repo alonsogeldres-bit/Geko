@@ -46,28 +46,22 @@
 #geko.zz { clip-path: inset(42% -10% -10% -10%); }
 #geko svg { width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
 
-/* Franja inferior: solo en pantallas angostas, donde no hay márgenes laterales.
-   Es opaca para que Geko nunca camine por encima de los datos. */
-#geko-strip { display: none; }
-
-body.geko-strip #geko-strip {
-  display: block;
+/* Teléfono: Geko se queda quieto en la esquina inferior derecha (lo coloca
+   geko-mascot.js). #geko-safe es una sonda invisible que mide el safe-area
+   inferior para que la mascota no quede bajo el gesto del sistema. */
+#geko-safe {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: calc(var(--gk-strip, 140px) + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--bg);
-  border-top: 1px solid var(--line);
-  pointer-events: auto;
+  height: env(safe-area-inset-bottom, 0px);
+  pointer-events: none;
+  visibility: hidden;
 }
 
-.dash-page.is-premium #geko-strip { background: #000000; }
-:root:not([data-theme="dark"]) .dash-page.is-premium #geko-strip { background: var(--bg); }
-
-body.geko-strip .dash-page {
-  padding-bottom: calc(var(--gk-strip, 140px) + env(safe-area-inset-bottom, 0px));
+/* Aire al final de la página para que la mascota no tape el último contenido. */
+body.geko-corner .dash-page {
+  padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ----- Piezas del SVG: copiadas tal cual del html original -----

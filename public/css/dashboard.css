@@ -988,7 +988,7 @@ body.modal-abierto { overflow: hidden; }
    Solo en el dashboard (.has-geko). El contenido se estrecha (de 1080 a 920 px)
    para dejar dos carriles laterales de al menos 140 px. En pantallas de
    900 px o menos no hay carriles: el contenido vuelve a ocupar todo el ancho
-   y Geko camina por una franja inferior (ver geko-mascot.css).
+   y Geko se queda quieta en la esquina inferior derecha (ver geko-mascot.css).
    =========================================== */
 
 .dash-page.has-geko .dash-main {

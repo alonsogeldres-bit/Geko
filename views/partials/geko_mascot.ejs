@@ -2,11 +2,13 @@
      MASCOTA GEKO (dashboard)
      Capa fija que ocupa toda la ventana y no bloquea clics (solo Geko los recibe).
      La anima public/js/geko-mascot.js; estilos en public/css/geko-mascot.css.
+     Escritorio: camina por los márgenes laterales del contenido.
+     Teléfono: se queda quieta en la esquina inferior derecha.
      Al hacer clic en Geko se emite el evento "geko:click" en window
      (para abrir el chat con la IA más adelante).
      =========================================== -->
 <div id="geko-layer">
-<div id="geko-strip" aria-hidden="true"></div>
+<div id="geko-safe" aria-hidden="true"></div>
 <div id="geko-shadow"></div>
 <div id="geko" role="button" tabindex="0" aria-label="Geko, tu mascota. Haz clic para saludarlo">
 <svg viewBox="0 0 300 360" aria-hidden="true" focusable="false">

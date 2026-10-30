@@ -13,10 +13,10 @@
   <div class="profile-page bg-gradient<%= locals.usuarioPremium ? ' is-premium' : '' %>">
 
     <header class="profile-nav">
-      <div class="logo-brand">
+      <a href="/dashboard" class="logo-brand">
         <img src="/assets/geko-logo.png" alt="GEKO" class="logo-img-small" width="30" height="30" data-logo />
         <span class="welcome-brand">GEKO</span>
-      </div>
+      </a>
 
       <div class="nav-right">
         <span class="muted step-counter">Configuración</span>
@@ -216,7 +216,7 @@
 
         <!-- ================= Acciones ================= -->
         <div class="config-actions">
-          <a href="/dashboard" class="btn btn-ghost">Volver al dashboard</a>
+          <a href="/dashboard" class="btn btn-ghost">Volver al inicio</a>
           <button type="button" class="btn btn-primary" id="btn-save">Guardar cambios</button>
         </div>
 

@@ -92,6 +92,11 @@ body {
   gap: 10px;
 }
 
+a.logo-brand {
+  color: inherit;
+  text-decoration: none;
+}
+
 .logo-img-small {
   display: block;
   object-fit: contain;

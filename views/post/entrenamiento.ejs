@@ -36,11 +36,11 @@
   <div class="dash-page entrenamiento-page<%= esPremium ? ' is-premium' : '' %>">
 
     <header class="dash-nav">
-      <div class="logo-brand">
+      <a href="/dashboard" class="logo-brand">
         <img src="/assets/geko-logo.png" alt="GEKO" width="30" height="30" data-logo />
         <span class="brand-text">GEKO</span>
         <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
-      </div>
+      </a>
 
       <details class="user-menu" id="user-menu">
         <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
@@ -131,7 +131,7 @@
         <div class="acts rutina-acts">
           <a class="cta" href="/entrenamiento/activo">Comenzar entrenamiento</a>
           <a class="cta" href="/entrenamiento?nueva=1">Generar otra rutina</a>
-          <a class="ghost" href="/dashboard">← Volver al dashboard</a>
+          <a class="ghost" href="/dashboard">← Volver al inicio</a>
         </div>
       </section>
 

@@ -61,6 +61,83 @@ const aplanarRutina = (rutina = {}) => {
   return lista;
 };
 
+/* ---------- Reproductor: tiempos por serie y descansos ---------- */
+
+const SEG_POR_REP = 3;          // ritmo medio estimado por repetición
+const MIN_SERIE_SEG = 15;       // una serie nunca dura menos de 15 s
+const MAX_SERIE_SEG = 75;       // ni más de 75 s
+const MIN_ISOMETRICO_SEG = 20;  // sostén mínimo (plancha, superman…)
+const MAX_ISOMETRICO_SEG = 90;
+const MAX_DESCANSO_SEG = 180;
+
+const limitarSeg = (valor, min, max) => Math.min(max, Math.max(min, Math.round(valor)));
+
+/** "Plancha frontal" / "30 s de sostén" → ejercicio isométrico. */
+const PATRON_ISOMETRICO = /plancha|plank|superman|hollow|isometric|isométric|sost[eé]n|sostener|wall\s?sit/i;
+
+const esIsometrico = (nombre, descripcion) =>
+  PATRON_ISOMETRICO.test(String(nombre || '')) ||
+  /isom[eé]tric|sost[eé]n|sostener/i.test(String(descripcion || ''));
+
+/** "12 por lado" / "10 cada pierna" → el tiempo se duplica. */
+const esPorLado = (repeticiones) =>
+  /por\s+lado|cada\s+lado|por\s+pierna|cada\s+pierna|por\s+brazo|cada\s+brazo/i.test(
+    String(repeticiones || '')
+  );
+
+/**
+ * Duración de UNA serie.
+ * - Calentamiento/estiramiento: los minutos que dio la IA.
+ * - Principal con repeticiones en tiempo ("30 s"): ese tiempo.
+ * - Principal con repeticiones numéricas: reps × 3 s (o × 6 s si es por lado).
+ * - Isométricos: el número de reps se interpreta como segundos de sostén.
+ */
+const duracionSerieSeg = (ejercicio, esPrincipal) => {
+  if (!esPrincipal) {
+    return limitarSeg(obtenerTiempoSugeridoSeg(ejercicio, ejercicio.bloque) || 60, 15, 600);
+  }
+
+  const info = PlanEntrenamientoModel.interpretarRepeticiones(ejercicio.repeticiones);
+  if (info.duracionSeg && info.duracionSeg > 0) return info.duracionSeg;
+
+  const reps = info.repeticiones && info.repeticiones > 0 ? info.repeticiones : 10;
+  const isometrico = esIsometrico(ejercicio.nombre, ejercicio.descripcion);
+  const factor = esPorLado(ejercicio.repeticiones) ? SEG_POR_REP * 2 : SEG_POR_REP;
+
+  if (isometrico) {
+    return limitarSeg(reps, MIN_ISOMETRICO_SEG, MAX_ISOMETRICO_SEG);
+  }
+
+  return limitarSeg(reps * factor, MIN_SERIE_SEG, MAX_SERIE_SEG);
+};
+
+/** Convierte un ejercicio aplanado en un paso del reproductor. */
+const crearPaso = (ejercicio, i) => {
+  const esPrincipal = ejercicio.bloque === 'Rutina principal';
+  const series = esPrincipal ? Math.max(1, parseInt(ejercicio.series, 10) || 1) : 1;
+  const repeticiones = esPrincipal ? String(ejercicio.repeticiones ?? '').trim() : '';
+  const descansoSeg = esPrincipal
+    ? limitarSeg(parseInt(ejercicio.descansoSeg, 10) || 0, 0, MAX_DESCANSO_SEG)
+    : 0;
+  const duracionSeg = duracionSerieSeg(ejercicio, esPrincipal);
+  const totalSeg = series * duracionSeg + Math.max(0, series - 1) * descansoSeg;
+
+  return {
+    i,
+    bloque: ejercicio.bloque,
+    nombre: String(ejercicio.nombre || 'Ejercicio').slice(0, 90),
+    descripcion: String(ejercicio.descripcion || '').slice(0, 500),
+    esPrincipal,
+    series,
+    repeticiones,
+    descansoSeg,
+    duracionSeg,
+    totalSeg,
+    esIsometrico: esIsometrico(ejercicio.nombre, ejercicio.descripcion),
+    esPorLado: esPorLado(repeticiones),
+  };
+};
+
 /** true si el cliente tiene un plan de pago activo (Premium). Ante cualquier fallo, Gratis. */
 const tienePlanDePago = async (idCliente) => {
   try {
@@ -177,15 +254,18 @@ const activo = async (req, res) => {
       return res.redirect('/entrenamiento');
     }
 
+    const reproductor = ejerciciosLista.map((ejercicio, i) => crearPaso(ejercicio, i));
+
     let idx = parseInt(req.query.i, 10);
     if (Number.isNaN(idx)) idx = 0;
     if (idx < 0) idx = 0;
-    if (idx >= ejerciciosLista.length) idx = ejerciciosLista.length - 1;
+    if (idx >= reproductor.length) idx = reproductor.length - 1;
 
     const ejercicioActual = ejerciciosLista[idx];
     const bloque = ejercicioActual?.bloque || '';
-    const tiempoSugeridoSeg = obtenerTiempoSugeridoSeg(ejercicioActual, bloque);
+    const tiempoSugeridoSeg = reproductor[idx].duracionSeg;
     const haySugerido = tiempoSugeridoSeg !== null && tiempoSugeridoSeg > 0;
+    const duracionTotalSeg = reproductor.reduce((total, paso) => total + paso.totalSeg, 0);
 
     const esPremium = await tienePlanDePago(perfil.idCliente);
 
@@ -194,6 +274,8 @@ const activo = async (req, res) => {
       esPremium,
       rutina,
       ejerciciosLista,
+      reproductor,
+      duracionTotalSeg,
       ejercicioActual,
       bloque,
       indice: idx,

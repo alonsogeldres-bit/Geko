@@ -1,15 +1,16 @@
 /* ===========================================
-   TEMA CLARO / OSCURO (modo Gratis)
+   TEMA CLARO / OSCURO
    - Claro es el predeterminado.
    - La preferencia se guarda en localStorage ("geko-theme").
    - Se carga en el <head> (sin defer) para aplicar el tema antes
      de pintar y evitar el parpadeo.
-   - El Premium ignora el tema: su paleta está fija en el CSS.
+   - Premium también respeta el tema: claro por defecto y oscuro
+     opcional. Su paleta dorada vive en el CSS de cada tema.
    =========================================== */
 (function () {
   var KEY = 'geko-theme';
   var root = document.documentElement;
-  var LOGO_CLARO = '/assets/Geko_nigger.png';
+  var LOGO_CLARO = '/assets/geko-logo.png';
   var LOGO_OSCURO = '/assets/geko.png';
 
   function leer() {
@@ -24,17 +25,29 @@
     root.setAttribute('data-theme', tema);
     root.style.colorScheme = tema;
     sincronizarLogos();
+    sincronizarThemeColor();
   }
 
-  // El logo depende del tema: oscuro en modo claro, claro en modo oscuro.
-  // Premium siempre tiene fondo oscuro, así que mantiene el logo claro.
+  // El logo depende del tema: el de fondo claro para el tema claro y el de
+  // fondo oscuro para el tema oscuro. En Premium el tinte dorado lo pone el CSS.
   function sincronizarLogos() {
-    var claro = root.getAttribute('data-theme') !== 'dark' &&
-                !document.querySelector('.is-premium');
+    var claro = root.getAttribute('data-theme') !== 'dark';
     var src = claro ? LOGO_CLARO : LOGO_OSCURO;
     document.querySelectorAll('img[data-logo]').forEach(function (img) {
       if (img.getAttribute('src') !== src) img.setAttribute('src', src);
     });
+  }
+
+  // Barra del navegador (móvil) a juego con el fondo real de la página.
+  function sincronizarThemeColor() {
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    var oscuro = root.getAttribute('data-theme') === 'dark';
+    var premium = !!document.querySelector('.is-premium');
+    var color;
+    if (oscuro) color = premium ? '#000000' : '#101C17';
+    else color = premium ? '#FFF9E8' : '#F5FAF6';
+    meta.setAttribute('content', color);
   }
 
   function guardar(tema) {
@@ -65,6 +78,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     sincronizarBotones();
     sincronizarLogos();
+    sincronizarThemeColor();
     document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
       btn.addEventListener('click', alternar);
     });

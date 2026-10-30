@@ -1,7 +1,16 @@
 <%
   const esPremium = Boolean(locals.esPremium);
-  const haySugerido = Boolean(locals.haySugerido);
-  const tiempoSugeridoSeg = Number(locals.tiempoSugeridoSeg) || 0;
+  const reproductor = Array.isArray(locals.reproductor) ? locals.reproductor : [];
+  const indiceInicial = Math.min(
+    Math.max(0, Number(locals.indice) || 0),
+    Math.max(0, reproductor.length - 1)
+  );
+  const inicial = reproductor[indiceInicial] || null;
+  const datos = JSON.stringify({
+    ejercicios: reproductor,
+    indiceInicial,
+    duracionTotalSeg: Number(locals.duracionTotalSeg) || 0,
+  }).replace(/</g, '\\u003c');
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -9,6 +18,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#F5FAF6" />
   <title>GEKO - Entrenamiento Activo</title>
   <script src="/js/theme.js"></script>
   <link rel="stylesheet" href="/css/entrenamientoActivo.css" />
@@ -17,9 +27,10 @@
 <body class="<%= esPremium ? 'is-premium' : '' %>">
   <div class="ea-bg-glow"></div>
   <div class="ea-noise"></div>
+
   <header class="ea-header">
     <a class="ea-logo" href="/dashboard" aria-label="Volver al dashboard">
-      <img src="/assets/Geko_nigger.png" alt="GEKO" width="30" height="30" data-logo />
+      <img src="/assets/geko-logo.png" alt="GEKO" width="30" height="30" data-logo />
       <span class="ea-logo-text">GEKO</span>
       <span class="ea-badge"><%= esPremium ? 'Premium' : 'Gratis' %></span>
     </a>
@@ -27,25 +38,56 @@
 
   <main class="ta-wrapper">
     <div class="ta-container">
-      <!-- Columna izquierda: Video Template -->
-      <section class="video-template" aria-label="Área reservada para video">
-        <div class="video-placeholder" aria-hidden="true">
-          <div class="video-play"></div>
+      <!-- Columna izquierda: información del ejercicio -->
+      <section class="anim-col" aria-label="Ejercicio actual">
+        <span class="ea-chip" id="ea-bloque"><%= inicial ? inicial.bloque : 'Rutina' %></span>
+        <h1 class="anim-nombre" id="ea-nombre"><%= inicial ? inicial.nombre : 'Entrenamiento' %></h1>
+
+        <div class="anim-meta" id="ea-meta">
+          <% if (inicial) { %>
+            <% if (inicial.esPrincipal) { %>
+              <span><%= inicial.series %> series</span>
+              <span><%= inicial.repeticiones %> reps</span>
+              <span>≈ <%= inicial.duracionSeg %> s por serie</span>
+              <% if (inicial.descansoSeg) { %><span><%= inicial.descansoSeg %> s descanso</span><% } %>
+            <% } else { %>
+              <span><%= Math.round(inicial.duracionSeg / 60) %> min</span>
+            <% } %>
+          <% } %>
         </div>
-        <span class="video-label">Video Template</span>
-        <span class="video-sub">Área reservada para reproducción</span>
       </section>
 
       <!-- Columna derecha -->
       <div class="ta-right">
         <!-- Sección Cronómetro -->
-        <section class="cronometro" aria-label="Cronómetro">
-          <p class="cronometro-title">Cronómetro</p>
-          <div class="cronometro-time" id="cronometro-display" aria-live="polite">00:00:00</div>
+        <section class="cronometro" id="ea-cronometro" aria-label="Cronómetro">
+          <p class="cronometro-title" id="ea-fase">Listo para empezar</p>
+
+          <div class="ea-timer-ring" id="ea-ring" style="--p: 0">
+            <div class="ea-timer-inner">
+              <div class="cronometro-time" id="ea-countdown" role="timer" aria-live="off">
+                <%= inicial ? String(Math.floor(inicial.duracionSeg / 60)).padStart(2, '0') + ':' + String(inicial.duracionSeg % 60).padStart(2, '0') : '00:00' %>
+              </div>
+            </div>
+          </div>
+
+          <p class="cronometro-serie" id="ea-serie">
+            <%= inicial && inicial.esPrincipal ? 'Serie 1 de ' + inicial.series : 'Ejercicio ' + (indiceInicial + 1) + ' de ' + reproductor.length %>
+          </p>
+
+          <div class="ea-progress" role="progressbar" aria-label="Progreso del ejercicio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ea-progress">
+            <span id="ea-progress-bar"></span>
+          </div>
+
+          <p class="ea-audio-hint" id="ea-audio-hint" role="status" hidden>
+            Toca la pantalla para activar el sonido.
+          </p>
+
           <div class="cronometro-actions">
-            <button class="cronometro-btn" id="btn-iniciar" type="button">Iniciar</button>
-            <button class="cronometro-btn" id="btn-pausar" type="button">Pausar</button>
-            <button class="cronometro-btn" id="btn-reiniciar" type="button">Reiniciar</button>
+            <button class="cronometro-btn cronometro-btn-next" id="ea-toggle" type="button">Iniciar</button>
+            <button class="cronometro-btn" id="ea-skip" type="button">Saltar</button>
+            <button class="cronometro-btn" id="ea-prev" type="button">Anterior</button>
+            <button class="cronometro-btn" id="ea-sound" type="button" aria-pressed="false">Sonido</button>
           </div>
         </section>
 
@@ -53,39 +95,24 @@
         <section class="desc" aria-label="Descripción">
           <header class="desc-header">
             <div>
-              <h2 class="desc-title">Desc</h2>
-              <p class="desc-subtitle">Descripción del entrenamiento</p>
+              <h2 class="desc-title">Descripción</h2>
+              <p class="desc-subtitle">Cómo hacer el ejercicio</p>
             </div>
           </header>
+
           <div class="desc-body">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-              ex ea commodo consequat.
-            </p>
-            <p>
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-              laborum.
-            </p>
-            <p>
-              Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra,
-              est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod
-              gravida. Duis ac tellus et risus vulputate vehicula.
-            </p>
-            <p>
-              Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod
-              turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque
-              malesuada nulla a mi.
-            </p>
-            <p>
-              Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum
-              aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc.
-              Nullam arcu. Aliquam consequat.
-            </p>
+            <p class="desc-descripcion" id="ea-descripcion"><%= inicial && inicial.descripcion ? inicial.descripcion : 'Sigue las indicaciones y mantén un ritmo cómodo.' %></p>
+
+            <div class="ea-next" id="ea-next">
+              <span class="ea-next-label">Siguiente</span>
+              <strong class="ea-next-nombre" id="ea-next-nombre">—</strong>
+              <span class="ea-next-meta" id="ea-next-meta"></span>
+            </div>
           </div>
         </section>
       </div>
+
+      <div class="ea-flash" id="ea-flash" role="status" aria-live="assertive"></div>
     </div>
   </main>
 
@@ -94,65 +121,28 @@
     <a class="ea-btn ea-btn-ghost" href="/dashboard">← Volver al dashboard</a>
   </div>
 
-  <script>
-    (function () {
-      const display = document.getElementById('cronometro-display');
-      const btnIniciar = document.getElementById('btn-iniciar');
-      const btnPausar = document.getElementById('btn-pausar');
-      const btnReiniciar = document.getElementById('btn-reiniciar');
+  <!-- Capa de inicio / resumen -->
+  <div class="ea-overlay" id="ea-overlay">
+    <div class="ea-overlay-card" role="dialog" aria-modal="true" aria-labelledby="ea-overlay-title">
+      <span class="ea-chip" id="ea-overlay-kicker">Rutina de hoy</span>
+      <h2 class="ea-overlay-title" id="ea-overlay-title">¿Comenzamos?</h2>
+      <p class="ea-overlay-text" id="ea-overlay-text">
+        Vas a completar tu rutina guiada. La app te avisa con un pitido al terminar cada serie.
+      </p>
+      <ul class="ea-overlay-stats" id="ea-overlay-stats"></ul>
+      <div class="ea-overlay-audio">
+        <button class="ea-audio-test" id="ea-audio-test" type="button">Probar sonido</button>
+        <span class="ea-audio-status" id="ea-audio-status" role="status" aria-live="polite"></span>
+      </div>
+      <div class="ea-overlay-actions">
+        <button class="ea-start" id="ea-start" type="button">Comenzar entrenamiento</button>
+        <a class="ea-btn ea-btn-ghost" id="ea-overlay-secondary" href="/entrenamiento" hidden>Volver a la rutina</a>
+      </div>
+    </div>
+  </div>
 
-      let elapsedMs = 0;
-      let startTime = 0;
-      let intervalId = null;
-      let running = false;
-
-      function formatTime(ms) {
-        const totalSeconds = Math.floor(ms / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        const pad = (v) => String(v).padStart(2, '0');
-        return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
-      }
-
-      function updateDisplay() {
-        display.textContent = formatTime(elapsedMs);
-      }
-
-      btnIniciar.addEventListener('click', function () {
-        if (running) return;
-        running = true;
-        startTime = Date.now() - elapsedMs;
-        if (intervalId) clearInterval(intervalId);
-        intervalId = setInterval(function () {
-          elapsedMs = Date.now() - startTime;
-          updateDisplay();
-        }, 250);
-      });
-
-      btnPausar.addEventListener('click', function () {
-        if (!running) return;
-        running = false;
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      });
-
-      btnReiniciar.addEventListener('click', function () {
-        running = false;
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-        elapsedMs = 0;
-        startTime = 0;
-        updateDisplay();
-      });
-
-      updateDisplay();
-    })();
-  </script>
+  <script type="application/json" id="ea-datos"><%- datos %></script>
+  <script src="/js/entrenamientoActivo.js"></script>
 </body>
 
 </html>

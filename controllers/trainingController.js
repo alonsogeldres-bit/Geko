@@ -226,7 +226,6 @@ const index = async (req, res) => {
   }
 };
 
-<<<<<<< Updated upstream
 const activo = async (req, res) => {
   try {
     const idUsuario = req.session.usuario.id_usuario;
@@ -291,8 +290,6 @@ const activo = async (req, res) => {
   }
 };
 
-module.exports = { index, activo };
-=======
 /**
  * POST /entrenamiento/finalizar
  * Se llama UNA vez cuando el usuario termina de entrenar y suma el día a la racha.
@@ -331,5 +328,4 @@ const finalizar = async (req, res) => {
   }
 };
 
-module.exports = { index, finalizar };
->>>>>>> Stashed changes
+module.exports = { index, activo, finalizar };

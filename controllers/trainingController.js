@@ -3,6 +3,7 @@ const DashboardModel = require('../models/dashboardModel');
 const RoutineModel = require('../models/routineModel');
 const PlanEntrenamientoModel = require('../models/trainingModel.js');
 const PlanModel = require('../models/planModel');
+const SesionModel = require('../models/sesionEntrenamientoModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
 
 const obtenerTiempoSugeridoSeg = (ejercicio = {}, bloque = '') => {
@@ -225,6 +226,7 @@ const index = async (req, res) => {
   }
 };
 
+<<<<<<< Updated upstream
 const activo = async (req, res) => {
   try {
     const idUsuario = req.session.usuario.id_usuario;
@@ -290,3 +292,44 @@ const activo = async (req, res) => {
 };
 
 module.exports = { index, activo };
+=======
+/**
+ * POST /entrenamiento/finalizar
+ * Se llama UNA vez cuando el usuario termina de entrenar y suma el día a la racha.
+ * Body (JSON o formulario), todo opcional: { titulo, duracionSegundos, ejerciciosCompletados }
+ * Respuesta: { ok: true, racha, mejorRacha, sesiones, meta }
+ */
+const finalizar = async (req, res) => {
+  try {
+    const perfil = await DashboardModel.getPerfil(req.session.usuario.id_usuario);
+    if (!perfil || !perfil.idCliente) {
+      return res.status(400).json({ ok: false, message: 'Completa tu perfil primero.' });
+    }
+
+    const b = req.body || {};
+    await SesionModel.registrar({
+      idCliente: perfil.idCliente,
+      titulo: b.titulo,
+      duracionSegundos: b.duracionSegundos,
+      ejerciciosCompletados: b.ejerciciosCompletados,
+    });
+
+    // Se devuelve la racha ya actualizada para que la pantalla pueda mostrarla.
+    const sesiones = await DashboardModel.getSesiones(perfil.idCliente);
+    const resumen = RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana);
+
+    return res.json({
+      ok: true,
+      racha: resumen.racha,
+      mejorRacha: resumen.mejorRacha,
+      sesiones: resumen.sesiones,
+      meta: resumen.meta,
+    });
+  } catch (err) {
+    console.error('[entrenamiento] no se pudo registrar el entrenamiento:', err.message);
+    return res.status(500).json({ ok: false, message: 'No pudimos registrar tu entrenamiento.' });
+  }
+};
+
+module.exports = { index, finalizar };
+>>>>>>> Stashed changes

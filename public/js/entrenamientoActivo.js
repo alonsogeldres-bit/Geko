@@ -36,6 +36,7 @@
     toggle: $('ea-toggle'),
     skip: $('ea-skip'),
     prev: $('ea-prev'),
+    finalizar: $('ea-finalizar'),
     sound: $('ea-sound'),
     descripcion: $('ea-descripcion'),
     nextNombre: $('ea-next-nombre'),
@@ -597,6 +598,7 @@
 
     state.started = true;
     state.running = true;
+    if (el.finalizar) el.finalizar.disabled = false;
     state.endAt = performance.now() + state.remainingMs;
     state.faseInicio = performance.now();
 
@@ -798,6 +800,11 @@
     actualizarUI();
     liberarWakeLock();
 
+    if (el.finalizar) {
+      el.finalizar.disabled = true;
+      el.finalizar.textContent = 'Finalizado';
+    }
+
     registrarSesion();
     mostrarResumen();
   }
@@ -834,6 +841,10 @@
     state.seriesCompletadas = 0;
     state.ejerciciosCompletados = 0;
     state.registrado = false;
+    if (el.finalizar) {
+      el.finalizar.disabled = false;
+      el.finalizar.textContent = 'Finalizar entrenamiento';
+    }
     state.remainingMs = 0;
     state.faseInicio = 0;
     state.lastTick = null;
@@ -959,6 +970,11 @@
 
   el.skip.addEventListener('click', saltar);
   el.prev.addEventListener('click', irAnterior);
+  if (el.finalizar) {
+    el.finalizar.addEventListener('click', () => {
+      if (state.fase !== 'done') finalizarEntrenamiento();
+    });
+  }
 
   el.sound.addEventListener('click', () => {
     state.mudo = !state.mudo;

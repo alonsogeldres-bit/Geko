@@ -1,0 +1,26 @@
+<%#
+  Íconos vectoriales propios de Geko para la configuración.
+  Uso: include('partials/icon', { name: 'user', size: 22, clase: 'mi-clase' })
+  Todos usan currentColor: toman solo el color del texto/acento del contenedor,
+  así se adaptan solos a claro / oscuro y a Gratis / Premium.
+  Nombres: user, dumbbell, lock, card, sun, moon, flame, kettlebell, pulse, balance, home, back, next.
+%><%
+  const ICONOS = {
+  user: `<circle cx="12" cy="8" r="3.7" fill="currentColor" fill-opacity=".18"/><path d="M4.6 20.2c.5-3.7 3.5-6 7.4-6s6.9 2.3 7.4 6z" fill="currentColor" fill-opacity=".18"/>`,
+  dumbbell: `<rect x="5" y="6.5" width="3.2" height="11" rx="1.2" fill="currentColor" fill-opacity=".18"/><rect x="15.8" y="6.5" width="3.2" height="11" rx="1.2" fill="currentColor" fill-opacity=".18"/><path d="M8.2 12h7.6M3 9.5v5M21 9.5v5"/>`,
+  lock: `<rect x="4.8" y="10.4" width="14.4" height="10" rx="2.6" fill="currentColor" fill-opacity=".18"/><path d="M7.9 10.4V8a4.1 4.1 0 0 1 8.2 0v2.4"/><circle cx="12" cy="14.9" r="1.2" fill="currentColor" stroke="none"/><path d="M12 15.9v2"/>`,
+  card: `<rect x="2.6" y="5" width="18.8" height="14" rx="3" fill="currentColor" fill-opacity=".18"/><path d="M2.6 9.8h18.8M6.6 15h3.8"/>`,
+  sun: `<circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity=".18"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.35 5.35l1.55 1.55M17.1 17.1l1.55 1.55M5.35 18.65l1.55-1.55M17.1 6.9l1.55-1.55"/>`,
+  moon: `<path d="M19.6 14.6A8.2 8.2 0 0 1 9.4 4.4a8.2 8.2 0 1 0 10.2 10.2z" fill="currentColor" fill-opacity=".18"/><path d="M17.2 3.6v2.8M15.8 5h2.8"/>`,
+  flame: `<path d="M12 2.8c.8 3 5.2 5.2 5.2 10.2a5.2 5.2 0 0 1-10.4 0c0-2 .9-3.5 2.2-4.7.2 1.5.9 2.4 1.9 2.8-.3-3.3-.1-5.6 1.1-8.3z" fill="currentColor" fill-opacity=".18"/><path d="M12 17.2a2 2 0 0 1-2-2c0-1.1.8-1.8 2-3 1.2 1.2 2 1.9 2 3a2 2 0 0 1-2 2z" fill="currentColor" stroke="none"/>`,
+  kettlebell: `<path d="M8.6 9.4V8a3.4 3.4 0 0 1 6.8 0v1.4"/><path d="M12 8.6a6.4 6.4 0 0 0-5.1 10.2c.5.7 1.3 1.1 2.1 1.1h6c.8 0 1.6-.4 2.1-1.1A6.4 6.4 0 0 0 12 8.6z" fill="currentColor" fill-opacity=".18"/>`,
+  pulse: `<path d="M12 20.4s-7.9-4.7-7.9-10.5A4.5 4.5 0 0 1 12 7.2a4.5 4.5 0 0 1 7.9 2.7c0 5.8-7.9 10.5-7.9 10.5z" fill="currentColor" fill-opacity=".18"/><path d="M6.8 12.4h2.6l1.2-2.5 2.1 5 1.3-2.5h3.2"/>`,
+  balance: `<path d="M12 5.6v14.4M8 20h8M4.6 7.6h14.8"/><circle cx="12" cy="4.4" r="1.2" fill="currentColor" fill-opacity=".18"/><path d="M5.4 7.6 2.6 13.6M5.4 7.6l2.8 6M18.6 7.6l-2.8 6M18.6 7.6l2.8 6"/><path d="M2.4 13.6h5.9a2.95 2.95 0 0 1-5.9 0zM15.7 13.6h5.9a2.95 2.95 0 0 1-5.9 0z" fill="currentColor" fill-opacity=".18"/>`,
+  home: `<path d="M3.6 11.3 12 4l8.4 7.3"/><path d="M5.8 9.8V19a1.6 1.6 0 0 0 1.6 1.6h9.2a1.6 1.6 0 0 0 1.6-1.6V9.8" fill="currentColor" fill-opacity=".18"/><path d="M10 20.6v-4.6a2 2 0 0 1 4 0v4.6"/>`,
+  back: `<path d="M15 5.5 8.5 12l6.5 6.5"/>`,
+  next: `<path d="M9 5.5 15.5 12 9 18.5"/>`,
+  };
+  const _nombre = typeof name !== 'undefined' ? name : '';
+  const _tam = typeof size !== 'undefined' ? size : 22;
+  const _clase = typeof clase !== 'undefined' && clase ? ' ' + clase : '';
+%><svg class="gk-icon<%= _clase %>" viewBox="0 0 24 24" width="<%= _tam %>" height="<%= _tam %>" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><%- ICONOS[_nombre] || '' %></svg>

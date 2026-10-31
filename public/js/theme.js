@@ -50,6 +50,12 @@
     meta.setAttribute('content', color);
   }
 
+  // Íconos vectoriales del interruptor (solo para [data-theme-icon="svg"], p. ej. el hub de
+  // configuración). El resto de páginas siguen usando el emoji de su menú.
+  var SVG_ATTR = 'viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+  var ICONO_SOL = '<svg class="gk-icon" ' + SVG_ATTR + '><circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity=".18"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.35 5.35l1.55 1.55M17.1 17.1l1.55 1.55M5.35 18.65l1.55-1.55M17.1 6.9l1.55-1.55"/></svg>';
+  var ICONO_LUNA = '<svg class="gk-icon" ' + SVG_ATTR + '><path d="M19.6 14.6A8.2 8.2 0 0 1 9.4 4.4a8.2 8.2 0 1 0 10.2 10.2z" fill="currentColor" fill-opacity=".18"/><path d="M17.2 3.6v2.8M15.8 5h2.8"/></svg>';
+
   function guardar(tema) {
     try { localStorage.setItem(KEY, tema); } catch (e) { /* modo privado: solo en memoria */ }
   }
@@ -64,7 +70,11 @@
       btn.setAttribute('aria-label', oscuro ? 'Desactivar modo oscuro' : 'Activar modo oscuro');
     });
     document.querySelectorAll('[data-theme-icon]').forEach(function (ico) {
-      ico.textContent = oscuro ? '🌙' : '☀️';
+      if (ico.getAttribute('data-theme-icon') === 'svg') {
+        ico.innerHTML = oscuro ? ICONO_LUNA : ICONO_SOL;
+      } else {
+        ico.textContent = oscuro ? '🌙' : '☀️';
+      }
     });
     document.querySelectorAll('[data-theme-state]').forEach(function (el) {
       el.textContent = oscuro ? 'Activado' : 'Desactivado';

@@ -86,10 +86,10 @@
             <label class="field-label">Objetivos</label>
             <span class="field-hint">Selecciona uno o más</span>
             <div class="chip-group" data-group="goals">
-              <button type="button" class="chip" data-value="perder_grasa">🔥  Perder grasa</button>
-              <button type="button" class="chip" data-value="ganar_musculo">💪  Ganar músculo</button>
-              <button type="button" class="chip" data-value="mejorar_condicion">🏃  Mejorar condición</button>
-              <button type="button" class="chip" data-value="mantener_forma">⚖️  Mantener forma</button>
+              <button type="button" class="chip" data-value="perder_grasa"><%- include('partials/icon', { name: 'flame', size: 17, clase: 'chip-icon' }) %><span>Perder grasa</span></button>
+              <button type="button" class="chip" data-value="ganar_musculo"><%- include('partials/icon', { name: 'kettlebell', size: 17, clase: 'chip-icon' }) %><span>Ganar músculo</span></button>
+              <button type="button" class="chip" data-value="mejorar_condicion"><%- include('partials/icon', { name: 'pulse', size: 17, clase: 'chip-icon' }) %><span>Mejorar condición</span></button>
+              <button type="button" class="chip" data-value="mantener_forma"><%- include('partials/icon', { name: 'balance', size: 17, clase: 'chip-icon' }) %><span>Mantener forma</span></button>
             </div>
             <span class="field-error" id="err-goals"></span>
           </div>

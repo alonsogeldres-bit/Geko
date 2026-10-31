@@ -698,3 +698,139 @@
 .profile-page.is-premium .config-note a {
   color: var(--gold-2);
 }
+
+/* ===========================================
+   ÍCONOS VECTORIALES DE CONFIGURACIÓN
+   Reemplazan a los emojis. Todos dibujan con currentColor, así que
+   solo hay que decidir el color del contenedor:
+   - Gratis claro / oscuro  -> var(--ac) (verde Geko)
+   - Premium claro / oscuro -> dorado (var(--ac) de Premium claro,
+                               var(--gold-2) de Premium oscuro)
+   =========================================== */
+
+.gk-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Tarjetas del hub y tarjeta del tema */
+.config-card-icon,
+.config-theme-icon {
+  color: var(--ac);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.config-card:hover .config-card-icon {
+  background: var(--sel);
+  border-color: var(--ac);
+}
+
+.config-card-arrow {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.15s ease, color 0.2s ease;
+}
+
+.config-card:hover .config-card-arrow {
+  color: var(--ac);
+  transform: translateX(2px);
+}
+
+/* Chips de objetivos (icono + texto) */
+.config-section .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip-icon {
+  color: var(--ac);
+  transition: color 0.2s ease;
+}
+
+.chip-disabled .chip-icon,
+.chip:disabled .chip-icon {
+  color: var(--faint);
+}
+
+/* Botones con ícono (Volver al inicio) */
+.btn-with-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.config-actions-home {
+  justify-content: center;
+}
+
+/* Barra superior: Inicio / Configuración con ícono */
+.config-home-link,
+.config-back-link {
+  gap: 7px;
+}
+
+@media (max-width: 480px) {
+  .profile-nav {
+    padding: 14px 16px;
+  }
+  .nav-right {
+    gap: 8px;
+  }
+  /* En pantallas angostas los enlaces quedan solo con el ícono
+     (siguen teniendo aria-label y title). */
+  .config-home-link span,
+  .config-back-link span,
+  .profile-nav .step-counter {
+    display: none;
+  }
+  .config-home-link,
+  .config-back-link {
+    padding: 8px 10px;
+  }
+}
+
+/* ---------- Premium ---------- */
+
+.profile-page.is-premium .config-card-icon,
+.profile-page.is-premium .config-theme-icon {
+  background: var(--gold-tint);
+  border-color: var(--gold-line);
+  color: var(--gold-2);
+}
+
+.profile-page.is-premium .config-card:hover .config-card-icon {
+  background: var(--gold-tint);
+  border-color: var(--gold-2);
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+.profile-page.is-premium .config-card:hover .config-card-arrow {
+  color: var(--gold-2);
+}
+
+.profile-page.is-premium .chip-icon {
+  color: var(--gold-2);
+}
+
+/* Chip activo de Premium: fondo dorado, el ícono toma el color del texto */
+.profile-page.is-premium .chip-active .chip-icon {
+  color: var(--on-gold);
+}
+
+/* Premium claro: el dorado puro es muy pálido sobre blanco, se usa el dorado oscuro */
+:root:not([data-theme="dark"]) .profile-page.is-premium .config-card-icon,
+:root:not([data-theme="dark"]) .profile-page.is-premium .config-theme-icon,
+:root:not([data-theme="dark"]) .profile-page.is-premium .chip-icon {
+  color: var(--ac);
+}
+
+:root:not([data-theme="dark"]) .profile-page.is-premium .chip-active .chip-icon {
+  color: var(--on-gold);
+}
+
+:root:not([data-theme="dark"]) .profile-page.is-premium .config-card:hover .config-card-arrow {
+  color: var(--ac);
+}

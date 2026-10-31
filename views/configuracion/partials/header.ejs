@@ -6,10 +6,16 @@
 
   <div class="nav-right">
     <% if (typeof navVolver !== 'undefined' && navVolver) { %>
-      <a href="/configuracion" class="btn-logout config-nav-link">← Configuración</a>
+      <a href="/configuracion" class="btn-logout config-nav-link config-back-link" title="Volver a configuración" aria-label="Volver a configuración">
+        <%- include('icon', { name: 'back', size: 16 }) %><span>Configuración</span>
+      </a>
     <% } else { %>
       <span class="muted step-counter">Configuración</span>
     <% } %>
+
+    <a href="/dashboard" class="btn-logout config-nav-link config-home-link" title="Volver al inicio" aria-label="Volver al inicio">
+      <%- include('icon', { name: 'home', size: 16 }) %><span>Inicio</span>
+    </a>
 
     <form action="/auth/logout" method="POST">
       <button type="submit" class="btn-logout">Cerrar sesión</button>

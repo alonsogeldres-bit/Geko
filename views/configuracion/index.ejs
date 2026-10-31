@@ -7,25 +7,25 @@
   const secciones = [
     {
       href: '/configuracion/datos',
-      icono: '👤',
+      icono: 'user',
       titulo: 'Datos personales',
       desc: 'Nombre, correo, teléfono y fecha de nacimiento.'
     },
     {
       href: '/configuracion/entrenamiento',
-      icono: '🏋️',
+      icono: 'dumbbell',
       titulo: 'Perfil de entrenamiento',
       desc: 'Objetivos, nivel, lesiones, equipamiento y disponibilidad.'
     },
     {
       href: '/configuracion/seguridad',
-      icono: '🔒',
+      icono: 'lock',
       titulo: 'Seguridad',
       desc: 'Cambia la contraseña de tu cuenta.'
     },
     {
       href: '/configuracion/cuenta',
-      icono: '💳',
+      icono: 'card',
       titulo: 'Mi cuenta',
       desc: 'Consulta tu plan y cierra sesión.'
     }
@@ -72,7 +72,7 @@
 
       <!-- Tema claro / oscuro, directo desde el hub -->
       <section class="config-theme anim-slide-up" aria-labelledby="config-theme-title">
-        <span class="config-theme-icon" data-theme-icon aria-hidden="true">☀️</span>
+        <span class="config-theme-icon" data-theme-icon="svg" aria-hidden="true"><%- include('partials/icon', { name: 'sun', size: 22 }) %></span>
         <div class="config-theme-text">
           <strong id="config-theme-title">Modo oscuro</strong>
           <span class="muted small" data-theme-state>Desactivado</span>
@@ -87,15 +87,23 @@
       <nav class="config-grid anim-slide-up" aria-label="Secciones de configuración">
         <% secciones.forEach(function (s) { %>
           <a class="config-card" href="<%= s.href %>">
-            <span class="config-card-icon" aria-hidden="true"><%= s.icono %></span>
+            <span class="config-card-icon" aria-hidden="true"><%- include('partials/icon', { name: s.icono, size: 22 }) %></span>
             <span class="config-card-body">
               <span class="config-card-title"><%= s.titulo %></span>
               <span class="config-card-desc"><%= s.desc %></span>
             </span>
-            <span class="config-card-arrow" aria-hidden="true">›</span>
+            <span class="config-card-arrow" aria-hidden="true"><%- include('partials/icon', { name: 'next', size: 18 }) %></span>
           </a>
         <% }) %>
       </nav>
+
+      <!-- Volver al inicio (dashboard) -->
+      <div class="config-actions config-actions-home anim-slide-up">
+        <a href="/dashboard" class="btn btn-ghost btn-with-icon">
+          <%- include('partials/icon', { name: 'home', size: 18 }) %>
+          <span>Volver al inicio</span>
+        </a>
+      </div>
 
     </main>
   </div>

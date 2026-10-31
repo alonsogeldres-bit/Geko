@@ -328,4 +328,30 @@ const finalizar = async (req, res) => {
   }
 };
 
-module.exports = { index, activo, finalizar };
+/**
+ * POST /entrenamiento/esfuerzo
+ * Guarda el esfuerzo percibido (RPE 1-4) de la sesión de hoy.
+ * Body: { esfuerzo: 1..4 }
+ */
+const evaluarEsfuerzo = async (req, res) => {
+  try {
+    const perfil = await DashboardModel.getPerfil(req.session.usuario.id_usuario);
+    if (!perfil || !perfil.idCliente) {
+      return res.status(400).json({ ok: false, message: 'Completa tu perfil primero.' });
+    }
+    const valor = Number(req.body && req.body.esfuerzo);
+    if (!Number.isFinite(valor) || valor < 1 || valor > 4) {
+      return res.status(400).json({ ok: false, message: 'Esfuerzo inválido.' });
+    }
+    const affected = await SesionModel.actualizarEsfuerzoHoy(perfil.idCliente, valor);
+    if (!affected) {
+      return res.status(404).json({ ok: false, message: 'No hay sesión registrada hoy.' });
+    }
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('[entrenamiento] no se pudo guardar el esfuerzo:', err.message);
+    return res.status(500).json({ ok: false, message: 'No pudimos guardar tu evaluación.' });
+  }
+};
+
+module.exports = { index, activo, finalizar, evaluarEsfuerzo };

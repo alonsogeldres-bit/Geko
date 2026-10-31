@@ -126,7 +126,13 @@ console.log('[dashboard] Resultado TMB:', calorias);
     }
 
     const sesiones = await DashboardModel.getSesiones(perfil.idCliente);
-    const sugerencia = RoutineModel.construirSugerencia(perfil, alt, esPremium);
+    const rpeRecientes = sesiones
+      .filter((s) => s.esfuerzo_percibido !== null && s.esfuerzo_percibido !== undefined)
+      .slice(0, 5);
+    const rpePromedio = rpeRecientes.length
+      ? rpeRecientes.reduce((acc, s) => acc + Number(s.esfuerzo_percibido), 0) / rpeRecientes.length
+      : null;
+    const sugerencia = RoutineModel.construirSugerencia(perfil, alt, esPremium, rpePromedio);
     const resumen = RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana);
     const actividad = RoutineModel.construirActividad(sesiones);
 
@@ -166,9 +172,17 @@ const sugerencia = async (req, res) => {
 
     const esPremium = await tienePlanDePago(perfil.idCliente);
 
+    const sesionesRpe = await DashboardModel.getSesiones(perfil.idCliente);
+    const rpeRecientes = sesionesRpe
+      .filter((s) => s.esfuerzo_percibido !== null && s.esfuerzo_percibido !== undefined)
+      .slice(0, 5);
+    const rpePromedio = rpeRecientes.length
+      ? rpeRecientes.reduce((acc, s) => acc + Number(s.esfuerzo_percibido), 0) / rpeRecientes.length
+      : null;
+
     if (esPremium) {
       const alt = Math.max(0, parseInt(req.body && req.body.alt, 10) || 0);
-      return res.json(RoutineModel.construirSugerencia(perfil, alt, true));
+      return res.json(RoutineModel.construirSugerencia(perfil, alt, true, rpePromedio));
     }
 
     const uso = await SugerenciaUsoModel.avanzarUso(perfil.idCliente);
@@ -186,7 +200,7 @@ const sugerencia = async (req, res) => {
     }
 
     return res.json({
-      ...RoutineModel.construirSugerencia(perfil, uso.indice - 1, false),
+      ...RoutineModel.construirSugerencia(perfil, uso.indice - 1, false, rpePromedio),
       limiteSemanal: uso,
     });
   } catch (err) {

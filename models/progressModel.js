@@ -13,7 +13,7 @@ const getSesiones = async (idCliente, limite = 500) => {
   const [rows] = await pool.query(
     {
       sql: `SELECT id_sesion, id_cliente, fecha, titulo, duracion_segundos,
-                   ejercicios_completados, ejercicios_total, detalle_json, creado_en
+                   ejercicios_completados, ejercicios_total, esfuerzo_percibido, detalle_json, creado_en
               FROM ${TABLA_SESIONES}
              WHERE id_cliente = ?
              ORDER BY fecha DESC, id_sesion DESC

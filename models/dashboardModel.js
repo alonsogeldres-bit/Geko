@@ -124,7 +124,7 @@ const getSesiones = async (idCliente) => {
   if (!(await tablaExiste('sesion_entrenamiento'))) return [];
 
   const [rows] = await pool.query(
-    `SELECT id_sesion, fecha, titulo, duracion_segundos, ejercicios_completados
+    `SELECT id_sesion, fecha, titulo, duracion_segundos, ejercicios_completados, esfuerzo_percibido
        FROM sesion_entrenamiento
       WHERE id_cliente = ?
       ORDER BY fecha DESC

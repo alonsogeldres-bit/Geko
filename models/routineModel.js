@@ -90,7 +90,25 @@ const indicesDeDias = (dias) => {
  * Sugerencia del día, construida con el perfil real del usuario.
  * `alt` rota entre las variantes del objetivo.
  */
-const construirSugerencia = (perfil, alt = 0, ilimitado = false) => {
+const ajustarIntensidadPorRpe = (intensidadBase, rpePromedio) => {
+  if (rpePromedio === null || rpePromedio === undefined) return intensidadBase;
+  const rpe = Number(rpePromedio);
+  if (!Number.isFinite(rpe)) return intensidadBase;
+  // rpe 1-2: fácil -> subir intensidad; 3.5-4: difícil -> bajar.
+  if (rpe >= 3.5) {
+    if (intensidadBase === 'Alta') return 'Media';
+    if (intensidadBase === 'Media') return 'Baja';
+    return 'Baja';
+  }
+  if (rpe <= 1.5) {
+    if (intensidadBase === 'Baja') return 'Media';
+    if (intensidadBase === 'Media') return 'Alta';
+    return 'Alta';
+  }
+  return intensidadBase;
+};
+
+const construirSugerencia = (perfil, alt = 0, ilimitado = false, rpePromedio = null) => {
   const objetivo = perfil.objetivo || OBJETIVO_POR_DEFECTO;
   const variantes = RUTINAS[objetivo] || RUTINAS[OBJETIVO_POR_DEFECTO];
   // Premium: los cambios son infinitos, así que el índice da la vuelta (0,1,2,0,1,2...).
@@ -104,16 +122,22 @@ const construirSugerencia = (perfil, alt = 0, ilimitado = false) => {
   const minutos = Number(perfil.minutosSesion) || 45;
   const nivel = perfil.nivelFisico || 'Medio';
   const entorno = (perfil.entorno || 'Gimnasio').toLowerCase();
+  const intensidadBase = NIVEL_INTENSIDAD[nivel] || 'Media';
+  const intensidad = ajustarIntensidadPorRpe(intensidadBase, rpePromedio);
+
+  const ajusteRpe = rpePromedio === null || rpePromedio === undefined
+    ? ''
+    : (rpePromedio >= 3.5 ? ' (ajustada por esfuerzo alto)' : (rpePromedio <= 1.5 ? ' (ajustada por esfuerzo bajo)' : ''));
 
   return {
     nombre: `${rutina.grupo}: ${rutina.detalle}`,
     tipo: rutina.tipo,
     grupo: rutina.grupo,
     minutos,
-    intensidad: NIVEL_INTENSIDAD[nivel] || 'Media',
+    intensidad,
     // ~10 minutos por ejercicio, con topes para que no salga ni 1 ni 20.
     ejercicios: limitar(Math.round(minutos / 10), 3, 10),
-    motivo: `${objetivo} · nivel ${NIVEL_ETIQUETA[nivel] || 'intermedio'} · ${entorno}`,
+    motivo: `${objetivo} · nivel ${NIVEL_ETIQUETA[nivel] || 'intermedio'} · ${entorno}${ajusteRpe}`,
     variantes: variantes.length,
     indiceVariante: variantes.indexOf(rutina) + 1,
     ilimitado: Boolean(ilimitado),

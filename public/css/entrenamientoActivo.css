@@ -1766,4 +1766,12 @@ html:has(body.is-premium) {
   }
 }
 
- 
+ /* Esfuerzo percibido (RPE) */
+.ea-rpe { margin-top: 14px; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.04); }
+.ea-rpe-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.ea-rpe-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.ea-rpe-btn { padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.1); background: transparent; cursor: pointer; font: inherit; font-size: 13px; }
+.ea-rpe-btn.is-selected { background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.6); font-weight: 700; }
+.ea-rpe-btn:disabled { opacity: 0.5; cursor: default; }
+.ea-rpe-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ea-rpe-status { font-size: 13px; opacity: 0.8; }

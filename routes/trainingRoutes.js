@@ -6,5 +6,6 @@ const trainingController = require('../controllers/trainingController');
 router.get('/', requireAuth, trainingController.index);
 router.get('/activo', requireAuth, trainingController.activo);
 router.post('/finalizar', requireAuth, trainingController.finalizar);
+router.post('/esfuerzo', requireAuth, trainingController.evaluarEsfuerzo);
 
 module.exports = router;

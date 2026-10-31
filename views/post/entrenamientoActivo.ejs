@@ -131,6 +131,21 @@
         Vas a completar tu rutina guiada. La app te avisa con un pitido al terminar cada serie.
       </p>
       <ul class="ea-overlay-stats" id="ea-overlay-stats"></ul>
+
+      <div class="ea-rpe" id="ea-rpe" hidden>
+        <p class="ea-rpe-title">¿Cómo fue el esfuerzo?</p>
+        <div class="ea-rpe-options">
+          <button type="button" class="ea-rpe-btn" data-rpe="1">😌 Fácil</button>
+          <button type="button" class="ea-rpe-btn" data-rpe="2">🙂 Moderado</button>
+          <button type="button" class="ea-rpe-btn" data-rpe="3">😓 Difícil</button>
+          <button type="button" class="ea-rpe-btn" data-rpe="4">😤 Muy difícil</button>
+        </div>
+        <div class="ea-rpe-actions">
+          <button type="button" class="ea-btn ea-btn-ghost" id="ea-rpe-confirm" disabled>Guardar evaluación</button>
+          <button type="button" class="ea-btn ea-btn-ghost" id="ea-rpe-skip">Omitir</button>
+        </div>
+        <span class="ea-rpe-status" id="ea-rpe-status" role="status"></span>
+      </div>
       <div class="ea-overlay-audio">
         <button class="ea-audio-test" id="ea-audio-test" type="button">Probar sonido</button>
         <span class="ea-audio-status" id="ea-audio-status" role="status" aria-live="polite"></span>

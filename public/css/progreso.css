@@ -208,6 +208,32 @@
   color: #991b1b;
 }
 
+.prog-trend-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .prog-trend-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.prog-trend-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.prog-line--green {
+  stroke: #16a34a;
+}
+
+.prog-dot--green {
+  fill: #16a34a;
+}
+
 .is-active {
   font-weight: 700;
 }

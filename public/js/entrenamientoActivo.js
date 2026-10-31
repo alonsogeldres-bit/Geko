@@ -905,7 +905,11 @@
       { valor: formatearTiempo(state.acumuladoMs), texto: 'tiempo total' },
     ]);
     el.start.textContent = 'Repetir entrenamiento';
-    el.secondary.hidden = false;
+    if (el.secondary) {
+      el.secondary.hidden = false;
+      el.secondary.href = '/progreso';
+      el.secondary.textContent = 'Ver mi progreso';
+    }
     el.overlay.hidden = false;
     el.start.focus();
   }

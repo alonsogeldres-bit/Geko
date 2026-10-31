@@ -231,6 +231,19 @@ const calcularProgreso = ({ sesiones = [], mediciones = [], perfil = null, seman
     ejerciciosTotal: s.ejerciciosTotal,
   }));
 
+  // Serie de las últimas 10 sesiones en orden cronológico (para tendencias).
+  const serieSesiones = sesionesNorm
+    .slice(0, 10)
+    .slice()
+    .reverse()
+    .map((s) => ({
+      fecha: s.fecha,
+      fechaCorta: formatearFechaCorta(s.fechaDate),
+      duracionMin: s.duracionMin,
+      ejerciciosCompletados: s.ejerciciosCompletados,
+      ejerciciosTotal: s.ejerciciosTotal,
+    }));
+
   return {
     racha: rachas.actual,
     mejorRacha: rachas.mejor,
@@ -269,6 +282,8 @@ const calcularProgreso = ({ sesiones = [], mediciones = [], perfil = null, seman
     nivelActual,
     imcActual,
     recientes,
+    serieSesiones,
+    vacioTendenciaSesiones: serieSesiones.length < 2,
     vacioSesiones: totalSesiones === 0,
     vacioPeso: pesoSeries.length < 2,
     semanas: nSemanas,

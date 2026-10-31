@@ -262,6 +262,90 @@
         </div>
       </section>
 
+      <!-- Evolución por sesión -->
+      <%
+        const serieSes = Array.isArray(progreso.serieSesiones) ? progreso.serieSesiones : [];
+        const durVals = serieSes.map(function (x) { return x.duracionMin || 0; });
+        const ejVals = serieSes.map(function (x) { return x.ejerciciosCompletados || 0; });
+        const minD = durVals.length ? Math.min.apply(null, durVals) : 0;
+        const maxD = durVals.length ? Math.max.apply(null, durVals) : 0;
+        const spanD = (maxD - minD) || 2;
+        const loD = minD - spanD * 0.15;
+        const hiD = maxD + spanD * 0.15;
+        const minE = ejVals.length ? Math.min.apply(null, ejVals) : 0;
+        const maxE = ejVals.length ? Math.max.apply(null, ejVals) : 0;
+        const spanE = (maxE - minE) || 2;
+        const loE = minE - spanE * 0.15;
+        const hiE = maxE + spanE * 0.15;
+        const ptsD = serieSes.map(function (x, i) {
+          const xn = serieSes.length > 1 ? 24 + (i / (serieSes.length - 1)) * 552 : 300;
+          const yn = 20 + (1 - ((x.duracionMin || 0) - loD) / (hiD - loD)) * 160;
+          return { x: xn, y: yn, val: x.duracionMin || 0, fecha: x.fechaCorta };
+        });
+        const ptsE = serieSes.map(function (x, i) {
+          const xn = serieSes.length > 1 ? 24 + (i / (serieSes.length - 1)) * 552 : 300;
+          const yn = 20 + (1 - ((x.ejerciciosCompletados || 0) - loE) / (hiE - loE)) * 160;
+          return { x: xn, y: yn, val: x.ejerciciosCompletados || 0, fecha: x.fechaCorta };
+        });
+      %>
+      <section class="card prog-chart-card">
+        <div class="prog-card-head">
+          <div>
+            <h3>Evolución por sesión</h3>
+            <p class="muted small">Últimas <%= serieSes.length %> sesiones. Duración y ejercicios completados en el tiempo.</p>
+          </div>
+        </div>
+        <% if (progreso.vacioTendenciaSesiones) { %>
+          <div class="empty">
+            <strong>Necesitamos al menos 2 sesiones</strong>
+            <span class="muted">Completa más entrenamientos para ver la tendencia.</span>
+          </div>
+        <% } else { %>
+          <div class="prog-trend-grid">
+            <div class="prog-trend">
+              <h4 class="prog-trend-title">Duración (min)</h4>
+              <div class="prog-svg-wrap">
+                <svg viewBox="0 0 600 220" class="prog-svg" role="img" aria-label="Evolución de la duración por sesión">
+                  <line x1="24" y1="200" x2="576" y2="200" class="prog-axis" />
+                  <% ptsD.forEach(function (pt, i) { %>
+                    <% if (i > 0) { %>
+                      <line x1="<%= ptsD[i-1].x %>" y1="<%= ptsD[i-1].y %>" x2="<%= pt.x %>" y2="<%= pt.y %>" class="prog-line prog-line--green" />
+                    <% } %>
+                  <% }) %>
+                  <% ptsD.forEach(function (pt) { %>
+                    <circle cx="<%= pt.x %>" cy="<%= pt.y %>" r="4" class="prog-dot prog-dot--green">
+                      <title><%= pt.fecha %>: <%= pt.val %> min</title>
+                    </circle>
+                  <% }) %>
+                  <text x="24" y="16" class="prog-svg-label"><%= Math.round(hiD) %> min</text>
+                  <text x="24" y="212" class="prog-svg-label"><%= Math.round(loD) %> min</text>
+                </svg>
+              </div>
+            </div>
+            <div class="prog-trend">
+              <h4 class="prog-trend-title">Ejercicios completados</h4>
+              <div class="prog-svg-wrap">
+                <svg viewBox="0 0 600 220" class="prog-svg" role="img" aria-label="Evolución de ejercicios completados por sesión">
+                  <line x1="24" y1="200" x2="576" y2="200" class="prog-axis" />
+                  <% ptsE.forEach(function (pt, i) { %>
+                    <% if (i > 0) { %>
+                      <line x1="<%= ptsE[i-1].x %>" y1="<%= ptsE[i-1].y %>" x2="<%= pt.x %>" y2="<%= pt.y %>" class="prog-line" />
+                    <% } %>
+                  <% }) %>
+                  <% ptsE.forEach(function (pt) { %>
+                    <circle cx="<%= pt.x %>" cy="<%= pt.y %>" r="4" class="prog-dot">
+                      <title><%= pt.fecha %>: <%= pt.val %> ejercicios</title>
+                    </circle>
+                  <% }) %>
+                  <text x="24" y="16" class="prog-svg-label"><%= Math.round(hiE) %></text>
+                  <text x="24" y="212" class="prog-svg-label"><%= Math.round(loE) %></text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </section>
+
       <!-- Historial reciente -->
       <section class="card">
         <h3>Historial reciente</h3>

@@ -1,0 +1,289 @@
+<%
+  const u = locals.usuario || {};
+  const p = locals.perfil || {};
+  const esPremium = Boolean(locals.esPremium);
+  const progreso = locals.progreso || {};
+  const nombre = u.nombre || 'Atleta';
+  const inicial = nombre.charAt(0).toUpperCase();
+  const semanas = locals.semanas || 8;
+
+  const menu = [
+    { href: '/dashboard',     icono: '', texto: 'Mi dashboard' },
+    { href: '/configuracion', icono: '', texto: 'Configuración' },
+    { href: '/planes',        icono: '', texto: 'Planes' },
+    { href: '/progreso',      icono: '', texto: 'Mi progreso' },
+    { href: '#',              icono: '', texto: 'Ayuda', pronto: true }
+  ];
+
+  const serie = Array.isArray(progreso.serieSemanas) ? progreso.serieSemanas : [];
+  const maxSem = Math.max(1, progreso.maxSesionesSemana || 0);
+  const pesoSeries = Array.isArray(progreso.pesoSeries) ? progreso.pesoSeries : [];
+  const recientes = Array.isArray(progreso.recientes) ? progreso.recientes : [];
+
+  // SVG del peso
+  const svgW = 600, svgH = 220, padX = 24, padY = 20;
+  const pesos = pesoSeries.map(function (x) { return x.peso; }).filter(function (x) { return typeof x === 'number'; });
+  const minP = pesos.length ? Math.min.apply(null, pesos) : 0;
+  const maxP = pesos.length ? Math.max.apply(null, pesos) : 0;
+  const spanP = (maxP - minP) || 2;
+  const loP = minP - spanP * 0.15;
+  const hiP = maxP + spanP * 0.15;
+  const pts = pesoSeries.map(function (x, i) {
+    const xn = pesoSeries.length > 1 ? padX + (i / (pesoSeries.length - 1)) * (svgW - padX * 2) : svgW / 2;
+    const yn = padY + (1 - (x.peso - loP) / (hiP - loP)) * (svgH - padY * 2);
+    return { x: xn, y: yn, peso: x.peso, fecha: x.fechaCorta };
+  });
+%>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Mi progreso</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/progreso.css" />
+  <link rel="stylesheet" href="/css/geko-mascot.css" />
+</head>
+<body>
+  <div class="dash-page has-geko<%= esPremium ? ' is-premium' : '' %>">
+    <%- include('../partials/geko_mascot') %>
+
+    <header class="dash-nav">
+      <a href="/dashboard" class="logo-brand">
+        <img src="/assets/geko-logo.png" alt="GEKO" width="30" height="30" data-logo />
+        <span class="brand-text">GEKO</span>
+        <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
+      </a>
+
+      <details class="user-menu" id="user-menu">
+        <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
+        <div class="dropdown" role="menu">
+          <div class="dropdown-head">
+            <strong><%= nombre %></strong>
+            <span class="muted small">Mi cuenta</span>
+          </div>
+          <% menu.forEach(function (item) { %>
+            <a href="<%= item.href %>" role="menuitem"
+               class="dropdown-item<%= item.pronto ? ' is-soon' : '' %><%= item.href === '/progreso' ? ' is-active' : '' %>">
+              <span class="dropdown-ico"><%= item.icono %></span>
+              <%= item.texto %>
+              <% if (item.pronto) { %><span class="soon-tag">Pronto</span><% } %>
+            </a>
+          <% }) %>
+          <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox" aria-checked="false" data-theme-toggle>
+            <span class="dropdown-ico" data-theme-icon>☀️</span>
+            Modo oscuro
+            <span class="theme-switch" aria-hidden="true"></span>
+          </button>
+          <% if (u && (u.id_rol === 1 || u.id_rol === 3)) { %>
+            <a href="/admin" role="menuitem" class="dropdown-item">
+              <span class="dropdown-ico">🛡️</span> Panel admin
+            </a>
+          <% } %>
+          <form action="/auth/logout" method="POST" class="dropdown-logout">
+            <button type="submit" class="dropdown-item" role="menuitem">
+              <span class="dropdown-ico"></span> Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <main class="dash-main">
+      <h1 class="dash-title">Tu progreso</h1>
+      <p class="muted subtitle">Racha, sesiones, adherencia y evolución de tus medidas.</p>
+
+      <% if (locals.okMedicion) { %>
+        <div class="prog-flash prog-flash--ok">Medición registrada. Tu gráfico se actualizó.</div>
+      <% } %>
+      <% if (locals.errorMedicion) { %>
+        <div class="prog-flash prog-flash--err"><%= errorMedicion %></div>
+      <% } %>
+
+      <!-- KPIs -->
+      <section class="grid prog-kpis">
+        <article class="card">
+          <h3>Racha actual</h3>
+          <div class="big"><%= progreso.racha || 0 %> <%= (progreso.racha === 1) ? 'día' : 'días' %></div>
+          <p class="muted small"><%= progreso.racha ? 'consecutivos' : 'Empieza hoy tu primera racha' %></p>
+        </article>
+        <article class="card">
+          <h3>Mejor racha</h3>
+          <div class="big"><%= progreso.mejorRacha || 0 %></div>
+          <p class="muted small">días consecutivos</p>
+        </article>
+        <article class="card">
+          <h3>Sesiones totales</h3>
+          <div class="big"><%= progreso.totalSesiones || 0 %></div>
+          <p class="muted small"><%= progreso.diasActivos || 0 %> días activos</p>
+        </article>
+        <article class="card">
+          <h3>Minutos totales</h3>
+          <div class="big"><%= progreso.totalMinutos || 0 %></div>
+          <p class="muted small">promedio <%= progreso.promedioMinutos || 0 %> min/sesión</p>
+        </article>
+        <article class="card">
+          <h3>Meta semanal</h3>
+          <div class="big"><%= progreso.adherenciaPct || 0 %> %</div>
+          <div class="bar"><i style="width:<%= progreso.adherenciaPct || 0 %>%"></i></div>
+          <p class="muted small"><%= progreso.sesionesEstaSemana || 0 %> de <%= progreso.metaSemanal || 0 %> esta semana</p>
+        </article>
+        <article class="card">
+          <h3>Peso actual</h3>
+          <div class="big"><%= progreso.pesoActual ? (progreso.pesoActual + ' kg') : '—' %></div>
+          <p class="muted small">
+            <% if (progreso.cambioPeso !== null) { %>
+              <%= progreso.cambioPeso > 0 ? '+' : '' %><%= progreso.cambioPeso %> kg
+              <% if (progreso.cambioPesoPct !== null) { %> (<%= progreso.cambioPesoPct > 0 ? '+' : '' %><%= progreso.cambioPesoPct %>%)<% } %>
+            <% } else { %>
+              Sin historial suficiente
+            <% } %>
+          </p>
+        </article>
+      </section>
+
+      <!-- Gráfico semanal -->
+      <section class="card prog-chart-card">
+        <div class="prog-card-head">
+          <div>
+            <h3>Sesiones por semana</h3>
+            <p class="muted small">Últimas <%= semanas %> semanas. Cada barra es una semana (lunes a domingo).</p>
+          </div>
+          <div class="prog-period">
+            <% [4, 8, 12, 26].forEach(function (n) { %>
+              <a href="/progreso?semanas=<%= n %>" class="prog-period-btn<%= semanas === n ? ' is-active' : '' %>"><%= n %>s</a>
+            <% }) %>
+          </div>
+        </div>
+        <% if (progreso.vacioSesiones) { %>
+          <div class="empty">
+            <strong>Aún no registras entrenamientos</strong>
+            <span class="muted">Completa tu primer entrenamiento para ver tu progreso semanal aquí.</span>
+            <a class="cta" href="/entrenamiento">Comenzar entrenamiento</a>
+          </div>
+        <% } else { %>
+          <div class="prog-bars" role="img" aria-label="Sesiones por semana">
+            <% serie.forEach(function (s) { %>
+              <div class="prog-bar-col">
+                <span class="prog-bar-val"><%= s.sesiones || '' %></span>
+                <div class="prog-bar-track">
+                  <div class="prog-bar-fill" style="height:<%= Math.round((s.sesiones / maxSem) * 100) %>%"></div>
+                </div>
+                <span class="prog-bar-label"><%= s.etiqueta %></span>
+              </div>
+            <% }) %>
+          </div>
+          <p class="muted small prog-chart-note">
+            Mejor semana: <%= progreso.mejorSemana && progreso.mejorSemana.sesiones ? (progreso.mejorSemana.sesiones + ' sesiones desde el ' + progreso.mejorSemana.inicioCorto) : '—' %>.
+          </p>
+        <% } %>
+      </section>
+
+      <!-- Gráfico de peso -->
+      <section class="card prog-chart-card">
+        <div class="prog-card-head">
+          <div>
+            <h3>Evolución del peso</h3>
+            <p class="muted small">Basado en las mediciones registradas en tu perfil y en esta página.</p>
+          </div>
+        </div>
+        <% if (progreso.vacioPeso) { %>
+          <div class="empty">
+            <strong>Necesitamos al menos 2 mediciones</strong>
+            <span class="muted">Registra tu peso para empezar a ver la tendencia.</span>
+          </div>
+        <% } else { %>
+          <div class="prog-svg-wrap">
+            <svg viewBox="0 0 600 220" class="prog-svg" role="img" aria-label="Evolución del peso">
+              <line x1="24" y1="200" x2="576" y2="200" class="prog-axis" />
+              <% pts.forEach(function (pt, i) { %>
+                <% if (i > 0) { %>
+                  <line x1="<%= pts[i-1].x %>" y1="<%= pts[i-1].y %>" x2="<%= pt.x %>" y2="<%= pt.y %>" class="prog-line" />
+                <% } %>
+              <% }) %>
+              <% pts.forEach(function (pt) { %>
+                <circle cx="<%= pt.x %>" cy="<%= pt.y %>" r="4" class="prog-dot">
+                  <title><%= pt.fecha %>: <%= pt.peso %> kg</title>
+                </circle>
+              <% }) %>
+              <text x="24" y="16" class="prog-svg-label"><%= Math.round(hiP * 10) / 10 %> kg</text>
+              <text x="24" y="212" class="prog-svg-label"><%= Math.round(loP * 10) / 10 %> kg</text>
+            </svg>
+          </div>
+          <div class="prog-weight-stats">
+            <div><span class="muted small">Inicial</span><strong><%= progreso.pesoInicial !== null ? (progreso.pesoInicial + ' kg') : '—' %></strong></div>
+            <div><span class="muted small">Actual</span><strong><%= progreso.pesoActual !== null ? (progreso.pesoActual + ' kg') : '—' %></strong></div>
+            <div><span class="muted small">Cambio</span><strong><%= progreso.cambioPeso !== null ? ((progreso.cambioPeso > 0 ? '+' : '') + progreso.cambioPeso + ' kg') : '—' %></strong></div>
+            <div><span class="muted small">IMC actual</span><strong><%= progreso.imcActual !== null ? progreso.imcActual : '—' %></strong></div>
+            <div><span class="muted small">Altura</span><strong><%= progreso.alturaActual ? (progreso.alturaActual + ' cm') : '—' %></strong></div>
+            <div><span class="muted small">Nivel</span><strong><%= progreso.nivelActual || '—' %></strong></div>
+          </div>
+        <% } %>
+
+        <!-- Formulario para registrar medición -->
+        <form class="prog-form" method="POST" action="/progreso/medicion">
+          <h4 class="prog-form-title">Registrar nueva medición</h4>
+          <div class="prog-form-grid">
+            <label>
+              <span>Peso (kg)</span>
+              <input type="number" name="pesoKg" step="0.1" min="1" max="400" required
+                     value="<%= progreso.pesoActual ? progreso.pesoActual : '' %>" />
+            </label>
+            <label>
+              <span>Altura (cm)</span>
+              <input type="number" name="alturaCm" step="0.1" min="1" max="260" required
+                     value="<%= progreso.alturaActual ? progreso.alturaActual : '' %>" />
+            </label>
+            <label>
+              <span>Nivel físico</span>
+              <select name="nivelFisico" required>
+                <% ['Alto','Medio','Bajo'].forEach(function (n) { %>
+                  <option value="<%= n %>" <%= progreso.nivelActual === n ? 'selected' : '' %>><%= n %></option>
+                <% }) %>
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="cta prog-form-btn">Guardar medición</button>
+          <p class="muted small">Se agrega una nueva medición al historial; no sobrescribe las anteriores.</p>
+        </form>
+      </section>
+
+      <!-- Récords -->
+      <section class="card">
+        <h3>Récords y actividad</h3>
+        <div class="prog-records">
+          <div class="recent"><span>Días activos</span><span class="muted"><%= progreso.diasActivos || 0 %></span></div>
+          <div class="recent"><span>Primera sesión</span><span class="muted"><%= progreso.primeraFechaLarga || '—' %></span></div>
+          <div class="recent"><span>Última sesión</span><span class="muted"><%= progreso.ultimaFechaLarga || '—' %></span></div>
+          <div class="recent"><span>Sesión más larga</span><span class="muted"><%= progreso.sesionMasLarga ? (progreso.sesionMasLarga.minutos + ' min · ' + progreso.sesionMasLarga.titulo) : '—' %></span></div>
+          <div class="recent"><span>Más ejercicios en una sesión</span><span class="muted"><%= progreso.sesionMasEjercicios ? (progreso.sesionMasEjercicios.cantidad + ' · ' + progreso.sesionMasEjercicios.titulo) : '—' %></span></div>
+          <div class="recent"><span>Promedio de ejercicios</span><span class="muted"><%= progreso.promedioEjercicios || 0 %> por sesión</span></div>
+        </div>
+      </section>
+
+      <!-- Historial reciente -->
+      <section class="card">
+        <h3>Historial reciente</h3>
+        <% if (recientes.length) { %>
+          <% recientes.forEach(function (s) { %>
+            <div class="recent">
+              <span><%= s.titulo %></span>
+              <span class="muted"><%= s.fechaCorta %> · <%= s.duracionMin %> min<%= s.ejerciciosTotal ? (' · ' + s.ejerciciosCompletados + '/' + s.ejerciciosTotal + ' ejercicios') : '' %></span>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty">
+            <strong>Sin actividad todavía</strong>
+            <span class="muted">Cuando completes tu primer entrenamiento, aquí verás tu historial.</span>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </div>
+
+  <%- include('../partials/upgrade_modal') %>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/geko-mascot.js"></script>
+</body>
+</html>

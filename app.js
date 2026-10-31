@@ -9,6 +9,7 @@ dns.setDefaultResultOrder('ipv4first');
 const postRouter = require('./routes/postRoutes');
 const dashboardRoutes = require('./routes/DashboardRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
+const progressRoutes = require('./routes/progressRoutes');
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
@@ -67,6 +68,7 @@ app.get('/', (req, res) => {
 app.use('/splash', postRouter);
 app.use('/dashboard', dashboardRoutes);
 app.use('/entrenamiento', trainingRoutes);
+app.use('/progreso', progressRoutes);
 
 // Enlace antiguo: el reproductor vive en /entrenamiento/activo (con los datos de la rutina).
 app.get('/entrenamientoActivo', (req, res) => res.redirect('/entrenamiento/activo'));

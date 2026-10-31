@@ -359,3 +359,25 @@ CREATE TABLE uso_sugerencia (
 CREATE INDEX idx_medicion_ficha_fecha ON mediciones (id_ficha, fecha_medicion);
 CREATE INDEX idx_suscripcion_cliente_fechas ON suscripcion (id_cliente, fecha_inicio, fecha_termino, estado);
 CREATE INDEX idx_pago_suscripcion_fecha ON pago (id_suscripcion, fecha_pago);
+
+
+-- ===========================================================
+-- 8. SESIONES DE ENTRENAMIENTO
+-- ===========================================================
+-- Una fila por cliente y por día (UNIQUE id_cliente + fecha).
+-- El dashboard y /progreso la usan para la racha y las métricas.
+CREATE TABLE sesion_entrenamiento (
+  id_sesion INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  id_cliente INT NOT NULL,
+  fecha DATE NOT NULL,
+  titulo VARCHAR(150) DEFAULT NULL,
+  duracion_segundos INT UNSIGNED NOT NULL DEFAULT 0,
+  ejercicios_completados SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  ejercicios_total SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  detalle_json JSON DEFAULT NULL,
+  creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_sesion_cliente_fecha (id_cliente, fecha),
+  KEY idx_sesion_cliente_fecha (id_cliente, fecha),
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE
+);

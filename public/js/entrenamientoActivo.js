@@ -74,6 +74,7 @@
     started: false,
     mudo: leerMudo(),
     wakeLock: null,
+    registrado: false,
   };
 
   /* ---------- Utilidades ---------- */
@@ -796,7 +797,28 @@
     pintarTiempo(0);
     actualizarUI();
     liberarWakeLock();
+
+    registrarSesion();
     mostrarResumen();
+  }
+
+  async function registrarSesion() {
+    if (state.registrado) return;
+    state.registrado = true;
+    try {
+      await fetch('/entrenamiento/finalizar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titulo: 'Entrenamiento completado',
+          duracionSegundos: Math.round(state.acumuladoMs / 1000),
+          ejerciciosCompletados: state.ejerciciosCompletados,
+          ejerciciosTotal: pasos.length,
+        }),
+      });
+    } catch (err) {
+      state.registrado = false;
+    }
   }
 
   function repetir() {
@@ -811,6 +833,7 @@
     state.acumuladoMs = 0;
     state.seriesCompletadas = 0;
     state.ejerciciosCompletados = 0;
+    state.registrado = false;
     state.remainingMs = 0;
     state.faseInicio = 0;
     state.lastTick = null;

@@ -1,0 +1,170 @@
+<%
+  /* Opciones de cada selector. "valor" es lo que guarda public/js/geko-mascot-prefs.js;
+     "pista" es el texto que aparece bajo el selector de zona. El marcado inicial
+     coincide con los valores por defecto (los mismos que usaba Geko antes de existir
+     esta pantalla); configuracion-mascota.js lo sincroniza con lo que haya guardado. */
+  const zonas = [
+    { valor: 'side',   texto: 'Laterales',        pista: 'Pasea por los márgenes de la página sin tapar el contenido. En pantallas pequeñas se queda en la esquina inferior derecha.' },
+    { valor: 'free',   texto: 'Toda la pantalla', pista: 'Recorre toda la pantalla, también por encima del contenido, sin salirse de ella.' },
+    { valor: 'corner', texto: 'Esquina derecha',  pista: 'Se queda quieto en la esquina inferior derecha.' }
+  ];
+  const velocidades = [
+    { valor: 'slow',   texto: 'Lenta' },
+    { valor: 'normal', texto: 'Normal' },
+    { valor: 'fast',   texto: 'Rápida' }
+  ];
+  const tamanos = [
+    { valor: 'small',  texto: 'Pequeño' },
+    { valor: 'normal', texto: 'Normal' },
+    { valor: 'large',  texto: 'Grande' }
+  ];
+  const porDefecto = { area: 'side', speed: 'normal', size: 'normal' };
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Mascota Geko</title>
+  <script src="/js/theme.js"></script>
+  <script src="/js/geko-mascot-prefs.js"></script>
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/configuracion.css" />
+  <link rel="stylesheet" href="/css/configuracion-mascota.css" />
+</head>
+<body>
+
+  <div class="profile-page bg-gradient<%= locals.usuarioPremium ? ' is-premium' : '' %>">
+
+    <%- include('partials/header', { navVolver: true }) %>
+
+    <main class="profile-main">
+
+      <div class="profile-head anim-fade-in">
+        <div class="profile-step-icon">
+          <%- include('partials/icon', { name: 'geko', size: 22 }) %>
+        </div>
+        <div>
+          <h1 class="profile-title">Mascota Geko</h1>
+          <p class="muted step-desc">Elige si Geko te acompaña, dónde se mueve y cuándo descansa.</p>
+        </div>
+      </div>
+
+      <div class="anim-slide-up">
+
+        <%- include('partials/alert') %>
+
+        <p class="config-note pref-note" id="pref-note-hidden" hidden>
+          Geko está oculto. Actívalo para cambiar el resto de opciones.
+        </p>
+        <p class="config-note pref-note" id="pref-note-motion" hidden>
+          Tu dispositivo tiene activada la opción «reducir movimiento», así que Geko no pasea por su cuenta.
+        </p>
+
+        <!-- Presencia -->
+        <section class="config-section" aria-labelledby="pref-sec-presencia">
+          <h2 class="config-section-title" id="pref-sec-presencia">Presencia</h2>
+
+          <label class="pref-item pref-row" for="pref-visible">
+            <span class="pref-text">
+              <span class="pref-title" id="pref-visible-title">Mostrar a Geko</span>
+              <span class="pref-desc" id="pref-visible-desc">Si lo apagas, Geko desaparece del inicio y de Mi progreso.</span>
+            </span>
+            <span class="pref-switch">
+              <input type="checkbox" role="switch" id="pref-visible" data-pref="visible" checked
+                     aria-labelledby="pref-visible-title" aria-describedby="pref-visible-desc" />
+              <span class="pref-track" aria-hidden="true"></span>
+            </span>
+          </label>
+
+          <div class="pref-item pref-field" role="radiogroup" aria-labelledby="pref-size-title">
+            <span class="pref-title" id="pref-size-title">Tamaño</span>
+            <div class="segmented">
+              <% tamanos.forEach(function (o) { %>
+                <label class="segmented-opt<%= o.valor === porDefecto.size ? ' active' : '' %>">
+                  <input type="radio" class="pref-sr" name="size" value="<%= o.valor %>" data-pref="size"<%= o.valor === porDefecto.size ? ' checked' : '' %> />
+                  <span><%= o.texto %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        </section>
+
+        <!-- Movimiento -->
+        <section class="config-section" aria-labelledby="pref-sec-movimiento">
+          <h2 class="config-section-title" id="pref-sec-movimiento">Movimiento</h2>
+
+          <div class="pref-item pref-field" role="radiogroup" aria-labelledby="pref-area-title" aria-describedby="pref-area-hint">
+            <span class="pref-title" id="pref-area-title">Dónde se mueve</span>
+            <div class="segmented">
+              <% zonas.forEach(function (o) { %>
+                <label class="segmented-opt<%= o.valor === porDefecto.area ? ' active' : '' %>">
+                  <input type="radio" class="pref-sr" name="area" value="<%= o.valor %>" data-pref="area" data-hint="<%= o.pista %>"<%= o.valor === porDefecto.area ? ' checked' : '' %> />
+                  <span><%= o.texto %></span>
+                </label>
+              <% }) %>
+            </div>
+            <p class="pref-desc" id="pref-area-hint" aria-live="polite"><%= zonas[0].pista %></p>
+          </div>
+
+          <label class="pref-item pref-row" for="pref-wander">
+            <span class="pref-text">
+              <span class="pref-title" id="pref-wander-title">Pasear por su cuenta</span>
+              <span class="pref-desc" id="pref-wander-desc">Si lo apagas, Geko se queda donde está. No aplica cuando está en la esquina.</span>
+            </span>
+            <span class="pref-switch">
+              <input type="checkbox" role="switch" id="pref-wander" data-pref="wander" checked
+                     aria-labelledby="pref-wander-title" aria-describedby="pref-wander-desc" />
+              <span class="pref-track" aria-hidden="true"></span>
+            </span>
+          </label>
+
+          <div class="pref-item pref-field" role="radiogroup" aria-labelledby="pref-speed-title">
+            <span class="pref-title" id="pref-speed-title">Velocidad al caminar</span>
+            <div class="segmented">
+              <% velocidades.forEach(function (o) { %>
+                <label class="segmented-opt<%= o.valor === porDefecto.speed ? ' active' : '' %>">
+                  <input type="radio" class="pref-sr" name="speed" value="<%= o.valor %>" data-pref="speed"<%= o.valor === porDefecto.speed ? ' checked' : '' %> />
+                  <span><%= o.texto %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        </section>
+
+        <!-- Descanso -->
+        <section class="config-section" aria-labelledby="pref-sec-descanso">
+          <h2 class="config-section-title" id="pref-sec-descanso">Descanso</h2>
+
+          <label class="pref-item pref-row" for="pref-neversleep">
+            <span class="pref-text">
+              <span class="pref-title" id="pref-neversleep-title">Mantener despierto a Geko</span>
+              <span class="pref-desc" id="pref-neversleep-desc">Geko no se duerme nunca. Si lo apagas, se duerme tras 20 a 30 segundos sin que lo toques.</span>
+            </span>
+            <span class="pref-switch">
+              <input type="checkbox" role="switch" id="pref-neversleep" data-pref="neverSleep"
+                     aria-labelledby="pref-neversleep-title" aria-describedby="pref-neversleep-desc" />
+              <span class="pref-track" aria-hidden="true"></span>
+            </span>
+          </label>
+        </section>
+
+        <div class="pref-foot">
+          <p class="pref-status" id="pref-status" role="status" aria-live="polite"
+             data-default="Los cambios se aplican al instante y se guardan en este dispositivo.">Los cambios se aplican al instante y se guardan en este dispositivo.</p>
+          <button type="button" class="btn btn-ghost pref-reset" id="pref-reset" disabled>Restablecer valores</button>
+        </div>
+
+        <div class="config-actions">
+          <a href="/configuracion" class="btn btn-ghost">Volver</a>
+          <a href="/dashboard" class="btn btn-primary">Ver a Geko</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/configuracion-mascota.js" defer></script>
+</body>
+</html>

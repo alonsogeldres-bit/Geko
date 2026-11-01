@@ -21,6 +21,10 @@ router.get('/entrenamiento', requireAuth, settingsController.showEntrenamiento);
 
 /* Apariencia (tema claro / oscuro): el interruptor vive en el hub. */
 
+/* Mascota Geko (visibilidad, zona de movimiento, sueño...). Las preferencias
+   se guardan en el navegador (localStorage), como el tema: no hay POST. */
+router.get('/mascota', requireAuth, settingsController.showMascota);
+
 /* Mi cuenta (plan y sesión) */
 router.get('/cuenta', requireAuth, settingsController.showCuenta);
 

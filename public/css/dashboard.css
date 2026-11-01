@@ -1020,24 +1020,29 @@ body.modal-abierto { overflow: hidden; }
 
 /* ===========================================
    MASCOTA GEKO: márgenes para que camine
-   Solo en el dashboard (.has-geko). El contenido se estrecha (de 1080 a 920 px)
-   para dejar dos carriles laterales de al menos 140 px. En pantallas de
-   900 px o menos no hay carriles: el contenido vuelve a ocupar todo el ancho
-   y Geko se queda quieta en la esquina inferior derecha (ver geko-mascot.css).
+   Solo en el dashboard y en Mi progreso (.has-geko). El contenido se estrecha
+   (de 1080 a 920 px) para dejar dos carriles laterales de al menos 140 px. En
+   pantallas de 900 px o menos no hay carriles: el contenido vuelve a ocupar todo
+   el ancho y Geko se queda quieta en la esquina inferior derecha (ver geko-mascot.css).
+
+   Los carriles solo existen mientras Geko camina por los laterales (valor por
+   defecto). Si el usuario la oculta o elige otra zona en Configuración,
+   geko-mascot-prefs.js pone data-geko-lanes="off" en <html> y el contenido
+   conserva su ancho original.
    =========================================== */
 
-.dash-page.has-geko .dash-main {
+:root:not([data-geko-lanes="off"]) .dash-page.has-geko .dash-main {
   width: min(920px, 100% - 280px);
   max-width: none;
 }
 
 /* Con el contenido más estrecho, las 3 tarjetas de resumen pasan a una columna antes */
 @media (max-width: 1100px) {
-  .dash-page.has-geko .grid { grid-template-columns: 1fr; gap: 0; }
+  :root:not([data-geko-lanes="off"]) .dash-page.has-geko .grid { grid-template-columns: 1fr; gap: 0; }
 }
 
 @media (max-width: 900px) {
-  .dash-page.has-geko .dash-main { width: 100%; max-width: var(--max-w); }
+  :root:not([data-geko-lanes="off"]) .dash-page.has-geko .dash-main { width: 100%; max-width: var(--max-w); }
 }
 
 /* Logo y avatar se quedan por encima de Geko y siguen siendo clicables;

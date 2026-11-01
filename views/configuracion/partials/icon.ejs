@@ -3,7 +3,7 @@
   Uso: include('partials/icon', { name: 'user', size: 22, clase: 'mi-clase' })
   Todos usan currentColor: toman solo el color del texto/acento del contenedor,
   así se adaptan solos a claro / oscuro y a Gratis / Premium.
-  Nombres: user, dumbbell, lock, card, sun, moon, flame, kettlebell, pulse, balance, home, back, next.
+  Nombres: user, dumbbell, lock, card, sun, moon, flame, kettlebell, pulse, balance, home, back, next, geko.
 %><%
   const ICONOS = {
   user: `<circle cx="12" cy="8" r="3.7" fill="currentColor" fill-opacity=".18"/><path d="M4.6 20.2c.5-3.7 3.5-6 7.4-6s6.9 2.3 7.4 6z" fill="currentColor" fill-opacity=".18"/>`,
@@ -19,6 +19,7 @@
   home: `<path d="M3.6 11.3 12 4l8.4 7.3"/><path d="M5.8 9.8V19a1.6 1.6 0 0 0 1.6 1.6h9.2a1.6 1.6 0 0 0 1.6-1.6V9.8" fill="currentColor" fill-opacity=".18"/><path d="M10 20.6v-4.6a2 2 0 0 1 4 0v4.6"/>`,
   back: `<path d="M15 5.5 8.5 12l6.5 6.5"/>`,
   next: `<path d="M9 5.5 15.5 12 9 18.5"/>`,
+  geko: `<path d="M12 5.2c4.7 0 8 2.9 8 6.9s-3.3 6.5-8 6.5-8-2.5-8-6.5 3.3-6.9 8-6.9z" fill="currentColor" fill-opacity=".18"/><path d="M12 1.9v3.1"/><circle cx="8.3" cy="10.2" r="2.3"/><circle cx="15.7" cy="10.2" r="2.3"/><circle cx="8.9" cy="10.4" r=".8" fill="currentColor" stroke="none"/><circle cx="15.1" cy="10.4" r=".8" fill="currentColor" stroke="none"/><path d="M9.3 15.2c1.6 1.1 3.8 1.1 5.4 0"/>`,
   };
   const _nombre = typeof name !== 'undefined' ? name : '';
   const _tam = typeof size !== 'undefined' ? size : 22;

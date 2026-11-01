@@ -1,0 +1,216 @@
+/* ===========================================
+   CONFIGURACIÓN - Mascota Geko
+   Filas de ajustes (interruptores y selectores) dentro de .config-section.
+   Todo el color sale de las variables del tema (--ac, --line, --mut...),
+   así que se adapta solo a claro / oscuro y a Gratis / Premium sin reglas
+   propias. Los selectores reutilizan .segmented de profile.css, incluido
+   su estilo dorado de Premium (ver configuracion.css).
+   =========================================== */
+
+/* ---------- Filas ---------- */
+
+.pref-item {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+
+/* El primer ajuste de cada tarjeta va pegado al título, sin línea encima */
+.config-section-title + .pref-item {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.pref-item:last-child {
+  padding-bottom: 0;
+}
+
+.pref-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pref-desc {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--mut);
+}
+
+.pref-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* Fila con interruptor: toda la fila es clicable */
+.pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+/* Campo con selector segmentado */
+.pref-field .pref-title {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.pref-field .pref-desc {
+  margin: 10px 0 0;
+}
+
+/* ---------- Interruptor ---------- */
+/* El <input> real (checkbox role="switch") queda encima, transparente: así conserva
+   teclado, foco y lectores de pantalla nativos; la pista dibujada es solo visual. */
+
+.pref-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+}
+
+.pref-switch input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pref-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pref-track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.pref-switch input:checked + .pref-track {
+  background: var(--ac);
+}
+
+.pref-switch input:checked + .pref-track::after {
+  transform: translateX(18px);
+}
+
+.pref-switch input:focus-visible + .pref-track {
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+/* ---------- Selector segmentado (radios nativos) ---------- */
+
+.pref-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pref-field .segmented-opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  text-align: center;
+  line-height: 1.25;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pref-field .segmented-opt:has(.pref-sr:focus-visible) {
+  outline: 2px solid var(--ac);
+  outline-offset: 2px;
+}
+
+/* ---------- Ajustes que no se pueden cambiar ahora ---------- */
+/* Pasa cuando Geko está oculto, o cuando el ajuste no aplica (p. ej. velocidad
+   si no pasea). El estado lo marca configuracion-mascota.js. */
+
+.pref-item.is-disabled {
+  opacity: 0.5;
+}
+
+.pref-item.is-disabled,
+.pref-item.is-disabled * {
+  cursor: not-allowed;
+}
+
+.pref-item.is-disabled .segmented-opt:not(.active):hover {
+  color: var(--mut);
+}
+
+/* ---------- Avisos y pie ---------- */
+
+.pref-note {
+  margin-bottom: 18px;
+}
+
+.pref-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pref-status {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--mut);
+}
+
+.pref-status.is-saved {
+  color: var(--ac);
+  font-weight: 600;
+}
+
+.pref-reset {
+  padding: 9px 16px;
+  font-size: 13px;
+}
+
+.pref-reset:disabled {
+  opacity: 0.45;
+  pointer-events: none;   /* sin hover ni elevación cuando no hay nada que restablecer */
+}
+
+@media (max-width: 560px) {
+  .pref-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pref-reset {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pref-track,
+  .pref-track::after {
+    transition: none;
+  }
+}

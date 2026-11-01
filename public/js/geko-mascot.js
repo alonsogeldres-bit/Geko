@@ -1,5 +1,6 @@
 /* ===========================================
-   MASCOTA GEKO (dashboard)
+   MASCOTA GEKO (dashboard y progreso)
+   Por defecto (sin tocar Configuración > Mascota Geko):
    - Escritorio: camina sola por los márgenes laterales; el contenido
      (tarjetas) es un muro. Si sale por un lado de la pantalla reaparece
      por el opuesto (también arriba/abajo).
@@ -7,6 +8,15 @@
      esquina inferior derecha del viewport.
    - En ambos casos se duerme cada 20-30 s; al hacerle clic despierta y saluda.
    - Al hacer clic emite "geko:click" en window (futuro chat con IA).
+
+   Preferencias del usuario (public/js/geko-mascot-prefs.js):
+   - visible    : false oculta a Geko por completo (se detiene la animación).
+   - area       : 'side' laterales · 'free' toda la pantalla (sin salir de ella)
+                  · 'corner' quieta en la esquina inferior derecha.
+   - wander     : false = no pasea por su cuenta.
+   - speed/size : velocidad al caminar y tamaño.
+   - neverSleep : true = nunca se duerme.
+   Los cambios se aplican en vivo, también si se hacen en otra pestaña.
    =========================================== */
 (function () {
   'use strict';
@@ -21,6 +31,14 @@
   var CLMP = document.getElementById('cl-mp');
   var SV = G.querySelector('svg');
   var main = document.querySelector('.dash-main');
+
+  /* ---------- Preferencias ---------- */
+  /* Si el módulo de preferencias no cargó, Geko se comporta como siempre. */
+  var DEFAULT_PREFS = { visible: true, area: 'side', wander: true, speed: 'normal', size: 'normal', neverSleep: false };
+  var SIZE_K = { small: 0.8, normal: 1, large: 1.25 };
+  var SPEED_K = { slow: 0.6, normal: 1, fast: 1.5 };
+  var Prefs = window.GekoMascotPrefs;
+  var prefs = Prefs ? Prefs.get() : DEFAULT_PREFS;
 
   var cl = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var lerp = function (a, b, k) { return a + (b - a) * Math.min(1, k); };
@@ -51,20 +69,23 @@
   var GAP = 10;                    /* separación mínima con las tarjetas */
   var CORNER_X = 14, CORNER_Y = 10; /* margen de la esquina en el teléfono */
   var Wd = 0, Ht = 0, W = 0, H = 0, hw = 0, vis = 0, SPD = 120;
-  var mode = 'side';               /* 'side' = camina por los márgenes · 'corner' = quieta en la esquina */
+  var mode = 'side';               /* 'side' = camina por los márgenes · 'free' = por toda la pantalla · 'corner' = quieta en la esquina */
   var wallL = 0, wallR = 0;
+  var fx0 = 0, fx1 = 0, fy0 = 0, fy1 = 0;  /* límites del modo 'free' (la mascota no sale de la pantalla) */
   var x = null, y = 0;
   var dir = 'down', view = 'front', flip = 1;
   var phase = 0, walkK = 0, hk = 0, happy = 0, idle = 1, sst = 0, sT = 0, slp = 25, aw = 0;
   var nsl = 20 + Math.random() * 10, wt = 2, t = 0, nb = 2, b0 = -9, ex = 0.8;
   var route = null;                /* { d: 'left'|'right'|'up'|'down', rem: px por recorrer } */
-  var ptr = { x: 0, y: 0 };
+  var ptr = null;                  /* se centra en el primer layout; después sigue al puntero */
+  var raf = 0;                     /* id del requestAnimationFrame activo (0 = animación detenida) */
   var last = performance.now();
 
   /* ---------- Geometría ---------- */
   function layout() {
     Wd = layer.clientWidth;
     Ht = layer.clientHeight;
+    if (!Wd || !Ht) return;        /* capa oculta o sin tamaño: no hay nada que medir */
 
     /* Borde izquierdo/derecho real del contenido */
     var l = Infinity, r = -Infinity;
@@ -77,14 +98,20 @@
     if (!isFinite(l)) { l = Wd / 2; r = Wd / 2; }
 
     var laneMin = Math.min(l - GAP, Wd - r - GAP);
-    var next = laneMin >= 110 ? 'side' : 'corner';
+    /* 'side' sin carriles suficientes (teléfono) cae a 'corner', como siempre */
+    var next = prefs.area === 'free' ? 'free'
+      : prefs.area === 'corner' ? 'corner'
+      : (laneMin >= 110 ? 'side' : 'corner');
 
     if (next === 'side') W = cl(Math.min(laneMin / 0.8, Ht * 0.3, 170), 96, 170);
+    else if (next === 'free') W = cl(Math.min(Wd * 0.23, Ht * 0.3, 170), 76, 170);
     else W = cl(Wd * 0.23, 76, 116);
+    W = Math.min(W * (SIZE_K[prefs.size] || 1), Wd * 0.45);
+    if (next === 'side') W = Math.min(W, laneMin / 0.8);   /* nunca más ancha que el carril */
     H = W * 1.2;
     hw = W * 0.36;                 /* media anchura del cuerpo (colisión) */
     vis = W * 0.5;                 /* media anchura visible (para salir de pantalla) */
-    SPD = cl(W * 0.8, 80, 140);
+    SPD = cl(W * 0.8, 80, 140) * (SPEED_K[prefs.speed] || 1);
     wallL = l - GAP;
     wallR = r + GAP;
 
@@ -93,18 +120,30 @@
     SH.style.width = W * 0.5 + 'px';
 
     var firstTime = x === null;
+    if (next !== mode) route = null;
     mode = next;
     document.body.classList.toggle('geko-corner', mode === 'corner');
 
+    /* #geko-safe es una sonda invisible que mide el safe-area inferior,
+       para que la mascota no quede bajo el gesto del sistema. */
+    var inset = SAFE ? SAFE.getBoundingClientRect().height : 0;
+    /* Límites de 'free': 1 px de holgura para que onScreen() no falle por redondeo */
+    fx0 = vis + 3;
+    fx1 = Wd - vis - 3;
+    fy0 = H + 3;
+    fy1 = Ht - 3 - inset;
+
     if (mode === 'corner') {
-      /* Teléfono: quieta en la esquina inferior derecha, mirando al frente.
-         #geko-safe es una sonda invisible que mide el safe-area inferior,
-         para que la mascota no quede bajo el gesto del sistema. */
-      var inset = SAFE ? SAFE.getBoundingClientRect().height : 0;
+      /* Quieta en la esquina inferior derecha, mirando al frente
+         (teléfono, o cuando el usuario lo elige en Configuración). */
       x = Wd - CORNER_X - W / 2;
       y = Ht - CORNER_Y - inset;
       dir = 'down';
       route = null;
+    } else if (mode === 'free') {
+      if (firstTime) { x = Wd * 0.85; y = Ht * 0.62; }
+      x = cl(x, fx0, fx1);
+      y = cl(y, fy0, fy1);
     } else {
       if (firstTime) {
         /* Empieza en el margen más ancho */
@@ -116,6 +155,8 @@
         x = x < (wallL + wallR) / 2 ? wallL - hw : wallR + hw;
       }
     }
+
+    if (!ptr) ptr = { x: Wd / 2, y: Ht / 2 };
   }
 
   var onScreen = function () {
@@ -125,7 +166,13 @@
 
   /* Distancia que puede avanzar antes de chocar. Infinity = da la vuelta y reaparece. */
   function room(d) {
-    if (mode === 'corner') return 0;          /* en el teléfono no camina */
+    if (mode === 'corner') return 0;          /* quieta en la esquina: no camina */
+    if (mode === 'free') {                    /* por toda la pantalla: hasta el borde, sin salir */
+      if (d === 'left') return Math.max(0, x - fx0);
+      if (d === 'right') return Math.max(0, fx1 - x);
+      if (d === 'up') return Math.max(0, y - fy0);
+      return Math.max(0, fy1 - y);
+    }
     if (d === 'up' || d === 'down') return Infinity;
     var left = x < (wallL + wallR) / 2;
     if (d === 'left') return left ? Infinity : Math.max(0, x - hw - wallR);
@@ -134,6 +181,11 @@
 
   function wrap() {
     if (mode === 'corner') return;
+    if (mode === 'free') {                    /* en 'free' no reaparece por el lado opuesto: se queda dentro */
+      x = cl(x, fx0, fx1);
+      y = cl(y, fy0, fy1);
+      return;
+    }
     if (x + vis < 0) x = Wd + vis;
     else if (x - vis > Wd) x = -vis;
     if (y - H > Ht) y = 0;
@@ -163,18 +215,22 @@
 
   /* ---------- Paseo autónomo (solo escritorio) ---------- */
   function startWander() {
-    if (mode !== 'side') return;
+    if (mode === 'corner') return;
     var c = [];
     ['left', 'right', 'up', 'down'].forEach(function (d) {
       var r = room(d);
       if (r < 40) return;
       c.push([d, r]);
-      if (d === 'up' || d === 'down') c.push([d, r]);   /* más peso a caminar por el lateral */
+      if (mode === 'side' && (d === 'up' || d === 'down')) c.push([d, r]);   /* más peso a caminar por el lateral */
+      /* En toda la pantalla prefiere el lado con más espacio libre, para recorrerla entera */
+      if (mode === 'free') for (var k = 1; k < Math.min(4, Math.ceil(r / 200)); k++) c.push([d, r]);
     });
     if (c.length) {
       var pick = c[Math.random() * c.length | 0];
       var vert = pick[0] === 'up' || pick[0] === 'down';
-      var dist = vert ? 220 + Math.random() * 520 : 160 + Math.random() * 260;
+      var dist = mode === 'free'
+        ? (vert ? 180 + Math.random() * 420 : 240 + Math.random() * 620)   /* tramos más largos: la pantalla es más ancha que un carril */
+        : (vert ? 220 + Math.random() * 520 : 160 + Math.random() * 260);
       route = { d: pick[0], rem: Math.min(pick[1], dist) };
     }
     wt = 2 + Math.random() * 3;
@@ -183,14 +239,17 @@
 
   /* ---------- Bucle ---------- */
   function frame(now) {
-    requestAnimationFrame(frame);
+    if (!prefs.visible) { raf = 0; return; }   /* oculta: se corta el bucle */
+    raf = requestAnimationFrame(frame);
+    if (x === null) { last = now; return; }    /* aún sin medir (capa sin tamaño) */
     var dt = Math.min(0.033, (now - last) / 1e3);
     last = now;
     t += dt;
 
     if (sst === 1) { sT += dt; if (sT > 1.5) { sst = 2; sT = 0; slp = 20 + Math.random() * 10; } }
     else if (sst === 2) { sT += dt; if (sT > slp) wake(); }
-    if (!sst && !happy) aw += dt;
+    if (prefs.neverSleep) aw = 0;              /* modo activo permanente */
+    else if (!sst && !happy) aw += dt;
     if (!sst && aw > nsl && !route && onScreen()) doze();
 
     var moved = false;
@@ -213,7 +272,7 @@
     if (!moved) {
       idle += dt;
       if (idle > 1.2 && !route) dir = 'down';
-      if (mode === 'side' && !RM && !sst && !route && idle > wt && !happy) startWander();
+      if (mode !== 'corner' && prefs.wander && !RM && !sst && !route && idle > wt && !happy) startWander();
     }
 
     /* Vista según la dirección: arriba = espalda, abajo = frente, lados = perfil */
@@ -278,10 +337,32 @@
   function relayout() {
     if (pend) return;
     pend = true;
-    requestAnimationFrame(function () { pend = false; layout(); });
+    requestAnimationFrame(function () { pend = false; if (prefs.visible) layout(); });
   }
-  layout();
-  ptr = { x: Wd / 2, y: Ht / 2 };
+
+  function start() {
+    if (raf) return;
+    last = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  /* Oculta: se detiene la animación y se quita el aire extra de la esquina.
+     (La capa en sí la oculta el CSS con data-geko-visible="false".) */
+  function stop() {
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    document.body.classList.remove('geko-corner');
+  }
+
+  /* Aplica las preferencias: al cargar y cada vez que cambian */
+  function applyPrefs(next) {
+    prefs = next;
+    if (!prefs.visible) { stop(); return; }
+    if (prefs.neverSleep && sst) wake();
+    route = null;
+    layout();
+    start();
+  }
+
   window.addEventListener('resize', relayout);
   window.addEventListener('load', relayout);
   if (window.ResizeObserver) {
@@ -289,5 +370,6 @@
     ro.observe(layer);
     if (main) ro.observe(main);
   }
-  requestAnimationFrame(frame);
+  if (Prefs) Prefs.subscribe(applyPrefs);
+  applyPrefs(prefs);
 })();

@@ -1,7 +1,7 @@
 /* ===========================================
    CONFIGURACIÓN
    Hub de ajustes de la cuenta: datos personales, perfil de
-   entrenamiento, seguridad, apariencia y plan.
+   entrenamiento, mascota, seguridad, apariencia y plan.
    Solo orquesta: los datos viven en los modelos y la
    presentación en las vistas EJS.
    =========================================== */
@@ -175,6 +175,20 @@ const showEntrenamiento = async (req, res) => {
   }
 };
 
+/* ---------- GET /configuracion/mascota ---------- */
+
+// Las preferencias de la mascota viven en el navegador (igual que el tema),
+// así que aquí solo se necesita saber si el usuario es Premium para el look.
+const showMascota = async (req, res) => {
+  try {
+    const { usuarioPremium } = await contexto(req);
+    res.render('configuracion/mascota', { usuarioPremium });
+  } catch (err) {
+    console.error('[configuración] error al cargar la mascota:', err.message);
+    res.status(500).send(MENSAJE_ERROR);
+  }
+};
+
 /* ---------- GET /configuracion/cuenta ---------- */
 
 const showCuenta = async (req, res) => {
@@ -195,5 +209,6 @@ module.exports = {
   showSeguridad,
   updatePassword,
   showEntrenamiento,
+  showMascota,
   showCuenta,
 };

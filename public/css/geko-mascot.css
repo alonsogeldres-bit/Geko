@@ -1,8 +1,10 @@
 /* ===========================================
-   MASCOTA GEKO (dashboard)
+   MASCOTA GEKO (dashboard y progreso)
    Capa fija sobre toda la ventana. No bloquea clics salvo en Geko.
    Las clases cortas del SVG (.g, .d, .b ...) van acotadas a #geko-layer
    para no chocar con el resto de estilos del dashboard.
+   El usuario la personaliza en Configuración > Mascota Geko
+   (ver public/js/geko-mascot-prefs.js).
    =========================================== */
 
 #geko-layer {
@@ -18,6 +20,11 @@
 }
 
 :root[data-theme="dark"] #geko-layer { --sh: #00000066; }
+
+/* Preferencia "Mostrar a Geko" apagada. geko-mascot-prefs.js marca <html> desde el
+   <head>, así la capa nunca llega a pintarse, ni siquiera antes de que cargue
+   geko-mascot.js. display:none también la saca del orden de tabulación. */
+:root[data-geko-visible="false"] #geko-layer { display: none; }
 
 #geko-shadow {
   position: absolute;

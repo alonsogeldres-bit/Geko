@@ -4,13 +4,13 @@
      La anima public/js/geko-mascot.js; estilos en public/css/geko-mascot.css.
      Escritorio: camina por los márgenes laterales del contenido.
      Teléfono: se queda quieta en la esquina inferior derecha.
-     Al hacer clic en Geko se emite el evento "geko:click" en window
-     (para abrir el chat con la IA más adelante).
+     Al hacer clic en Geko se emite el evento "geko:click" en window;
+     public/js/geko-chat.js lo usa para abrir el chat con la IA.
      =========================================== -->
 <div id="geko-layer">
 <div id="geko-safe" aria-hidden="true"></div>
 <div id="geko-shadow"></div>
-<div id="geko" role="button" tabindex="0" aria-label="Geko, tu mascota. Haz clic para saludarlo">
+<div id="geko" role="button" tabindex="0" aria-label="Geko, tu mascota. Haz clic para hablar con él" aria-expanded="false" aria-controls="geko-chat">
 <svg viewBox="0 0 300 360" aria-hidden="true" focusable="false">
 <defs>
 <path id="sp" d="M0 0a4 4 0 0 1 8 0a8 8 0 0 1-16 0a12 12 0 0 1 24 0a16 16 0 0 1-32 0a20 20 0 0 1 40 0a24 24 0 0 1-48 0"/>

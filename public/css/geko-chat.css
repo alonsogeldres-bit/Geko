@@ -1,0 +1,596 @@
+/* ===========================================
+   CHAT DE LA MASCOTA GEKO
+   Panel flotante que acompaña a Geko: public/js/geko-chat.js calcula su
+   posición con la posición real de la mascota (que se queda quieta mientras
+   el chat está abierto).
+   Hereda los tokens de color de dashboard.css y al final del archivo define
+   los cuatro temas de la app (Gratis claro/oscuro y Premium claro/oscuro).
+   =========================================== */
+
+.geko-chat {
+  position: fixed;
+  inset: 0;
+  z-index: 40;                 /* sobre Geko (15) y el menú (30); debajo del modal (100) */
+  pointer-events: none;        /* el hueco alrededor del panel no bloquea la página */
+}
+
+.geko-chat[hidden] { display: none; }
+
+.geko-chat-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(540px, calc(100vh - 24px));
+  display: flex;
+  flex-direction: column;
+  background: var(--surface, #ffffff);
+  color: var(--text, #17352a);
+  border: 1px solid var(--line, #dce8df);
+  border-radius: 20px;
+  box-shadow: 0 18px 46px var(--shadow-modal, rgba(23, 53, 42, 0.22));
+  pointer-events: auto;
+  /* Sin overflow:hidden para que la flecha (::before) pueda salir de la tarjeta.
+     Las esquinas redondeadas se aplican a la cabecera y al formulario. */
+  will-change: transform;
+  animation: geko-chat-in 0.18s ease-out;
+}
+
+/* Flecha que señala a Geko. La coloca el JS con --arrow-x / --arrow-y. */
+.geko-chat-card::before {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--surface, #ffffff);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.geko-chat.pos-right .geko-chat-card::before {
+  left: -7px;
+  top: var(--arrow-y, 50%);
+  border-left: 1px solid var(--line, #dce8df);
+  border-bottom: 1px solid var(--line, #dce8df);
+}
+
+.geko-chat.pos-left .geko-chat-card::before {
+  right: -7px;
+  top: var(--arrow-y, 50%);
+  border-right: 1px solid var(--line, #dce8df);
+  border-top: 1px solid var(--line, #dce8df);
+}
+
+.geko-chat.pos-above .geko-chat-card::before {
+  bottom: -7px;
+  left: var(--arrow-x, 50%);
+  border-right: 1px solid var(--line, #dce8df);
+  border-bottom: 1px solid var(--line, #dce8df);
+}
+
+@keyframes geko-chat-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geko-chat-card { animation: none; }
+}
+
+/* ---------- Cabecera ---------- */
+
+.geko-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border-bottom: 1px solid var(--line, #dce8df);
+  background: linear-gradient(180deg, var(--chip, #e4f5ea), transparent);
+  flex-shrink: 0;
+  border-radius: 19px 19px 0 0;
+  overflow: hidden;
+}
+
+.geko-chat-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #dce8df);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.geko-chat-avatar img { display: block; }
+
+.geko-chat-id {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.geko-chat-id strong {
+  font-size: 0.98rem;
+  letter-spacing: 0.2px;
+}
+
+.geko-chat-status {
+  font-size: 0.74rem;
+  color: var(--mut, #587064);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.geko-chat-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mut, #587064);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.geko-chat-close:hover { background: var(--hover, #e4f5ea); color: var(--text, #17352a); }
+.geko-chat-close:focus-visible { outline: 2px solid var(--ac, #16a36a); outline-offset: 2px; }
+
+/* ---------- Conversación ---------- */
+
+.geko-chat-log {
+  flex: 1;
+  min-height: 120px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line, #dce8df) transparent;
+}
+
+.geko-chat-log::-webkit-scrollbar { width: 8px; }
+.geko-chat-log::-webkit-scrollbar-thumb {
+  background: var(--line, #dce8df);
+  border-radius: 8px;
+}
+
+.geko-msg {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  max-width: 100%;
+}
+
+.geko-msg.from-user { justify-content: flex-end; }
+
+.geko-bubble {
+  max-width: 86%;
+  padding: 9px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.geko-msg.from-bot .geko-bubble {
+  background: var(--field, #f0f6f1);
+  color: var(--text, #17352a);
+  border-bottom-left-radius: 6px;
+}
+
+.geko-msg.from-user .geko-bubble {
+  background: var(--ac, #16a36a);
+  color: var(--on-ac, #fff);
+  border-bottom-right-radius: 6px;
+}
+
+.geko-msg .geko-mini {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--chip, #e4f5ea);
+  border: 1px solid var(--line, #dce8df);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.geko-msg .geko-mini img { width: 100%; height: 100%; display: block; }
+
+.geko-msg.is-error .geko-bubble {
+  background: var(--warn-bg, rgba(217, 150, 0, 0.16));
+  color: var(--warn-text, #8a5a00);
+}
+
+/* "Escribiendo…" */
+.geko-typing {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 12px 14px;
+}
+
+.geko-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mut, #587064);
+  opacity: 0.45;
+  animation: geko-typing 1.1s infinite ease-in-out;
+}
+
+.geko-typing i:nth-child(2) { animation-delay: 0.15s; }
+.geko-typing i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes geko-typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geko-typing i { animation: none; }
+}
+
+/* ---------- Sugerencias ---------- */
+
+.geko-chat-chips {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px 10px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.geko-chat-chips::-webkit-scrollbar { display: none; }
+.geko-chat-chips[hidden] { display: none; }
+
+.geko-chat-chips button {
+  flex: 0 0 auto;
+  border: 1px solid var(--line, #dce8df);
+  background: var(--surface, #fff);
+  color: var(--mut, #587064);
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.geko-chat-chips button:hover {
+  background: var(--hover, #e4f5ea);
+  color: var(--text, #17352a);
+  border-color: var(--ac, #16a36a);
+}
+
+.geko-chat-chips button:focus-visible {
+  outline: 2px solid var(--ac, #16a36a);
+  outline-offset: 2px;
+}
+
+/* ---------- Formulario ---------- */
+
+.geko-chat-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--line, #dce8df);
+  background: var(--surface, #fff);
+  flex-shrink: 0;
+  border-radius: 0 0 19px 19px;
+}
+
+.geko-chat-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.geko-chat-form textarea {
+  flex: 1;
+  min-height: 40px;
+  max-height: 110px;
+  resize: none;
+  border: 1px solid var(--line, #dce8df);
+  background: var(--field, #f0f6f1);
+  color: var(--text, #17352a);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.geko-chat-form textarea::placeholder { color: var(--mut, #587064); }
+.geko-chat-form textarea:focus {
+  outline: none;
+  border-color: var(--ac, #16a36a);
+  box-shadow: 0 0 0 3px var(--glow, rgba(22, 163, 106, 0.14));
+}
+
+.geko-chat-send {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ac, #16a36a);
+  color: var(--on-ac, #fff);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.geko-chat-send:hover { background: var(--ac-hover, #128456); }
+.geko-chat-send:disabled { opacity: 0.5; cursor: default; }
+.geko-chat-send:focus-visible { outline: 2px solid var(--ac, #16a36a); outline-offset: 3px; }
+
+/* Mientras Geko está en modo "corner" (móvil) el JS lo coloca encima de él;
+   aquí solo se ajusta el alto para que nunca tape al personaje. */
+@media (max-width: 520px) {
+  .geko-chat-card { border-radius: 18px; }
+  .geko-chat-head { border-radius: 17px 17px 0 0; }
+  .geko-chat-form { border-radius: 0 0 17px 17px; }
+  .geko-chat-log { padding: 12px; }
+  .geko-bubble { max-width: 90%; }
+}
+
+/* ===========================================
+   TEMAS DEL CHAT (las 4 combinaciones de la app)
+   El panel vive dentro de .dash-page, así que puede cambiar de tema sin
+   tocar el resto de la página. Cada bloque fija los tokens SOLO dentro de
+   .geko-chat (el panel y sus hijos) para que las burbujas, la cabecera, los
+   chips, el campo de texto y el botón de enviar tengan contraste correcto.
+
+     1. Gratis claro    -> :root (sin .is-premium)
+     2. Gratis oscuro   -> :root[data-theme="dark"] (sin .is-premium)
+     3. Premium claro   -> :root:not([data-theme="dark"]) .is-premium
+     4. Premium oscuro  -> :root[data-theme="dark"] .is-premium (negro + dorado)
+   =========================================== */
+
+/* ---------- 1. Gratis claro (predeterminado) ---------- */
+
+:root:not([data-theme="dark"]) .dash-page:not(.is-premium) .geko-chat {
+  --surface: #FFFFFF;
+  --text: #17352A;
+  --mut: #587064;
+  --line: #DCE8DF;
+  --field: #F0F6F1;
+  --chip: #E4F5EA;
+  --hover: #E4F5EA;
+  --ac: #16A36A;
+  --ac-hover: #128456;
+  --on-ac: #FFFFFF;
+  --glow: rgba(22, 163, 106, 0.14);
+  --warn-bg: rgba(217, 150, 0, 0.16);
+  --warn-text: #8A5A00;
+  --shadow-modal: rgba(23, 53, 42, 0.22);
+}
+
+/* Texto blanco sobre la burbuja del usuario: se usa el verde de hover, un poco
+   más oscuro, para que el contraste llegue a AA. El botón de enviar mantiene
+   el verde de marca (su icono solo necesita 3:1). */
+:root:not([data-theme="dark"]) .dash-page:not(.is-premium) .geko-msg.from-user .geko-bubble {
+  background: #128456;
+}
+
+/* ---------- 2. Gratis oscuro ---------- */
+
+:root[data-theme="dark"] .dash-page:not(.is-premium) .geko-chat {
+  --surface: #192820;
+  --text: #F0F7F2;
+  --mut: #A9BDB0;
+  --line: #304438;
+  --field: #1D2D23;
+  --chip: #263C30;
+  --hover: #254A36;
+  --ac: #35D995;
+  --ac-hover: #59E6A9;
+  --on-ac: #101C17;
+  --glow: rgba(53, 217, 149, 0.16);
+  --warn-bg: rgba(255, 193, 7, 0.16);
+  --warn-text: #FFD76A;
+  --shadow-modal: rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- 3. Premium claro: dorado sobre blanco ---------- */
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat {
+  --surface: #FFFFFF;
+  --text: #29251A;
+  --mut: #6E6758;
+  --line: #E9E0C9;
+  --field: #F8F4E9;
+  --chip: #F8E9B9;
+  --hover: #F5E5AC;
+  --ac: #9A7000;
+  --ac-hover: #795700;
+  --on-ac: #FFFFFF;
+  --glow: rgba(229, 169, 0, 0.20);
+  --warn-bg: rgba(229, 169, 0, 0.18);
+  --warn-text: #7A5600;
+  --shadow-modal: rgba(41, 37, 26, 0.22);
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat-card {
+  border-color: #E5C46A;
+  box-shadow:
+    0 18px 46px rgba(41, 37, 26, 0.22),
+    0 0 22px rgba(229, 169, 0, 0.18);
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat-card::before {
+  border-color: #E5C46A;
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat-head {
+  background: linear-gradient(180deg, rgba(229, 169, 0, 0.16), rgba(229, 169, 0, 0.02));
+  border-bottom-color: rgba(229, 169, 0, 0.35);
+}
+
+/* Título y burbujas con el dorado de los títulos Premium. */
+:root:not([data-theme="dark"]) .is-premium .geko-chat-id strong {
+  color: #9A7000;
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-msg.from-user .geko-bubble {
+  border: 1px solid #E5A900;
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-msg.from-bot .geko-bubble {
+  border: 1px solid rgba(229, 169, 0, 0.16);
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat-avatar {
+  border-color: #E5A900;
+  box-shadow: 0 0 8px rgba(229, 169, 0, 0.22);
+}
+
+/* Logo de Geko en dorado, igual que en la barra del dashboard Premium. */
+:root:not([data-theme="dark"]) .is-premium .geko-chat-avatar img,
+:root:not([data-theme="dark"]) .is-premium .geko-mini img {
+  filter: brightness(0) saturate(100%) invert(50%) sepia(99%) saturate(1128%)
+          hue-rotate(17deg) brightness(111%);
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat-send {
+  background: #9A7000;
+  color: #FFFFFF;
+  border: 1px solid #E5A900;
+  box-shadow: 0 0 12px rgba(229, 169, 0, 0.22);
+}
+:root:not([data-theme="dark"]) .is-premium .geko-chat-send:hover {
+  background: #795700;
+  box-shadow: 0 0 18px rgba(229, 169, 0, 0.35);
+}
+
+:root:not([data-theme="dark"]) .is-premium .geko-chat-chips button {
+  border-color: rgba(229, 169, 0, 0.45);
+  color: #795700;
+}
+:root:not([data-theme="dark"]) .is-premium .geko-chat-chips button:hover {
+  background: rgba(229, 169, 0, 0.16);
+  border-color: #E5A900;
+  color: #29251A;
+}
+
+/* ---------- 4. Premium oscuro: negro + dorado ---------- */
+
+:root[data-theme="dark"] .is-premium .geko-chat {
+  --surface: #0B0B0B;                 /* tarjeta negra */
+  --text: #FFF1B8;                    /* texto dorado claro */
+  --mut: rgba(255, 231, 163, 0.66);
+  --line: rgba(255, 215, 94, 0.32);   /* líneas doradas */
+  --field: rgba(255, 215, 94, 0.08);
+  --chip: rgba(255, 215, 94, 0.12);
+  --hover: rgba(255, 215, 94, 0.16);
+  --ac: #FFD75E;                      /* acento dorado */
+  --ac-hover: #FFE38A;
+  --on-ac: #1A1400;                   /* texto oscuro sobre el dorado */
+  --glow: rgba(255, 215, 94, 0.25);
+  --warn-bg: rgba(255, 215, 94, 0.16);
+  --warn-text: #FFE38A;
+  --shadow-modal: rgba(0, 0, 0, 0.7);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-card {
+  border-color: rgba(255, 215, 94, 0.55);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.75),
+    0 0 26px rgba(255, 215, 94, 0.18);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-card::before {
+  border-color: rgba(255, 215, 94, 0.55);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-head {
+  background: linear-gradient(180deg, rgba(255, 215, 94, 0.16), rgba(255, 215, 94, 0.02));
+  border-bottom-color: rgba(255, 215, 94, 0.38);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-id strong {
+  background: linear-gradient(100deg, #FFF1A8 0%, #FFD75E 55%, #D4A017 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-avatar {
+  border-color: rgba(255, 215, 94, 0.75);
+  box-shadow: 0 0 10px rgba(255, 215, 94, 0.22);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-avatar img,
+:root[data-theme="dark"] .is-premium .geko-mini img {
+  filter: brightness(0) saturate(100%) invert(84%) sepia(52%) saturate(900%)
+          hue-rotate(358deg) brightness(104%);
+}
+
+:root[data-theme="dark"] .is-premium .geko-msg.from-user .geko-bubble {
+  background: linear-gradient(160deg, #FFE38A, #FFD75E);
+  color: #1A1400;
+  border: 1px solid rgba(255, 215, 94, 0.8);
+}
+
+:root[data-theme="dark"] .is-premium .geko-msg.from-bot .geko-bubble {
+  background: rgba(255, 215, 94, 0.08);
+  border: 1px solid rgba(255, 215, 94, 0.20);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-send {
+  background: linear-gradient(160deg, #FFE38A, #FFD75E);
+  color: #1A1400;
+  border: 1px solid rgba(255, 215, 94, 0.8);
+  box-shadow: 0 0 12px rgba(255, 215, 94, 0.22);
+}
+:root[data-theme="dark"] .is-premium .geko-chat-send:hover {
+  background: #FFE38A;
+  box-shadow: 0 0 18px rgba(255, 215, 94, 0.38);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-form textarea {
+  background: rgba(255, 215, 94, 0.06);
+  border-color: rgba(255, 215, 94, 0.30);
+}
+:root[data-theme="dark"] .is-premium .geko-chat-form textarea:focus {
+  border-color: #FFD75E;
+  box-shadow: 0 0 0 3px rgba(255, 215, 94, 0.20);
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-chips button {
+  border-color: rgba(255, 215, 94, 0.35);
+  color: #FFD75E;
+}
+:root[data-theme="dark"] .is-premium .geko-chat-chips button:hover {
+  background: rgba(255, 215, 94, 0.18);
+  border-color: #FFD75E;
+  color: #FFF1B8;
+}
+
+:root[data-theme="dark"] .is-premium .geko-chat-close:hover {
+  background: rgba(255, 215, 94, 0.16);
+  color: #FFF1B8;
+}

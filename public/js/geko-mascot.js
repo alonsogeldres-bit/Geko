@@ -7,7 +7,10 @@
    - Teléfono (pantallas angostas, sin márgenes): se queda quieta en la
      esquina inferior derecha del viewport.
    - En ambos casos se duerme cada 20-30 s; al hacerle clic despierta y saluda.
-   - Al hacer clic emite "geko:click" en window (futuro chat con IA).
+   - Al hacer clic emite "geko:click" en window (lo usa el chat con IA,
+     public/js/geko-chat.js).
+   - Mientras el chat está abierto avisa con "geko:chat-open"/"geko:chat-close":
+     Geko se queda quieto mirando al frente y retoma su paseo al cerrarlo.
 
    Preferencias del usuario (public/js/geko-mascot-prefs.js):
    - visible    : false oculta a Geko por completo (se detiene la animación).
@@ -80,6 +83,11 @@
   var ptr = null;                  /* se centra en el primer layout; después sigue al puntero */
   var raf = 0;                     /* id del requestAnimationFrame activo (0 = animación detenida) */
   var last = performance.now();
+
+  /* Posición pública para el chat (public/js/geko-chat.js): se actualiza en cada
+     frame para que la ventana del chat pueda seguirlo mientras camina. */
+  var estado = { listo: false, x: 0, y: 0, w: 0, h: 0, modo: 'side', vista: 'front' };
+  var chatAbierto = false;         /* con el chat abierto Geko se queda quieto */
 
   /* ---------- Geometría ---------- */
   function layout() {
@@ -167,16 +175,30 @@
   /* Distancia que puede avanzar antes de chocar. Infinity = da la vuelta y reaparece. */
   function room(d) {
     if (mode === 'corner') return 0;          /* quieta en la esquina: no camina */
+
     if (mode === 'free') {                    /* por toda la pantalla: hasta el borde, sin salir */
       if (d === 'left') return Math.max(0, x - fx0);
       if (d === 'right') return Math.max(0, fx1 - x);
       if (d === 'up') return Math.max(0, y - fy0);
       return Math.max(0, fy1 - y);
     }
-    if (d === 'up' || d === 'down') return Infinity;
+
+    /* Modo 'side': los carriles laterales siguen siendo un muro. Con el chat
+       abierto Geko no camina; estas ramas son la red de seguridad por si se
+       reposiciona (cambio de tamaño o de preferencias) mientras conversan. */
     var left = x < (wallL + wallR) / 2;
-    if (d === 'left') return left ? Infinity : Math.max(0, x - hw - wallR);
-    return left ? Math.max(0, wallL - hw - x) : Infinity;
+
+    if (d === 'up') return chatAbierto ? Math.max(0, y - H - 2) : Infinity;
+    if (d === 'down') return chatAbierto ? Math.max(0, Ht - y - 2) : Infinity;
+
+    if (d === 'left') {
+      if (left) return chatAbierto ? 0 : Infinity;
+      return Math.max(0, x - hw - wallR);      /* hacia el contenido: choca con el muro */
+    }
+
+    /* d === 'right' */
+    if (left) return Math.max(0, wallL - hw - x);  /* hacia el contenido: choca con el muro */
+    return chatAbierto ? 0 : Infinity;
   }
 
   function wrap() {
@@ -184,6 +206,15 @@
     if (mode === 'free') {                    /* en 'free' no reaparece por el lado opuesto: se queda dentro */
       x = cl(x, fx0, fx1);
       y = cl(y, fy0, fy1);
+      return;
+    }
+    if (chatAbierto) {                        /* red de seguridad: con el chat abierto no camina */
+      y = cl(y, H + 2, Ht - 2);
+      if (mode === 'side') {
+        /* Se queda en su carril lateral: nunca cruza por encima del contenido. */
+        var enIzquierda = x < (wallL + wallR) / 2;
+        x = enIzquierda ? Math.min(x, wallL - hw) : Math.max(x, wallR + hw);
+      }
       return;
     }
     if (x + vis < 0) x = Wd + vis;
@@ -212,6 +243,23 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); poke(); }
   });
   window.addEventListener('pointermove', function (e) { ptr = { x: e.clientX, y: e.clientY }; });
+
+  /* El chat avisa cuando se abre o se cierra: mientras conversan, Geko se queda
+     quieto mirando al frente; al cerrar, retoma su paseo normal. */
+  window.addEventListener('geko:chat-open', function () {
+    chatAbierto = true;
+    route = null;
+    wake();                 /* despierto y atento mientras dura el chat */
+    if (mode === 'side' && x !== null && x + hw > wallL && x - hw < wallR) {
+      x = x < (wallL + wallR) / 2 ? wallL - hw : wallR + hw;
+    }
+  });
+  window.addEventListener('geko:chat-close', function () {
+    chatAbierto = false;
+    route = null;
+    idle = 0;
+    wt = 1.2 + Math.random() * 1.8;   /* vuelve a pasear al poco tiempo */
+  });
 
   /* ---------- Paseo autónomo (solo escritorio) ---------- */
   function startWander() {
@@ -249,8 +297,8 @@
     if (sst === 1) { sT += dt; if (sT > 1.5) { sst = 2; sT = 0; slp = 20 + Math.random() * 10; } }
     else if (sst === 2) { sT += dt; if (sT > slp) wake(); }
     if (prefs.neverSleep) aw = 0;              /* modo activo permanente */
-    else if (!sst && !happy) aw += dt;
-    if (!sst && aw > nsl && !route && onScreen()) doze();
+    else if (!sst && !happy && !chatAbierto) aw += dt;
+    if (!sst && aw > nsl && !route && onScreen() && !chatAbierto) doze();
 
     var moved = false;
     if (sst) { route = null; dir = 'down'; }
@@ -272,7 +320,8 @@
     if (!moved) {
       idle += dt;
       if (idle > 1.2 && !route) dir = 'down';
-      if (mode !== 'corner' && prefs.wander && !RM && !sst && !route && idle > wt && !happy) startWander();
+      /* Con el chat abierto se queda quieto mirando al frente. */
+      if (mode !== 'corner' && prefs.wander && !RM && !sst && !route && idle > wt && !happy && !chatAbierto) startWander();
     }
 
     /* Vista según la dirección: arriba = espalda, abajo = frente, lados = perfil */
@@ -329,6 +378,15 @@
     SH.style.transform = 'translate(' + (x - W * 0.25) + 'px,' + (y - H * 0.03 - 6) + 'px)';
     SH.style.opacity = view === 'sleep' ? 0 : '';
     G.classList.toggle('zz', view === 'sleep');
+
+    /* El chat (geko-chat.js) lee esta posición para ir siempre al lado de Geko. */
+    estado.listo = true;
+    estado.x = x;
+    estado.y = y;
+    estado.w = W;
+    estado.h = H;
+    estado.modo = mode;
+    estado.vista = view;
     if (view === 'sleep' && !RM) ZG.setAttribute('transform', 'translate(150 346) scale(.4 ' + (0.4 * (1 + 0.014 * Math.sin(t * 1.8))) + ') translate(-654 -850)');
   }
 
@@ -350,8 +408,23 @@
      (La capa en sí la oculta el CSS con data-geko-visible="false".) */
   function stop() {
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    estado.listo = false;
     document.body.classList.remove('geko-corner');
   }
+
+  /* ---------- API pública para el chat ---------- */
+  /* Devuelve la posición real de Geko (centro del cuerpo en x, pies en y).
+     null cuando la mascota está oculta o todavía no se ha medido. */
+  window.GekoMascot = {
+    rect: function () {
+      if (!estado.listo || x === null || !prefs.visible) return null;
+      return {
+        x: estado.x, y: estado.y,
+        w: estado.w, h: estado.h,
+        mode: estado.modo, view: estado.vista
+      };
+    }
+  };
 
   /* Aplica las preferencias: al cargar y cada vez que cambian */
   function applyPrefs(next) {

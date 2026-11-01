@@ -44,12 +44,14 @@
   <script src="/js/geko-mascot-prefs.js"></script>
   <link rel="stylesheet" href="/css/dashboard.css" />
   <link rel="stylesheet" href="/css/geko-mascot.css" />
+  <link rel="stylesheet" href="/css/geko-chat.css" />
 </head>
 <body>
   <div class="dash-page has-geko<%= esPremium ? ' is-premium' : '' %>">
 
     <!-- ========== Mascota Geko (camina por los laterales) ========== -->
     <%- include('../partials/geko_mascot') %>
+    <%- include('../partials/geko_chat', { pagina: 'dashboard', usuario: u }) %>
 
     <!-- ========== Barra superior ========== -->
     <header class="dash-nav">
@@ -289,5 +291,6 @@
 
   <script src="/js/dashboard.js"></script>
   <script src="/js/geko-mascot.js"></script>
+  <script src="/js/geko-chat.js"></script>
 </body>
 </html>

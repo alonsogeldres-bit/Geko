@@ -1,0 +1,45 @@
+<!-- ===========================================
+     CHAT DE LA MASCOTA GEKO
+     Panel flotante que se abre al hacer clic en Geko (evento "geko:click").
+     Mientras está abierto, Geko se queda quieto y la ventana se coloca a su
+     lado con su posición real (lo controla public/js/geko-chat.js).
+     Solo lee datos: no modifica la rutina ni el perfil.
+     Estilos: public/css/geko-chat.css (con los 4 temas de la app).
+     =========================================== -->
+<div id="geko-chat" class="geko-chat" data-pagina="<%= typeof pagina !== 'undefined' ? pagina : 'dashboard' %>"
+     data-nombre="<%= typeof usuario !== 'undefined' && usuario && usuario.nombre ? usuario.nombre : '' %>" hidden>
+  <div class="geko-chat-card" role="dialog" aria-labelledby="geko-chat-title">
+    <header class="geko-chat-head">
+      <span class="geko-chat-avatar" aria-hidden="true">
+        <img src="/assets/geko-logo.png" alt="" width="26" height="26" />
+      </span>
+      <div class="geko-chat-id">
+        <strong id="geko-chat-title">Geko</strong>
+        <span class="geko-chat-status">Tu asistente de entrenamiento</span>
+      </div>
+      <button type="button" class="geko-chat-close" id="geko-chat-close" aria-label="Cerrar el chat">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </header>
+
+    <div class="geko-chat-log" id="geko-chat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+    <div class="geko-chat-chips" id="geko-chat-chips">
+      <button type="button" data-q="¿Qué me toca entrenar hoy?">¿Qué entreno hoy?</button>
+      <button type="button" data-q="¿Cómo subo mi racha?">¿Cómo subo mi racha?</button>
+      <button type="button" data-q="¿Dónde cambio mi tiempo o mi lugar de entrenamiento?">Cambiar mi rutina</button>
+      <button type="button" data-q="¿Qué incluye el plan Premium?">Plan Premium</button>
+    </div>
+
+    <form class="geko-chat-form" id="geko-chat-form">
+      <label class="geko-chat-label" for="geko-chat-input">Pregúntale a Geko</label>
+      <textarea id="geko-chat-input" name="mensaje" rows="1" maxlength="600"
+                placeholder="Escríbeme tu pregunta…" autocomplete="off"></textarea>
+      <button type="submit" class="geko-chat-send" id="geko-chat-send" aria-label="Enviar mensaje">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+          <path d="M3.4 20.4 21 12 3.4 3.6l2.9 6.9L15 12l-8.7 1.5z" fill="currentColor" />
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>

@@ -175,21 +175,29 @@ const respaldo = (c, perfil) => {
 
 /* ---------- Llamada a Groq ---------- */
 
-const llamarGroq = async (prompt) => {
+/**
+ * Llamada genérica al endpoint de chat de Groq.
+ * La usan la generación de rutinas (jsonMode: true) y el chat de Geko
+ * (jsonMode: false). Devuelve el texto del asistente.
+ */
+const chatCompletion = async ({
+  messages = [],
+  temperature = 0.6,
+  maxTokens = 1500,
+  jsonMode = false,
+  timeoutMs = TIMEOUT_MS,
+} = {}) => {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
 
   try {
     const body = {
       model: MODEL_NAME,
-      messages: [
-        { role: 'system', content: 'Eres un entrenador personal. Respondes solo con JSON válido.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.6,
-      max_completion_tokens: 1500,
-      response_format: { type: 'json_object' },
+      messages,
+      temperature,
+      max_completion_tokens: maxTokens,
     };
+    if (jsonMode) body.response_format = { type: 'json_object' };
     if (REASONING) body.reasoning_effort = REASONING;
 
     const res = await fetch(API_URL, {
@@ -213,6 +221,17 @@ const llamarGroq = async (prompt) => {
     clearTimeout(timer);
   }
 };
+
+const llamarGroq = (prompt) =>
+  chatCompletion({
+    messages: [
+      { role: 'system', content: 'Eres un entrenador personal. Respondes solo con JSON válido.' },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.6,
+    maxTokens: 1500,
+    jsonMode: true,
+  });
 
 /* ---------- Función pública ---------- */
 
@@ -271,6 +290,7 @@ module.exports = {
   generarRutinaPersonalizada,
   contextoDesdePerfil,
   construirPrompt,
+  chatCompletion,
   MODEL_NAME,
   TIMEOUT_MS,
 };

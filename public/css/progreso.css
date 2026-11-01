@@ -11,6 +11,15 @@
   margin-bottom: 16px;
 }
 
+/* Estado vacío de "Sesiones por semana": el aviso sigue centrado, pero el
+   botón "Comenzar entrenamiento" se alinea al borde derecho de la tarjeta. */
+.prog-chart-card .empty .cta {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 12px 0 0 auto;
+}
+
 .prog-card-head {
   display: flex;
   align-items: flex-start;

@@ -197,7 +197,25 @@
         <h3>Actividad reciente</h3>
         <% if (actividad.length) { %>
           <% actividad.forEach(function (a) { %>
-            <div class="recent"><span><%= a.nombre %></span><span class="muted"><%= a.detalle %></span></div>
+            <div class="recent">
+              <% if (a.ejercicios && a.ejercicios.length) { %>
+                <details class="recent-detalle">
+                  <summary><%= a.nombre %></summary>
+                  <ul class="recent-lista">
+                    <% a.ejercicios.forEach(function (ej) { %>
+                      <li class="<%= ej.completado === true ? 'hecho' : (ej.completado === false ? 'saltado' : '') %>">
+                        <span class="recent-marca"><%= ej.completado === true ? '✓' : (ej.completado === false ? '✕' : '·') %></span>
+                        <span><%= ej.nombre %></span>
+                        <% if (ej.bloque) { %><small class="muted"><%= ej.bloque %></small><% } %>
+                      </li>
+                    <% }) %>
+                  </ul>
+                </details>
+              <% } else { %>
+                <span><%= a.nombre %></span>
+              <% } %>
+              <span class="muted recent-meta"><%= a.detalle %></span>
+            </div>
           <% }) %>
         <% } else { %>
           <div class="empty">

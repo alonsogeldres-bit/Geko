@@ -125,7 +125,10 @@ console.log('[dashboard] Resultado TMB:', calorias);
       alt = uso.indice - 1;
     }
 
-    const sesiones = await DashboardModel.getSesiones(perfil.idCliente);
+    const [sesiones, rutinaActual] = await Promise.all([
+      DashboardModel.getSesiones(perfil.idCliente),
+      DashboardModel.getRutinaActual(perfil.idCliente),
+    ]);
     const rpeRecientes = sesiones
       .filter((s) => s.esfuerzo_percibido !== null && s.esfuerzo_percibido !== undefined)
       .slice(0, 5);
@@ -134,7 +137,7 @@ console.log('[dashboard] Resultado TMB:', calorias);
       : null;
     const sugerencia = RoutineModel.construirSugerencia(perfil, alt, esPremium, rpePromedio);
     const resumen = RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana);
-    const actividad = RoutineModel.construirActividad(sesiones);
+    const actividad = RoutineModel.construirActividad(sesiones, 5, rutinaActual);
 
     return res.render('post/dashboard', {
       usuario: req.session.usuario,

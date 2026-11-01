@@ -354,4 +354,106 @@ const evaluarEsfuerzo = async (req, res) => {
   }
 };
 
-module.exports = { index, activo, finalizar, evaluarEsfuerzo };
+/* ---------- Sesión con detalle (Actividad reciente) ---------- */
+
+const MAX_DURACION_SESION_SEG = 6 * 60 * 60;
+const MAX_EJERCICIOS_SESION = 100;
+
+/**
+ * POST /entrenamiento/sesion
+ * Guarda una sesión terminada con la foto de la rutina para que el dashboard
+ * pueda mostrar qué ejercicios se completaron y cuáles se saltaron.
+ *
+ * Es independiente de POST /entrenamiento/finalizar (que queda intacto).
+ * El reproductor llama solo a esta ruta para no guardar dos veces.
+ * Se permite guardar 0 completados: saltar todo también es una sesión.
+ */
+const guardarSesion = async (req, res) => {
+  try {
+    const idUsuario = req.session.usuario.id_usuario;
+
+    const perfil = await DashboardModel.getPerfil(idUsuario);
+    if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
+
+    const rutina = req.session.rutinaIA?.rutina || null;
+    const pasos = rutina ? aplanarRutina(rutina).map(crearPaso) : [];
+
+    const b = req.body || {};
+    const indicesRecibidos = Array.isArray(b.indicesCompletados)
+      ? b.indicesCompletados.slice(0, MAX_EJERCICIOS_SESION)
+      : [];
+
+    const completados = new Set();
+    indicesRecibidos.forEach((valor) => {
+      const n = Number(valor);
+      if (!Number.isInteger(n) || n < 0) return;
+      if (pasos.length && n >= pasos.length) return;
+      completados.add(n);
+    });
+
+    const ejerciciosCompletados = completados.size;
+
+    const duracionSegundos = Math.min(
+      MAX_DURACION_SESION_SEG,
+      Math.max(0, Math.round(Number(b.duracionSegundos) || 0))
+    );
+
+    // El total sale de la rutina real del servidor. Si la sesión se perdió
+    // (reinicio, sesión expirada), se usa lo que reportó el cliente.
+    const ejerciciosTotal = pasos.length || Math.min(
+      MAX_EJERCICIOS_SESION,
+      Math.max(ejerciciosCompletados, Math.round(Number(b.ejerciciosTotal) || 0))
+    );
+
+    if (!ejerciciosTotal) {
+      return res.status(400).json({ error: 'La sesión no tiene ejercicios.' });
+    }
+
+    const totalSeries = pasos.reduce(
+      (total, paso) => total + (paso.esPrincipal ? paso.series : 0),
+      0
+    );
+    const seriesReportadas = Math.max(
+      0,
+      Math.round(Number(b.seriesCompletadas) || 0)
+    );
+    const seriesCompletadas = totalSeries
+      ? Math.min(totalSeries, seriesReportadas)
+      : seriesReportadas;
+
+    const detalle = pasos.length
+      ? {
+          seriesCompletadas,
+          sesiones: 1,
+          ejercicios: pasos.map((paso) => ({
+            nombre: paso.nombre,
+            bloque: paso.bloque,
+            completado: completados.has(paso.i),
+          })),
+        }
+      : null;
+
+    const idSesion = await PlanEntrenamientoModel.guardarSesion({
+      idCliente: perfil.idCliente,
+      fecha: RoutineModel.aFechaISO(new Date()),
+      titulo: `Rutina IA · ${perfil.entorno || 'Entrenamiento'}`,
+      duracionSegundos,
+      ejerciciosCompletados,
+      ejerciciosTotal,
+      detalle,
+    });
+
+    return res.json({
+      ok: true,
+      idSesion,
+      ejerciciosCompletados,
+      ejerciciosTotal,
+      seriesCompletadas,
+    });
+  } catch (err) {
+    console.error('[entrenamiento/sesion] error al guardar la sesión:', err.message);
+    return res.status(500).json({ error: 'No pudimos guardar la sesión.' });
+  }
+};
+
+module.exports = { index, activo, finalizar, evaluarEsfuerzo, guardarSesion };

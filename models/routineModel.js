@@ -215,20 +215,77 @@ const calcularResumen = (sesiones, diasElegidos, diasSemana) => {
   };
 };
 
-/** Actividad reciente para el listado del dashboard. */
-const construirActividad = (sesiones, limite = 5) => {
+/** Lee `detalle_json` venga como objeto (MySQL JSON) o como texto. */
+const parsearDetalle = (valor) => {
+  if (!valor) return null;
+  if (typeof valor === 'object') return valor;
+  try {
+    return JSON.parse(valor);
+  } catch (err) {
+    return null;
+  }
+};
+
+/**
+ * Actividad reciente para el listado del dashboard.
+ *
+ * Cada sesión trae su propia foto en `detalle_json`, así que se muestran los
+ * ejercicios reales con su estado (completado / saltado), incluso si el
+ * usuario saltó todo. Para sesiones antiguas sin foto se usa la rutina IA
+ * guardada hoy (`rutinaActual`) como respaldo, sin marcar estados.
+ */
+const construirActividad = (sesiones, limite = 5, rutinaActual = null) => {
+  const fechaPlan = rutinaActual && rutinaActual.fechaInicio
+    ? aFechaISO(rutinaActual.fechaInicio)
+    : null;
+  const ejerciciosRutina = rutinaActual && Array.isArray(rutinaActual.ejercicios)
+    ? rutinaActual.ejercicios.filter(Boolean)
+    : [];
+
   return sesiones.slice(0, limite).map((s) => {
     const fecha = new Date(s.fecha);
     const dia = String(fecha.getDate()).padStart(2, '0');
     const mes = fecha.toLocaleDateString('es-CL', { month: 'short' });
 
+    const detalle = parsearDetalle(s.detalle_json);
+    const series = detalle && Number(detalle.seriesCompletadas) > 0
+      ? Number(detalle.seriesCompletadas)
+      : 0;
+
     const partes = [`${dia} ${mes}`];
     if (s.duracion_segundos) partes.push(`${Math.round(s.duracion_segundos / 60)} min`);
-    if (s.ejercicios_completados) partes.push(`${s.ejercicios_completados} ejercicios`);
+    if (s.ejercicios_completados || s.ejercicios_total) {
+      const total = Number(s.ejercicios_total) || 0;
+      partes.push(
+        total
+          ? `${s.ejercicios_completados || 0}/${total} ejercicios`
+          : `${s.ejercicios_completados || 0} ejercicios`
+      );
+    }
+    if (series) partes.push(`${series} series`);
+
+    let ejercicios = [];
+    if (detalle && Array.isArray(detalle.ejercicios) && detalle.ejercicios.length) {
+      ejercicios = detalle.ejercicios.map((ej) => ({
+        nombre: String(ej.nombre || 'Ejercicio'),
+        bloque: ej.bloque || '',
+        completado: Boolean(ej.completado),
+      }));
+    } else {
+      const fechaSesion = aFechaISO(s.fecha);
+      if (fechaPlan && fechaSesion >= fechaPlan) {
+        ejercicios = ejerciciosRutina.map((nombre) => ({
+          nombre,
+          bloque: '',
+          completado: null, // sin foto: no se sabe si se hizo
+        }));
+      }
+    }
 
     return {
       nombre: s.titulo || 'Entrenamiento completado',
       detalle: partes.join(' · '),
+      ejercicios,
     };
   });
 };

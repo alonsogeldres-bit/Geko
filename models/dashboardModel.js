@@ -117,22 +117,67 @@ const getPerfil = async (idUsuario) => {
 
 /**
  * Historial de entrenamientos del cliente.
- * La tabla que lo guarda todavía no existe en la base, así que por ahora
- * devuelve el arreglo vacío. Cuando exista, esta función la usa tal cual.
+ * Si la tabla todavía no existe en la base, el dashboard degrada a estado
+ * vacío en vez de romperse.
  */
 const getSesiones = async (idCliente) => {
   if (!(await tablaExiste('sesion_entrenamiento'))) return [];
 
   const [rows] = await pool.query(
-    `SELECT id_sesion, fecha, titulo, duracion_segundos, ejercicios_completados, esfuerzo_percibido
+    `SELECT id_sesion, fecha, titulo, duracion_segundos,
+            ejercicios_completados, ejercicios_total, esfuerzo_percibido,
+            detalle_json
        FROM sesion_entrenamiento
       WHERE id_cliente = ?
-      ORDER BY fecha DESC
+      ORDER BY fecha DESC, id_sesion DESC
       LIMIT 60`,
     [idCliente]
   );
 
   return rows;
+};
+
+/**
+ * Rutina que la IA tiene guardada hoy para el cliente. Se usa como respaldo
+ * para las sesiones antiguas que todavía no tienen `detalle_json`.
+ * Devuelve `null` si el cliente no tiene una rutina IA guardada.
+ */
+const getRutinaActual = async (idCliente) => {
+  try {
+    if (!(await tablaExiste('plan_entrenamiento'))) return null;
+    if (!(await tablaExiste('detalle_plan_entrenamiento'))) return null;
+
+    const [planes] = await pool.query(
+      `SELECT id_plan_entrenamiento, fecha_inicio
+         FROM plan_entrenamiento
+        WHERE id_cliente = ? AND observaciones LIKE 'Rutina IA%'
+        ORDER BY id_plan_entrenamiento DESC
+        LIMIT 1`,
+      [idCliente]
+    );
+
+    if (!planes.length) return null;
+
+    const plan = planes[0];
+
+    const [ejercicios] = await pool.query(
+      `SELECT e.nombre
+         FROM detalle_plan_entrenamiento d
+         INNER JOIN ejercicios e ON e.id_ejercicio = d.id_ejercicio
+        WHERE d.id_plan_entrenamiento = ?
+        ORDER BY d.orden, d.id_detalle_plan_entrenamiento`,
+      [plan.id_plan_entrenamiento]
+    );
+
+    return {
+      fechaInicio: plan.fecha_inicio,
+      ejercicios: ejercicios.map((e) => e.nombre),
+    };
+  } catch (err) {
+    // Es información opcional: si falla, el dashboard muestra solo conteos.
+    console.error('[dashboard] no se pudo leer la rutina actual:', err.message);
+    return null;
+  }
 };
 
 
@@ -167,5 +212,6 @@ const getDatosCalorias = async (idUsuario) => {
 module.exports = {
   getPerfil,
   getSesiones,
+  getRutinaActual,
   getDatosCalorias,
 };

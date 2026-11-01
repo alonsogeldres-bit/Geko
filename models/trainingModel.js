@@ -230,4 +230,150 @@ const guardarRutinaIA = async ({ idCliente, rutina, nivelFisico, fecha, diaSeman
   }
 };
 
-module.exports = { guardarRutinaIA, interpretarRepeticiones, MARCA, CATEGORIA_IA };
+/* ---------- Historial de sesiones con detalle ---------- */
+
+const MAX_DETALLE_EJERCICIOS = 200;
+const MAX_DURACION_DIA_SEG = 24 * 60 * 60;
+const MAX_EJERCICIOS_DIA = 60000;
+
+/** Lee un JSON venga como objeto (MySQL JSON) o como texto. */
+const parsearJson = (valor) => {
+  if (!valor) return null;
+  if (typeof valor === 'object') return valor;
+  try {
+    return JSON.parse(valor);
+  } catch (err) {
+    return null;
+  }
+};
+
+/**
+ * Combina el detalle de una sesión nueva con el que ya tenía el día.
+ * Se guarda una fila por cliente y fecha, así que las sesiones del mismo día
+ * se acumulan: series sumadas y ejercicios concatenados.
+ */
+const combinarDetalle = (anterior, nuevo) => {
+  if (!nuevo) return anterior || null;
+  if (!anterior) return nuevo;
+
+  const ejercicios = [
+    ...(Array.isArray(anterior.ejercicios) ? anterior.ejercicios : []),
+    ...(Array.isArray(nuevo.ejercicios) ? nuevo.ejercicios : []),
+  ].slice(0, MAX_DETALLE_EJERCICIOS);
+
+  return {
+    seriesCompletadas:
+      Math.max(0, Number(anterior.seriesCompletadas) || 0) +
+      Math.max(0, Number(nuevo.seriesCompletadas) || 0),
+    sesiones:
+      Math.max(1, Number(anterior.sesiones) || 1) +
+      Math.max(1, Number(nuevo.sesiones) || 1),
+    ejercicios,
+  };
+};
+
+/**
+ * Guarda una sesión terminada en el historial del dashboard.
+ * Respeta la fila única por cliente y fecha que usa /progreso: si ya hay una
+ * sesión hoy, acumula duración, ejercicios y detalle en vez de duplicar filas.
+ *
+ * El esfuerzo percibido (RPE) se guarda aparte con /entrenamiento/esfuerzo,
+ * así que este UPDATE no lo toca.
+ *
+ * @param {Object} datos
+ * @param {number} datos.idCliente
+ * @param {string} datos.fecha            YYYY-MM-DD (fecha local)
+ * @param {string} [datos.titulo]
+ * @param {number} [datos.duracionSegundos]
+ * @param {number} [datos.ejerciciosCompletados]
+ * @param {number} [datos.ejerciciosTotal]
+ * @param {{seriesCompletadas: number, sesiones?: number, ejercicios: Array<{nombre: string, bloque: string, completado: boolean}>}|null} [datos.detalle]
+ * @returns {Promise<number>} id_sesion
+ */
+const guardarSesion = async ({
+  idCliente,
+  fecha,
+  titulo,
+  duracionSegundos,
+  ejerciciosCompletados,
+  ejerciciosTotal,
+  detalle,
+}) => {
+  const duracion = Math.max(0, Math.round(Number(duracionSegundos) || 0));
+  const completados = Math.max(0, Math.round(Number(ejerciciosCompletados) || 0));
+  const total = Math.max(0, Math.round(Number(ejerciciosTotal) || 0));
+  const tituloFinal = recortar(titulo, 150) || 'Entrenamiento completado';
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const [filas] = await conn.query(
+      `SELECT id_sesion, duracion_segundos, ejercicios_completados, ejercicios_total, detalle_json
+         FROM sesion_entrenamiento
+        WHERE id_cliente = ? AND fecha = ?
+        FOR UPDATE`,
+      [idCliente, fecha]
+    );
+
+    if (filas.length) {
+      const actual = filas[0];
+      const detalleFinal = combinarDetalle(parsearJson(actual.detalle_json), detalle);
+
+      await conn.query(
+        `UPDATE sesion_entrenamiento
+            SET titulo = ?,
+                duracion_segundos = ?,
+                ejercicios_completados = ?,
+                ejercicios_total = ?,
+                detalle_json = ?,
+                actualizado_en = CURRENT_TIMESTAMP
+          WHERE id_sesion = ?`,
+        [
+          tituloFinal,
+          Math.min(MAX_DURACION_DIA_SEG, (Number(actual.duracion_segundos) || 0) + duracion),
+          Math.min(MAX_EJERCICIOS_DIA, (Number(actual.ejercicios_completados) || 0) + completados),
+          // Se suman ambos para que dos sesiones de 5/5 queden 10/10, no 10/5.
+          Math.min(MAX_EJERCICIOS_DIA, (Number(actual.ejercicios_total) || 0) + total),
+          detalleFinal ? JSON.stringify(detalleFinal) : null,
+          actual.id_sesion,
+        ]
+      );
+
+      await conn.commit();
+      return actual.id_sesion;
+    }
+
+    const [resultado] = await conn.query(
+      `INSERT INTO sesion_entrenamiento
+         (id_cliente, fecha, titulo, duracion_segundos, ejercicios_completados,
+          ejercicios_total, detalle_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        idCliente,
+        fecha,
+        tituloFinal,
+        Math.min(MAX_DURACION_DIA_SEG, duracion),
+        Math.min(MAX_EJERCICIOS_DIA, completados),
+        Math.min(MAX_EJERCICIOS_DIA, total),
+        detalle ? JSON.stringify(detalle) : null,
+      ]
+    );
+
+    await conn.commit();
+    return resultado.insertId;
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+};
+
+module.exports = {
+  guardarRutinaIA,
+  guardarSesion,
+  interpretarRepeticiones,
+  MARCA,
+  CATEGORIA_IA,
+};

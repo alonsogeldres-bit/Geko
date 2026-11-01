@@ -389,6 +389,40 @@ a.logo-brand { color: inherit; text-decoration: none; }
 
 .recent:first-of-type { border-top: 0; }
 
+.recent-detalle { flex: 1; min-width: 0; }
+.recent-detalle summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 500;
+}
+.recent-detalle summary::-webkit-details-marker { display: none; }
+.recent-detalle summary::after {
+  content: '▸';
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--mut);
+  transition: transform 0.2s ease;
+}
+.recent-detalle[open] summary::after { transform: rotate(90deg); }
+.recent-lista {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--mut);
+}
+.recent-lista li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 0;
+}
+.recent-marca { width: 14px; flex: none; text-align: center; }
+.recent-lista li.hecho .recent-marca { color: var(--ac); }
+.recent-lista li.saltado .recent-marca { color: #d9534f; }
+.recent-lista small { margin-left: auto; font-size: 11px; }
+.recent-meta { text-align: right; white-space: nowrap; }
+
 .empty { padding: 6px 0; text-align: center; }
 .empty strong { display: block; margin-bottom: 4px; font-size: 14px; }
 .empty .muted { font-size: 13px; }

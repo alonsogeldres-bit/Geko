@@ -76,6 +76,7 @@
     acumuladoMs: 0,
     seriesCompletadas: 0,
     ejerciciosCompletados: 0,
+    completados: new Set(),
     started: false,
     mudo: leerMudo(),
     wakeLock: null,
@@ -707,6 +708,7 @@
         }, 1000);
       } else {
         state.ejerciciosCompletados += 1;
+        state.completados.add(state.idx);
         programar(() => siguienteEjercicio(true), 1100);
       }
     } else if (state.fase === 'rest') {
@@ -789,7 +791,7 @@
     siguienteEjercicio(true);
   }
 
-  function finalizarEntrenamiento() {
+  async function finalizarEntrenamiento() {
     cancelarTimeout();
     cancelarFin();
     cancelAnimationFrame(state.raf);
@@ -810,7 +812,9 @@
       el.finalizar.textContent = 'Finalizado';
     }
 
-    registrarSesion();
+    // Se guarda la sesión antes de mostrar el resumen: así el panel de
+    // esfuerzo (RPE) siempre encuentra la fila del día ya creada.
+    await registrarSesion();
     mostrarResumen();
   }
 
@@ -827,13 +831,14 @@
     if (state.registrado) return;
     state.registrado = true;
     try {
-      await fetch('/entrenamiento/finalizar', {
+      await fetch('/entrenamiento/sesion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
         body: JSON.stringify({
-          titulo: 'Entrenamiento completado',
           duracionSegundos: Math.round(state.acumuladoMs / 1000),
-          ejerciciosCompletados: state.ejerciciosCompletados,
+          seriesCompletadas: state.seriesCompletadas,
+          indicesCompletados: Array.from(state.completados),
           ejerciciosTotal: pasos.length,
         }),
       });
@@ -854,6 +859,7 @@
     state.acumuladoMs = 0;
     state.seriesCompletadas = 0;
     state.ejerciciosCompletados = 0;
+    state.completados = new Set();
     state.registrado = false;
     if (el.finalizar) {
       el.finalizar.disabled = false;
@@ -910,10 +916,12 @@
   }
 
   function mostrarResumen() {
-    el.overlayKicker.textContent = 'Sesión completada';
-    el.overlayTitle.textContent = '¡Entrenamiento completado!';
-    el.overlayText.textContent =
-      'Completaste todos los ejercicios de tu rutina. Puedes repetir la sesión o volver a tu plan de entrenamiento.';
+    const todos = pasos.length > 0 && state.ejerciciosCompletados >= pasos.length;
+    el.overlayKicker.textContent = todos ? 'Sesión completada' : 'Sesión guardada';
+    el.overlayTitle.textContent = todos ? '¡Entrenamiento completado!' : 'Sesión registrada';
+    el.overlayText.textContent = todos
+      ? 'Completaste todos los ejercicios de tu rutina. Puedes repetir la sesión o volver a tu plan de entrenamiento.'
+      : 'Tu sesión quedó guardada. Puedes repetirla o volver a tu plan de entrenamiento.';
     crearStats([
       { valor: `${state.ejerciciosCompletados} / ${pasos.length}`, texto: 'ejercicios' },
       { valor: String(state.seriesCompletadas), texto: 'series completadas' },

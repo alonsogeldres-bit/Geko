@@ -3,14 +3,19 @@
    POST /geko/chat        -> responde una pregunta (solo lectura)
    POST /geko/chat/reset  -> olvida la conversación de esta sesión
 
-   No escribe en la base de datos: lee el perfil y el resumen con las mismas
-   funciones del dashboard solo para dar contexto a la IA.
+   No escribe en la base de datos: lee el perfil y, según la pregunta, solo las
+   fuentes de contexto que el router considera relevantes. Así el chat no
+   satura el prompt con datos que no hacen falta.
    =========================================== */
 
 const DashboardModel = require('../models/dashboardModel');
 const RoutineModel = require('../models/routineModel');
 const PlanModel = require('../models/planModel');
+const ProfileModel = require('../models/profileModel');
+const ProgressModel = require('../models/progressModel');
 const { responderChat, MAX_HISTORIAL, MAX_MENSAJE_USUARIO } = require('../services/gekoChatService');
+const { seleccionarFuentes } = require('../services/gekoContextRouter');
+const { FUENTES } = require('../services/gekoContextSources');
 
 const MAX_MENSAJES_POR_SESION = 40;  // preguntas del usuario en toda la sesión
 const COOLDOWN_MS = 1200;            // evita dobles envíos seguidos
@@ -68,21 +73,44 @@ const chat = async (req, res) => {
     }
 
     const idUsuario = req.session.usuario.id_usuario;
-    const perfil = await DashboardModel.getPerfil(idUsuario);
 
-    if (!perfil) {
+    /* El router decide antes de leer: saludos o dudas generales de la app
+       solo comprueban que exista el perfil, sin cargar sus datos. */
+    const fuentes = seleccionarFuentes(mensaje, estado.historial);
+
+    let perfil = {};
+    if (fuentes.length) {
+      perfil = await DashboardModel.getPerfil(idUsuario);
+      if (!perfil) {
+        return res.status(404).json({ ok: false, message: 'Completa tu perfil para que pueda ayudarte.' });
+      }
+    } else if (!(await ProfileModel.hasProfile(idUsuario))) {
       return res.status(404).json({ ok: false, message: 'Completa tu perfil para que pueda ayudarte.' });
     }
 
-    let sesiones = [];
-    try {
-      sesiones = await DashboardModel.getSesiones(perfil.idCliente);
-    } catch (errSesiones) {
-      console.error('[geko-chat] no se pudieron leer las sesiones:', errSesiones.message);
-    }
+    const necesitaHistorial = fuentes.includes(FUENTES.HISTORIAL);
+    const necesitaMetricas = fuentes.includes(FUENTES.METRICAS);
+    const necesitaPlan = fuentes.includes(FUENTES.PERFIL);
 
-    const resumen = RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana);
-    const esPremium = await tienePlanDePago(perfil.idCliente);
+    const [sesiones, mediciones, esPremium] = await Promise.all([
+      necesitaHistorial
+        ? DashboardModel.getSesiones(perfil.idCliente).catch((errSesiones) => {
+            console.error('[geko-chat] no se pudieron leer las sesiones:', errSesiones.message);
+            return [];
+          })
+        : Promise.resolve([]),
+      necesitaMetricas
+        ? ProgressModel.getMediciones(perfil.idCliente, 12).catch((errMediciones) => {
+            console.error('[geko-chat] no se pudieron leer las mediciones:', errMediciones.message);
+            return [];
+          })
+        : Promise.resolve([]),
+      necesitaPlan ? tienePlanDePago(perfil.idCliente) : Promise.resolve(false),
+    ]);
+
+    const resumen = necesitaHistorial
+      ? RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana)
+      : {};
 
     /* Resumen de la rutina que la IA ya generó en esta sesión (si existe).
        Es solo texto de contexto: no se guarda ni se modifica nada. */
@@ -104,10 +132,13 @@ const chat = async (req, res) => {
     const { texto, fallback } = await responderChat({
       mensaje,
       historial: estado.historial,
+      fuentes,
       contexto: {
         usuario: req.session.usuario,
         perfil,
         resumen,
+        sesiones,
+        mediciones,
         esPremium,
         pagina: req.body && req.body.pagina,
         rutina: resumenRutina,

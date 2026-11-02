@@ -16,6 +16,7 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const planRoutes = require('./routes/planRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const gekoRoutes = require('./routes/gekoRoutes');
+const helpRoutes = require('./routes/helpRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
 const { guardAccount } = require('./middlewares/accountGuard');
 
@@ -83,6 +84,7 @@ app.use('/configuracion', settingsRoutes);
 app.use('/', planRoutes);
 app.use('/admin', adminRoutes);
 app.use('/geko', gekoRoutes);
+app.use('/ayuda', helpRoutes);
 
 // Levantar el servidor
 app.listen(port, () => {

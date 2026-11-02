@@ -1,0 +1,734 @@
+<%
+  const u = locals.usuario || {};
+  const plan = locals.plan || { nombre: 'Gratis', esDePago: false, fechaTermino: null };
+  const esPremium = Boolean(plan.esDePago);
+  const nombre = u.nombre || 'Atleta';
+  const inicial = nombre.charAt(0).toUpperCase();
+  const contacto = locals.contacto || 'geko.training@gmail.com';
+  const correoUrl = locals.correoUrl || ('https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(contacto));
+
+  const fechaPlan = (function () {
+    if (!plan.fechaTermino) return null;
+    const texto = String(plan.fechaTermino).slice(0, 10);
+    const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(texto);
+    // Las fechas DATE llegan sin zona horaria: se arman en local para no
+    // mostrar el día anterior en Chile.
+    const f = partes
+      ? new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]))
+      : new Date(plan.fechaTermino);
+    if (isNaN(f.getTime())) return null;
+    return f.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
+  })();
+
+  const menu = [
+    { href: '/dashboard',     texto: 'Mi dashboard' },
+    { href: '/configuracion', texto: 'Configuración' },
+    { href: '/planes',        texto: 'Planes' },
+    { href: '/progreso',      texto: 'Mi progreso' },
+    { href: '/ayuda',         texto: 'Ayuda', actual: true }
+  ];
+
+  const accesos = [
+    {
+      href: '/configuracion/entrenamiento',
+      icono: 'dumbbell',
+      titulo: 'Mi perfil de entrenamiento',
+      desc: 'Objetivo, nivel, días, equipamiento y lesiones.'
+    },
+    {
+      href: '/entrenamiento',
+      icono: 'flame',
+      titulo: 'Mi entrenamiento',
+      desc: 'Empieza la rutina de hoy y registra tus series.'
+    },
+    {
+      href: '/progreso',
+      icono: 'pulse',
+      titulo: 'Mi progreso',
+      desc: 'Racha, historial de sesiones y evolución del peso.'
+    },
+    {
+      href: '/configuracion/cuenta',
+      icono: 'card',
+      titulo: 'Mi cuenta y plan',
+      desc: 'Revisa tu plan actual y los datos de acceso.'
+    },
+    {
+      href: '/planes',
+      icono: 'balance',
+      titulo: 'Planes y Premium',
+      desc: 'Compara beneficios y cambia de plan cuando quieras.'
+    },
+    {
+      href: '/dashboard',
+      icono: 'geko',
+      titulo: 'Habla con Geko',
+      desc: 'Abre el dashboard y toca a la mascota para preguntarle.'
+    }
+  ];
+
+  const categorias = [
+    { id: 'cuenta',        nombre: 'Cuenta y acceso' },
+    { id: 'entrenamiento', nombre: 'Entrenamiento' },
+    { id: 'progreso',      nombre: 'Progreso' },
+    { id: 'planes',        nombre: 'Planes y pagos' },
+    { id: 'datos',         nombre: 'Datos y privacidad' }
+  ];
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#F5FAF6" />
+  <title>GEKO - Centro de ayuda</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/ayuda.css" />
+</head>
+<body>
+  <div class="dash-page ayuda-page<%= esPremium ? ' is-premium' : '' %>">
+
+    <!-- ========== Barra superior ========== -->
+    <header class="dash-nav">
+      <a href="/dashboard" class="logo-brand">
+        <img src="/assets/geko-logo.png" alt="GEKO" width="30" height="30" data-logo />
+        <span class="brand-text">GEKO</span>
+        <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
+      </a>
+
+      <details class="user-menu" id="user-menu">
+        <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
+
+        <div class="dropdown" role="menu">
+          <div class="dropdown-head">
+            <strong><%= nombre %></strong>
+            <span class="muted small">Mi cuenta</span>
+          </div>
+
+          <% menu.forEach(function (item) { %>
+            <a href="<%= item.href %>" role="menuitem"
+               class="dropdown-item<%= item.actual ? ' is-current' : '' %>"
+               <%= item.actual ? 'aria-current="page"' : '' %>>
+              <span class="dropdown-ico"></span>
+              <%= item.texto %>
+            </a>
+          <% }) %>
+
+          <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
+                  aria-checked="false" data-theme-toggle>
+            <span class="dropdown-ico" data-theme-icon>☀️</span>
+            Modo oscuro
+            <span class="theme-switch" aria-hidden="true"></span>
+          </button>
+
+          <% if (u.id_rol === 1 || u.id_rol === 3) { %>
+            <a href="/admin" role="menuitem" class="dropdown-item">
+              <span class="dropdown-ico">🛡️</span> Panel admin
+            </a>
+          <% } %>
+
+          <form action="/auth/logout" method="POST" class="dropdown-logout">
+            <button type="submit" class="dropdown-item" role="menuitem">
+              <span class="dropdown-ico"></span> Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <main class="dash-main ayuda-main">
+
+      <!-- ========== Portada ========== -->
+      <section class="ayuda-hero ayuda-anim" aria-labelledby="ayuda-title">
+        <div class="ayuda-hero-grid">
+          <div>
+            <span class="ayuda-eyebrow">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.6" fill="currentColor" fill-opacity=".14"></circle>
+                <path d="M9.6 9.4a2.5 2.5 0 1 1 3.7 2.2c-.8.5-1.3 1-1.3 2"></path>
+                <circle cx="12" cy="16.7" r="1" fill="currentColor" stroke="none"></circle>
+              </svg>
+              Centro de ayuda
+            </span>
+
+            <h1 id="ayuda-title">¿En qué podemos ayudarte?</h1>
+            <p class="ayuda-hero-text">
+              Encuentra respuestas rápidas sobre tu cuenta, tus rutinas, tu progreso y tu plan.
+              Si no encuentras lo que buscas, escríbenos: estamos para ayudarte.
+            </p>
+
+            <div class="ayuda-hero-actions">
+              <a href="#preguntas" class="ayuda-btn ayuda-btn--primary">Ver preguntas frecuentes</a>
+              <a href="#contacto" class="ayuda-btn ayuda-btn--ghost">Contactar a soporte</a>
+            </div>
+          </div>
+
+          <aside class="ayuda-status" aria-label="Resumen de tu plan">
+            <span class="ayuda-status-label">Tu plan actual</span>
+            <strong class="ayuda-status-plan"><%= plan.nombre %></strong>
+            <p class="ayuda-status-desc">
+              <% if (esPremium) { %>
+                Tienes acceso a todas las funciones Premium.
+                <% if (fechaPlan) { %>Válido hasta el <%= fechaPlan %>.<% } %>
+              <% } else { %>
+                Disfruta las funciones Gratis y mejora cuando quieras.
+              <% } %>
+            </p>
+            <a href="/planes" class="ayuda-status-link">
+              <%= esPremium ? 'Gestionar mi plan' : 'Ver planes' %>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 5.5 15.5 12 9 18.5"></path>
+              </svg>
+            </a>
+          </aside>
+        </div>
+
+        <div class="ayuda-search-wrap">
+          <label class="ayuda-sr-only" for="ayuda-search">Buscar en el centro de ayuda</label>
+          <div class="ayuda-search">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="10.8" cy="10.8" r="6.8"></circle>
+              <path d="m16 16 4.2 4.2"></path>
+            </svg>
+            <input type="search" id="ayuda-search" class="ayuda-search-input"
+                   placeholder="Busca una duda, un ajuste o una función…"
+                   autocomplete="off" aria-controls="ayuda-faq" />
+            <button type="button" class="ayuda-search-clear" id="ayuda-search-clear" hidden>
+              Limpiar
+            </button>
+          </div>
+          <p class="ayuda-results" id="ayuda-results" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- ========== Accesos rápidos ========== -->
+      <section class="ayuda-section ayuda-anim" aria-labelledby="ayuda-accesos-title">
+        <div class="ayuda-section-head">
+          <div>
+            <h2 class="ayuda-section-title" id="ayuda-accesos-title">Accesos rápidos</h2>
+            <p class="ayuda-section-desc">Ve directo a la parte de Geko que necesitas.</p>
+          </div>
+        </div>
+
+        <div class="ayuda-quick" id="ayuda-quick">
+          <% accesos.forEach(function (a) { %>
+            <a class="ayuda-quick-card" href="<%= a.href %>" data-help-item>
+              <span class="ayuda-quick-icon" aria-hidden="true">
+                <%- include('../configuracion/partials/icon', { name: a.icono, size: 22 }) %>
+              </span>
+              <span class="ayuda-quick-body">
+                <strong><%= a.titulo %></strong>
+                <span><%= a.desc %></span>
+              </span>
+              <span class="ayuda-quick-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 5.5 15.5 12 9 18.5"></path>
+                </svg>
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- ========== Preguntas frecuentes ========== -->
+      <section class="ayuda-section ayuda-anim" id="preguntas" aria-labelledby="ayuda-faq-title">
+        <div class="ayuda-section-head">
+          <div>
+            <h2 class="ayuda-section-title" id="ayuda-faq-title">Preguntas frecuentes</h2>
+            <p class="ayuda-section-desc">Filtra por tema o usa el buscador de arriba.</p>
+          </div>
+          <button type="button" class="ayuda-toggle-all" id="ayuda-toggle-all">Abrir todas</button>
+        </div>
+
+        <div class="ayuda-filters" role="group" aria-label="Filtrar preguntas por tema">
+          <button type="button" class="ayuda-filter" data-help-filter="all" aria-pressed="true">Todo</button>
+          <% categorias.forEach(function (cat) { %>
+            <button type="button" class="ayuda-filter" data-help-filter="<%= cat.id %>" aria-pressed="false"><%= cat.nombre %></button>
+          <% }) %>
+        </div>
+
+        <div id="ayuda-faq">
+
+          <!-- Cuenta y acceso -->
+          <div class="ayuda-cat" data-help-cat="cuenta">
+            <h3 class="ayuda-cat-title">Cuenta y acceso</h3>
+            <div class="ayuda-faq-list">
+
+              <details class="ayuda-faq" data-help-item data-cat="cuenta">
+                <summary>
+                  <span>¿Cómo creo mi cuenta?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Puedes registrarte con tu correo y contraseña o continuar con Google desde la pantalla de registro. Después de crear la cuenta, completa tu perfil de entrenamiento para que Geko pueda preparar tu primera rutina.</p>
+                  <p><a href="/register">Ir a registrarme</a> · <a href="/login">Ya tengo cuenta</a></p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="cuenta">
+                <summary>
+                  <span>Olvidé mi contraseña, ¿qué hago?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Entra a <a href="/forgot-password">Recuperar contraseña</a>, escribe el correo de tu cuenta y revisa tu bandeja de entrada (y la carpeta de spam). Si tu cuenta se creó con Google, la contraseña se gestiona directamente desde Google.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="cuenta">
+                <summary>
+                  <span>¿Cómo cambio mis datos o mi contraseña?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>En <a href="/configuracion/datos">Datos personales</a> puedes actualizar tu nombre, teléfono y fecha de nacimiento. La contraseña se cambia en <a href="/configuracion/seguridad">Seguridad</a>. Si entraste con Google, el correo y la contraseña se administran desde tu cuenta de Google.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="cuenta">
+                <summary>
+                  <span>¿Por qué me pide completar el perfil?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>La rutina se construye con tus objetivos, nivel, días disponibles, lugar de entrenamiento, equipamiento y lesiones. Sin esos datos no podemos personalizarla. Puedes completarlos o actualizarlos en <a href="/profile">tu perfil</a>.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="cuenta">
+                <summary>
+                  <span>¿Cómo elimino mi cuenta?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Escríbenos a <a href="<%= correoUrl %>" target="_blank" rel="noopener noreferrer"><%= contacto %></a> con el asunto «Eliminar cuenta» desde el correo asociado a tu cuenta. También puedes revisar tus derechos sobre los datos en la <a href="/politic">Política de privacidad</a>.</p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+
+          <!-- Entrenamiento -->
+          <div class="ayuda-cat" data-help-cat="entrenamiento">
+            <h3 class="ayuda-cat-title">Entrenamiento</h3>
+            <div class="ayuda-faq-list">
+
+              <details class="ayuda-faq" data-help-item data-cat="entrenamiento">
+                <summary>
+                  <span>¿Cómo se genera mi rutina?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Geko combina los datos de tu perfil con tu historial de entrenamientos para proponerte una sesión adaptada. La sugerencia del día aparece en el dashboard y cambia según tu nivel, tus días disponibles y el esfuerzo que registras.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="entrenamiento">
+                <summary>
+                  <span>¿Cómo cambio la sugerencia del día?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>En el dashboard, usa el botón <strong>Cambiar sugerencia</strong>. Con el plan Gratis tienes un número limitado de cambios por semana; con Premium los cambios son ilimitados. También puedes ajustar tu perfil si tus necesidades cambiaron.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="entrenamiento">
+                <summary>
+                  <span>¿Cómo registro un entrenamiento?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Abre <a href="/entrenamiento">Entrenamiento</a>, comienza la sesión y marca los ejercicios a medida que los completas. Al finalizar, la sesión queda guardada y se suma a tu racha y a tu historial en <a href="/progreso">Mi progreso</a>.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="entrenamiento">
+                <summary>
+                  <span>¿Puedo entrenar sin equipamiento?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Sí. En tu perfil de entrenamiento puedes indicar el lugar y el equipamiento disponible, incluida la opción de entrenar sin implementos. Premium también adapta la rutina con o sin equipamiento.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="entrenamiento">
+                <summary>
+                  <span>Tengo una lesión o una condición de salud, ¿qué hago?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Actualiza tu perfil con la lesión o condición para que la rutina lo considere. Si el dolor es fuerte, persistente o tienes dudas médicas, detente y consulta a un profesional de la salud. Las recomendaciones de Geko son orientativas y no reemplazan una evaluación médica.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="entrenamiento">
+                <summary>
+                  <span>¿Qué muestran el temporizador y la guía de ejercicio?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Durante la sesión verás el ejercicio actual, las series, las repeticiones y el tiempo de descanso, además de una guía paso a paso. Puedes avanzar o pausar según tu ritmo.</p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+
+          <!-- Progreso -->
+          <div class="ayuda-cat" data-help-cat="progreso">
+            <h3 class="ayuda-cat-title">Progreso</h3>
+            <div class="ayuda-faq-list">
+
+              <details class="ayuda-faq" data-help-item data-cat="progreso">
+                <summary>
+                  <span>¿Dónde veo mi progreso?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>En <a href="/progreso">Mi progreso</a> encontrarás tu racha, las sesiones de las últimas semanas, el historial de entrenamientos y la evolución de tu peso.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="progreso">
+                <summary>
+                  <span>¿Cómo funciona la racha?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>La racha aumenta cuando completas entrenamientos en días consecutivos. Si dejas pasar un día sin sesión, vuelve a empezar. La meta semanal y los días que elegiste en tu perfil te ayudan a mantener la constancia.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="progreso">
+                <summary>
+                  <span>¿Cómo registro mi peso?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>En <a href="/progreso">Mi progreso</a>, usa el formulario de medición para ingresar tu peso y tu altura. Cada registro alimenta el gráfico de evolución y te ayuda a ver la tendencia.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="progreso">
+                <summary>
+                  <span>No aparece mi último entrenamiento, ¿qué puedo hacer?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Revisa que hayas finalizado la sesión y recarga la página. Si el problema continúa, escríbenos a <a href="<%= correoUrl %>" target="_blank" rel="noopener noreferrer"><%= contacto %></a> con la fecha del entrenamiento y tu nombre de usuario.</p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+
+          <!-- Planes y pagos -->
+          <div class="ayuda-cat" data-help-cat="planes">
+            <h3 class="ayuda-cat-title">Planes y pagos</h3>
+            <div class="ayuda-faq-list">
+
+              <details class="ayuda-faq" data-help-item data-cat="planes">
+                <summary>
+                  <span>¿Qué incluye el plan Gratis?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>El plan Gratis incluye una rutina personalizada inicial, la elección de tus días disponibles, la consideración del lugar de entrenamiento, el registro de entrenamientos realizados y los días de racha. No requiere datos de pago.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="planes">
+                <summary>
+                  <span>¿Qué incluye Premium?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Premium agrega rutinas con o sin equipamiento, guía durante el ejercicio, chat directo con IA para resolver dudas y modificar rutinas, control de calorías y seguimiento de alimentación, sugerencias ilimitadas, análisis del tiempo disponible y un asistente para condiciones como lesiones previas o enfermedades.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="planes">
+                <summary>
+                  <span>¿Cómo paso a Premium?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Entra a <a href="/planes">Planes</a>, elige la opción Premium y completa el pago con PayPal. Cuando se confirme, verás el cambio en <a href="/configuracion/cuenta">Mi cuenta</a>. Si el pago no se refleja al instante, espera unos segundos y recarga la página.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="planes">
+                <summary>
+                  <span>¿El cobro es automático?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Geko no renueva el cobro automáticamente. El pago cubre el período contratado y puedes revisar la fecha de vigencia en <a href="/configuracion/cuenta">Mi cuenta</a>. Para mantener Premium, renueva desde <a href="/planes">Planes</a> antes de que termine el período.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="planes">
+                <summary>
+                  <span>Pagué y mi plan sigue apareciendo como Gratis.</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Primero espera unos segundos y recarga la página para que se actualice el estado. Si el pago aparece aprobado en PayPal y el plan no cambia, escríbenos a <a href="<%= correoUrl %>" target="_blank" rel="noopener noreferrer"><%= contacto %></a> con el correo de tu cuenta, la fecha del pago y el identificador de la orden de PayPal.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="planes">
+                <summary>
+                  <span>¿Puedo volver al plan Gratis?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Cuando termine el período Premium, tu cuenta sigue disponible con las funciones del plan Gratis. Si tienes dudas sobre tu situación particular, escríbenos antes de la fecha de término.</p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+
+          <!-- Datos y privacidad -->
+          <div class="ayuda-cat" data-help-cat="datos">
+            <h3 class="ayuda-cat-title">Datos y privacidad</h3>
+            <div class="ayuda-faq-list">
+
+              <details class="ayuda-faq" data-help-item data-cat="datos">
+                <summary>
+                  <span>¿Cómo se usan mis datos?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Usamos los datos de tu cuenta y de tu perfil para prestar el servicio y personalizar tus rutinas. En la <a href="/politic">Política de privacidad</a> encontrarás el detalle de los datos que tratamos y para qué.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="datos">
+                <summary>
+                  <span>¿Puedo solicitar acceso, corrección o eliminación de mis datos?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Sí. Escríbenos a <a href="<%= correoUrl %>" target="_blank" rel="noopener noreferrer"><%= contacto %></a> con el asunto «Mis datos» y cuéntanos qué necesitas. También puedes revisar tus derechos en la <a href="/politic">Política de privacidad</a>.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="datos">
+                <summary>
+                  <span>¿Las recomendaciones de la IA reemplazan a un profesional?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>No. Las rutinas y sugerencias son orientativas y pueden no ser adecuadas para todas las personas. Ante dudas médicas, lesiones o condiciones de salud, consulta a un profesional antes de entrenar.</p>
+                </div>
+              </details>
+
+              <details class="ayuda-faq" data-help-item data-cat="datos">
+                <summary>
+                  <span>¿Dónde están los términos y condiciones?</span>
+                  <span class="ayuda-chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="ayuda-faq-body">
+                  <p>Puedes leerlos en <a href="/terms">Términos y condiciones</a>. La información sobre el tratamiento de datos está en la <a href="/politic">Política de privacidad</a>.</p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+
+          <div class="ayuda-empty" id="ayuda-empty" hidden>
+            <strong>No encontramos preguntas con ese término</strong>
+            <span>Prueba con otra palabra o <a href="#contacto">escríbenos directamente</a>.</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== Planes ========== -->
+      <section class="ayuda-section ayuda-anim" id="planes" aria-labelledby="ayuda-planes-title">
+        <div class="ayuda-section-head">
+          <div>
+            <h2 class="ayuda-section-title" id="ayuda-planes-title">Gratis y Premium</h2>
+            <p class="ayuda-section-desc">Una vista rápida de lo que incluye cada plan.</p>
+          </div>
+          <a href="/planes" class="ayuda-link">Ver planes y precios</a>
+        </div>
+
+        <div class="ayuda-plans">
+          <article class="ayuda-plan<%= !esPremium ? ' is-current' : '' %>">
+            <header class="ayuda-plan-head">
+              <div>
+                <span class="ayuda-plan-kicker">Para empezar</span>
+                <h3>Gratis</h3>
+              </div>
+              <% if (!esPremium) { %><span class="ayuda-plan-badge">Tu plan</span><% } %>
+            </header>
+
+            <ul class="ayuda-plan-features">
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Rutina personalizada inicial</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Días disponibles para entrenar</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Lugar de entrenamiento</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Registro de entrenamientos</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Días de racha</li>
+            </ul>
+
+            <p class="ayuda-plan-note">No requiere datos de pago.</p>
+            <a href="/dashboard" class="ayuda-btn ayuda-btn--ghost ayuda-plan-btn">Ir al dashboard</a>
+          </article>
+
+          <article class="ayuda-plan ayuda-plan--premium<%= esPremium ? ' is-current' : '' %>">
+            <header class="ayuda-plan-head">
+              <div>
+                <span class="ayuda-plan-kicker">Todo completo</span>
+                <h3>Premium</h3>
+              </div>
+              <span class="ayuda-plan-badge"><%= esPremium ? 'Tu plan' : 'Recomendado' %></span>
+            </header>
+
+            <ul class="ayuda-plan-features">
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Rutina con o sin equipamiento</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Guía durante el ejercicio</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Chat con IA para dudas y rutinas</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Control de calorías y alimentación</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Sugerencias de entrenamiento ilimitadas</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Análisis del tiempo disponible</li>
+              <li><span class="ayuda-check" aria-hidden="true">✓</span> Asistente para lesiones y condiciones</li>
+            </ul>
+
+            <a href="/planes" class="ayuda-btn ayuda-btn--primary ayuda-plan-btn">
+              <%= esPremium ? 'Gestionar mi plan' : 'Mejorar a Premium' %>
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <!-- ========== Contacto y redes ========== -->
+      <section class="ayuda-section ayuda-anim" id="contacto" aria-labelledby="ayuda-contacto-title">
+        <div class="ayuda-section-head">
+          <div>
+            <h2 class="ayuda-section-title" id="ayuda-contacto-title">Contacto y redes sociales</h2>
+            <p class="ayuda-section-desc">Soporte directo y novedades de la comunidad Geko.</p>
+          </div>
+        </div>
+
+        <div class="ayuda-contact-grid">
+          <article class="ayuda-contact-card">
+            <span class="ayuda-contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2.5" fill="currentColor" fill-opacity=".14"></rect>
+                <path d="m4 7 8 6 8-6"></path>
+              </svg>
+            </span>
+            <h3>Escríbenos</h3>
+            <p>Si no encontraste tu respuesta, envíanos un correo. Incluye tu nombre de usuario y cuéntanos qué necesitas.</p>
+
+            <a class="ayuda-mailto" href="<%= correoUrl %>" target="_blank" rel="noopener noreferrer">
+              <span class="ayuda-mailto-text">
+                <small>Correo de soporte</small>
+                <strong><%= contacto %></strong>
+              </span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 5.5 15.5 12 9 18.5"></path>
+              </svg>
+            </a>
+
+            <div class="ayuda-contact-actions">
+              <a href="<%= correoUrl %>" target="_blank" rel="noopener noreferrer"
+                 class="ayuda-btn ayuda-btn--primary">Abrir en Gmail</a>
+              <button type="button" class="ayuda-btn ayuda-btn--ghost ayuda-copy"
+                      data-copy="<%= contacto %>" data-copy-label>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="8.5" y="8.5" width="11" height="11" rx="2.2"></rect>
+                  <path d="M15.5 8.5V6.7A2.2 2.2 0 0 0 13.3 4.5H6.7a2.2 2.2 0 0 0-2.2 2.2v6.6a2.2 2.2 0 0 0 2.2 2.2h1.8"></path>
+                </svg>
+                <span>Copiar correo</span>
+              </button>
+            </div>
+
+            <p class="ayuda-contact-note">Se abrirá el redactor de Gmail en tu navegador. Si usas otro correo, copia la dirección. Para ayudarte más rápido, escribe desde el correo de tu cuenta.</p>
+          </article>
+
+          <article class="ayuda-contact-card">
+            <span class="ayuda-contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="12" r="2.6" fill="currentColor" fill-opacity=".14"></circle>
+                <circle cx="18" cy="6" r="2.6" fill="currentColor" fill-opacity=".14"></circle>
+                <circle cx="18" cy="18" r="2.6" fill="currentColor" fill-opacity=".14"></circle>
+                <path d="m8.4 10.8 7.2-3.6M8.4 13.2l7.2 3.6"></path>
+              </svg>
+            </span>
+            <h3>Redes sociales</h3>
+            <p>Sigue a Geko para ver rutinas, consejos y novedades de la app.</p>
+
+            <div class="ayuda-social">
+              <a class="ayuda-social-card" href="https://www.tiktok.com/@geko.training"
+                 target="_blank" rel="noopener noreferrer">
+                <span class="ayuda-social-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"></path>
+                  </svg>
+                </span>
+                <span class="ayuda-social-text">
+                  <strong>TikTok</strong>
+                  <small>@geko.training</small>
+                </span>
+                <svg class="ayuda-social-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 5.5 15.5 12 9 18.5"></path>
+                </svg>
+              </a>
+
+              <a class="ayuda-social-card" href="https://www.instagram.com/geko_fitapp/"
+                 target="_blank" rel="noopener noreferrer">
+                <span class="ayuda-social-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"></path>
+                  </svg>
+                </span>
+                <span class="ayuda-social-text">
+                  <strong>Instagram</strong>
+                  <small>@geko_fitapp</small>
+                </span>
+                <svg class="ayuda-social-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 5.5 15.5 12 9 18.5"></path>
+                </svg>
+              </a>
+            </div>
+
+            <p class="ayuda-contact-note">Los enlaces se abren en una pestaña nueva.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ========== Pie ========== -->
+      <footer class="ayuda-footer">
+        <span>GEKO · Centro de ayuda</span>
+        <nav class="ayuda-footer-links" aria-label="Enlaces legales y de navegación">
+          <a href="/terms">Términos</a>
+          <a href="/politic">Privacidad</a>
+          <a href="/configuracion">Configuración</a>
+          <a href="/dashboard">Volver al inicio</a>
+        </nav>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="/js/ayuda.js" defer></script>
+</body>
+</html>

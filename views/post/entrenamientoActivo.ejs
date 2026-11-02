@@ -55,6 +55,15 @@
             <% } %>
           <% } %>
         </div>
+
+        <figure class="ea-media" id="ea-media" <%= inicial && inicial.media && inicial.media.gif ? '' : 'hidden' %>>
+          <% if (inicial && inicial.media && inicial.media.gif) { %>
+            <img id="ea-media-img" src="<%= inicial.media.gif %>" alt="Demostración de <%= inicial.nombre %>" decoding="async" />
+          <% } else { %>
+            <img id="ea-media-img" alt="" decoding="async" />
+          <% } %>
+          <figcaption class="ea-media-credit">© Gym visual</figcaption>
+        </figure>
       </section>
 
       <!-- Columna derecha -->

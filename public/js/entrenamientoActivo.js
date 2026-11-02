@@ -26,6 +26,8 @@
     bloque: $('ea-bloque'),
     nombre: $('ea-nombre'),
     meta: $('ea-meta'),
+    media: $('ea-media'),
+    mediaImg: $('ea-media-img'),
     cronometro: $('ea-cronometro'),
     fase: $('ea-fase'),
     countdown: $('ea-countdown'),
@@ -59,6 +61,23 @@
   };
 
   const clamp = (valor, min, max) => Math.min(max, Math.max(min, valor));
+
+  /*
+   * Si el gif no carga (red, archivo movido…), intenta la miniatura JPG.
+   * Si tampoco existe, oculta el bloque para no dejar un icono roto.
+   */
+  if (el.mediaImg) {
+    el.mediaImg.addEventListener('error', () => {
+      const fallback = el.mediaImg.dataset.fallback;
+      const actual = el.mediaImg.getAttribute('src');
+
+      if (fallback && actual !== fallback) {
+        el.mediaImg.src = fallback;
+      } else if (el.media) {
+        el.media.hidden = true;
+      }
+    });
+  }
 
   const state = {
     idx: clamp(Number(data.indiceInicial) || 0, 0, pasos.length - 1),
@@ -486,6 +505,28 @@
 
   /* ---------- Render ---------- */
 
+  function renderMedia(paso) {
+    if (!el.media || !el.mediaImg) return;
+
+    const media = paso && paso.media ? paso.media : null;
+
+    if (!media || !media.gif) {
+      el.media.hidden = true;
+      el.mediaImg.removeAttribute('src');
+      el.mediaImg.alt = '';
+      el.mediaImg.dataset.fallback = '';
+      return;
+    }
+
+    el.media.hidden = false;
+    el.mediaImg.dataset.fallback = media.img || '';
+    el.mediaImg.alt = `Demostración de ${paso.nombre}`;
+
+    if (el.mediaImg.getAttribute('src') !== media.gif) {
+      el.mediaImg.src = media.gif;
+    }
+  }
+
   function renderPaso() {
     const paso = pasoActual();
     if (!paso) return;
@@ -494,6 +535,7 @@
     el.nombre.textContent = paso.nombre;
     el.descripcion.textContent =
       paso.descripcion || 'Sigue las indicaciones y mantén un ritmo cómodo.';
+    renderMedia(paso);
 
     el.meta.textContent = '';
     const chips = paso.esPrincipal

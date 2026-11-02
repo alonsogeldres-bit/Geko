@@ -16,6 +16,7 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const planRoutes = require('./routes/planRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const gekoRoutes = require('./routes/gekoRoutes');
+const mediaRoutes = require('./routes/mediaRoutes');
 const { guardAccount } = require('./middlewares/accountGuard');
 
 const app = express();
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 
 // Archivos estáticos (CSS, JS, imágenes)
+app.use('/media/ejercicios', mediaRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MIDDLEWARES

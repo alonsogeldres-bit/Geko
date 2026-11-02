@@ -5,6 +5,7 @@ const PlanEntrenamientoModel = require('../models/trainingModel.js');
 const PlanModel = require('../models/planModel');
 const SesionModel = require('../models/sesionEntrenamientoModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
+const { buscarMedia } = require('../services/exerciseMediaService');
 
 const obtenerTiempoSugeridoSeg = (ejercicio = {}, bloque = '') => {
   if (!ejercicio) return null;
@@ -122,20 +123,24 @@ const crearPaso = (ejercicio, i) => {
     : 0;
   const duracionSeg = duracionSerieSeg(ejercicio, esPrincipal);
   const totalSeg = series * duracionSeg + Math.max(0, series - 1) * descansoSeg;
+  const nombre = String(ejercicio.nombre || 'Ejercicio').slice(0, 90);
+  const descripcion = String(ejercicio.descripcion || '').slice(0, 500);
+  const media = buscarMedia(nombre, { descripcion });
 
   return {
     i,
     bloque: ejercicio.bloque,
-    nombre: String(ejercicio.nombre || 'Ejercicio').slice(0, 90),
-    descripcion: String(ejercicio.descripcion || '').slice(0, 500),
+    nombre,
+    descripcion,
     esPrincipal,
     series,
     repeticiones,
     descansoSeg,
     duracionSeg,
     totalSeg,
-    esIsometrico: esIsometrico(ejercicio.nombre, ejercicio.descripcion),
+    esIsometrico: esIsometrico(nombre, descripcion),
     esPorLado: esPorLado(repeticiones),
+    media: media ? { gif: media.gifUrl, img: media.imgUrl, id: media.id, nombreDataset: media.nombreDataset } : null,
   };
 };
 

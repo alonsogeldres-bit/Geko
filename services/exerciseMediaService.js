@@ -132,16 +132,24 @@ const ALIASES = [
  * `null` = ese ejercicio no tiene una animación fiable y se prefiere ocultarla.
  */
 const EXACTOS = new Map([
-  ['movilidad articular', null],
-  ['trote suave en el lugar', null],
-  ['rotaciones de tronco', null],
-  ['circulos de brazos', null],
-  ['movilidad de cadera', null],
-  ['movilidad de hombros', null],
+  // El catálogo principal sí tiene un movimiento equivalente para estos tres.
+  ['movilidad articular', '1368'],
+  ['trote suave en el lugar', '0685'],
+  ['trote en el lugar', '0685'],
+  ['trote suave', '0685'],
+  ['trote', '0685'],
+  ['trotar en el lugar', '0685'],
+  ['rotaciones de tronco', '2329'],
+  ['rotacion de tronco', '2329'],
+  ['rotaciones de torso', '2329'],
+  ['rotacion de torso', '2329'],
 
-  ['sentadillas sin peso', '3543'],
-  ['sentadilla con peso corporal', '3543'],
-  ['sentadilla al aire libre', '3543'],
+  ['sentadillas sin peso', '3119'],
+  ['sentadilla sin peso', '3119'],
+  ['sentadilla con peso corporal', '3119'],
+  ['sentadillas con peso corporal', '3119'],
+  ['sentadilla al aire libre', '3119'],
+  ['sentadillas al aire libre', '3119'],
   ['elevacion de rodillas', '3636'],
   ['estiramiento de cuadriceps', '1564'],
   ['estiramiento de isquiotibiales', '1511'],
@@ -233,10 +241,98 @@ const EXACTOS = new Map([
   ['prensa de piernas 45 grados', '1463'],
   ['step up al cajon', '0431'],
   ['step up en cajon', '0431'],
+
+  // Nombres genéricos que la IA escribe sin material. Se resuelven por ID para
+  // que no terminen en una variante con barra, banda o implemento raro.
+  ['sentadilla', '3119'],
+  ['sentadillas', '3119'],
+  ['plancha', '0464'],
+  ['planchas', '0464'],
+  ['plancha abdominal', '0464'],
+  ['zancada', '3470'],
+  ['zancadas', '3470'],
+  ['zancada estatica', '3470'],
+  ['zancada alterna', '3470'],
+  ['zancada alternada', '3470'],
+  ['zancadas alternas', '3470'],
+  ['flexiones inclinadas', '0493'],
+
+  // Variantes compuestas: sin esto el fuzzy matching elegía una variante con
+  // banda o barra que no correspondía al movimiento descrito.
+  ['sentadilla con rotacion de tronco', '1686'],
+  ['sentadilla con giro de tronco', '1686'],
+  ['sentadilla con giro', '1686'],
+  ['sentadilla con elevacion de brazos', '1685'],
+  ['sentadilla con alcance', '1685'],
+  ['zancada con giro de tronco', '1688'],
+  ['zancada con rotacion de tronco', '1688'],
+  ['zancada con giro', '1688'],
+  ['zancada caminando', '1460'],
+  ['estiramiento con rotacion de tronco', '2329'],
+  ['estiramiento con giro de tronco', '2329'],
+  ['estiramiento de tronco', '2329'],
+
+  // Componentes habituales de los circuitos que arma la IA. Sin estas claves
+  // la búsqueda difusa confundía "push-up en pared" con un pino o la
+  // sentadilla goblet con una sentadilla con barra.
+  ['push up en pared', '0659'],
+  ['push ups en pared', '0659'],
+  ['flexion en pared', '0659'],
+  ['flexiones en pared', '0659'],
+  ['sentadilla con mancuerna al pecho', '1760'],
+  ['sentadilla goblet', '1760'],
+  ['sentadilla goblet con mancuerna', '1760'],
+  ['goblet squat', '1760'],
+  ['fondos de pecho en silla', '0129'],
+  ['fondos en silla', '0129'],
+  ['fondos de triceps en silla', '0129'],
+  ['remo invertido bajo mesa', '0499'],
+  ['remate de mancuerna', '0293'],
+  ['remate de mancuerna con agarre neutro', '0293'],
+  ['peso muerto rumano con mancuernas', '1459'],
+  ['peso muerto rumano con mancuerna', '1459'],
+
   ['bird dog', null],
   ['face pull en polea', null],
   ['estiramiento de gato camello', null],
-  ['trote en el lugar', null],
+]);
+
+/**
+ * Media local para movimientos que el dataset principal no incluye. Los GIF se
+ * generan con `npm run build:warmup-gifs` desde yuhonas/free-exercise-db
+ * (Unlicense / dominio público) y se sirven desde `public/`.
+ */
+const MEDIA_LOCAL = {
+  brazos: {
+    id: 'arm-circles',
+    nombreDataset: 'arm circles',
+    gifUrl: '/media/calentamiento/arm-circles.gif',
+  },
+  cadera: {
+    id: 'hip-circles',
+    nombreDataset: 'standing hip circles',
+    gifUrl: '/media/calentamiento/hip-circles.gif',
+  },
+  hombros: {
+    id: 'shoulder-circles',
+    nombreDataset: 'shoulder circles',
+    gifUrl: '/media/calentamiento/shoulder-circles.gif',
+  },
+};
+
+const LOCALES = new Map([
+  ['circulos de brazos', MEDIA_LOCAL.brazos],
+  ['circulos con los brazos', MEDIA_LOCAL.brazos],
+  ['circulos de brazo', MEDIA_LOCAL.brazos],
+  ['movilidad de cadera', MEDIA_LOCAL.cadera],
+  ['movilidad de caderas', MEDIA_LOCAL.cadera],
+  ['circulos de cadera', MEDIA_LOCAL.cadera],
+  ['circulos de caderas', MEDIA_LOCAL.cadera],
+  ['movilidad de hombros', MEDIA_LOCAL.hombros],
+  ['movilidad de hombro', MEDIA_LOCAL.hombros],
+  ['circulos de hombros', MEDIA_LOCAL.hombros],
+  ['circulos de hombro', MEDIA_LOCAL.hombros],
+  ['rotacion de hombros', MEDIA_LOCAL.hombros],
 ]);
 
 /**
@@ -251,6 +347,7 @@ const OCULTAR = [
   /\bbird ?dog\b/,
   /\bface ?pull\b/,
   /\bgato camello\b/,
+  /\bdesplazamiento lateral\b/,
 ];
 
 /** Equipo en español -> token del dataset. */
@@ -285,6 +382,67 @@ const normalizarClave = (texto) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
+
+/**
+ * La IA describe el mismo movimiento con calificativos ("movilidad articular
+ * global", "rotaciones de tronco suaves"...). Estas reglas llevan las
+ * variantes conocidas a la clave canónica antes de resolver por nombre.
+ * Las reglas específicas van primero: "movilidad articular" es el último
+ * recurso para no tapar variantes de cadera, hombros o brazos.
+ */
+const REGLAS_CANONICAS = [
+  [/\b(movilidad|circulos?|rotacion(es)?)\b.*\b(cadera|caderas)\b/, 'movilidad de cadera'],
+  [/\b(movilidad|circulos?|rotacion(es)?)\b.*\b(hombro|hombros)\b/, 'movilidad de hombros'],
+  [/\b(circulos?|rotacion(es)?)\b.*\b(brazo|brazos)\b/, 'circulos de brazos'],
+  [/\b(rotacion(es)?|giros?|twist)\b.*\b(tronco|torso)\b/, 'rotaciones de tronco'],
+  [/\b(trote|trotar)\b/, 'trote suave en el lugar'],
+  [/\bcorrer( suave)?\b/, 'trote suave en el lugar'],
+  [/\bmarcha\b/, 'trote suave en el lugar'],
+];
+
+const CALIFICATIVOS = new RegExp(
+  '\\b(' +
+    [
+      'global', 'general', 'suave', 'suaves',
+      'ligero', 'ligera', 'lento', 'lenta',
+      'controlado', 'controlada', 'dinamico', 'dinamica',
+      'basico', 'basica', 'completo', 'completa',
+      'en el lugar', 'en el sitio', 'de pie', 'con control',
+      'hacia adelante', 'hacia atras', 'hacia adelante y atras',
+      'de cuello y hombros', 'de cuerpo completo',
+    ].join('|') +
+  ')\\b',
+  'g'
+);
+
+// Solo canonicalizamos cuando el nombre empieza con el movimiento de
+// movilidad/calentamiento. Así "Sentadilla con rotación de tronco" no termina
+// convertida en "rotaciones de tronco".
+const PREFIJOS_MOVILIDAD = new Set([
+  'movilidad', 'circulo', 'circulos', 'rotacion', 'rotaciones',
+  'giro', 'giros', 'trote', 'trotar', 'correr', 'marcha',
+]);
+
+const aplicarReglas = (clave) => {
+  const primera = clave.split(' ')[0];
+  if (!PREFIJOS_MOVILIDAD.has(primera)) return '';
+
+  const regla = REGLAS_CANONICAS.find(([patron]) => patron.test(clave));
+  return regla ? regla[1] : '';
+};
+
+const canonicalizarNombre = (texto) => {
+  const base = normalizarClave(texto);
+  const directa = aplicarReglas(base);
+  if (directa) return directa;
+
+  const limpieza = base.replace(CALIFICATIVOS, ' ').replace(/\s+/g, ' ').trim();
+
+  // "movilidad articular" genérico solo si no menciona otra zona del cuerpo.
+  if (limpieza === 'movilidad articular') return limpieza;
+
+  return aplicarReglas(limpieza) || limpieza;
+};
 
 const tokenizar = (texto) => {
   const normalizado = quitarAcentos(texto)
@@ -421,6 +579,14 @@ const aResultado = (registro, score = 1) => {
   };
 };
 
+const aResultadoLocal = (local) => ({
+  id: local.id,
+  gifUrl: local.gifUrl,
+  imgUrl: '',
+  nombreDataset: local.nombreDataset,
+  score: 1,
+});
+
 /**
  * Devuelve la media del ejercicio o null si no hay una coincidencia fiable.
  * @param {string} nombre
@@ -436,21 +602,34 @@ const buscarMedia = (nombre, opciones = {}) => {
   const texto = String(nombre || '').trim();
   if (!texto) return null;
 
-  if (ocultarMedia(texto)) return null;
+  // Primero el nombre tal cual y después la versión sin calificativos. Así los
+  // nombres que ya eran exactos ("estiramiento dinámico de cadera") no se
+  // rompen al quitar "dinámico".
+  const claveExacta = normalizarClave(texto);
+  const claveNombre = canonicalizarNombre(texto);
 
-  const claveNombre = normalizarClave(texto);
+  // 1. Media local: movimientos que no existen en el dataset principal.
+  const local = LOCALES.get(claveExacta) || LOCALES.get(claveNombre);
+  if (local) return aResultadoLocal(local);
 
-  // 1. Nombres conocidos de la rutina local: resolución directa por ID.
+  // 2. Nombres conocidos de la rutina local: resolución directa por ID.
+  if (EXACTOS.has(claveExacta)) {
+    const id = EXACTOS.get(claveExacta);
+    return id ? aResultado(POR_ID.get(id)) : null;
+  }
   if (EXACTOS.has(claveNombre)) {
     const id = EXACTOS.get(claveNombre);
     return id ? aResultado(POR_ID.get(id)) : null;
   }
 
-  // 2. El nombre ya viene en el idioma del dataset.
-  const porNombre = POR_NOMBRE.get(claveNombre);
+  // 3. A partir de aquí se prefiere ocultar antes que mostrar un gif erróneo.
+  if (ocultarMedia(texto)) return null;
+
+  // 4. El nombre ya viene en el idioma del dataset.
+  const porNombre = POR_NOMBRE.get(claveExacta) || POR_NOMBRE.get(claveNombre);
   if (porNombre) return aResultado(porNombre);
 
-  // 3. Alias que coinciden exactamente con un nombre del dataset. Esto evita
+  // 5. Alias que coinciden exactamente con un nombre del dataset. Esto evita
   //    que "mountain climbers" termine en una variante con puente, por ejemplo.
   let aliasExacto = null;
   let aliasLargo = -1;
@@ -467,7 +646,7 @@ const buscarMedia = (nombre, opciones = {}) => {
   });
   if (aliasExacto) return aResultado(aliasExacto);
 
-  // 4. Búsqueda difusa para los nombres libres que escribe la IA.
+  // 6. Búsqueda difusa para los nombres libres que escribe la IA.
   const consulta = expandirConsulta(texto, opciones.descripcion);
   if (!consulta.tokens.size) return null;
 
@@ -482,9 +661,107 @@ const buscarMedia = (nombre, opciones = {}) => {
     }
   });
 
-  if (!mejor || mejorScore < UMBRAL) return null;
+  const umbral = Number.isFinite(opciones.umbral) ? opciones.umbral : UMBRAL;
+  if (!mejor || mejorScore < umbral) return null;
 
   return aResultado(mejor, mejorScore);
+};
+
+/* ---------- Circuitos ---------- */
+
+/**
+ * Un circuito es una sola entrada de la rutina que agrupa 2-3 ejercicios, así
+ * que no tiene un gif propio. Se resuelven sus componentes desde la
+ * descripción ("Secuencia: A, B y C") para mostrarlos en carrusel.
+ */
+const RE_CIRCUITO = /^\s*circuito\b/i;
+const UMBRAL_CIRCUITO = 0.6;
+
+const esCircuito = (nombre) => RE_CIRCUITO.test(String(nombre || ''));
+
+const limpiarDosis = (texto) => {
+  let limpio = String(texto || '').trim();
+  const patrones = [
+    /^(?:rondas?|vueltas?|series?|bloques?)\s*(?:de\s*)?\d*\s*/i,
+    /^\d+\s*(?:repeticiones?|reps?|veces)\b\s*(?:de\s*)?/i,
+    /^\d+\s*(?:minutos?|mins?|segundos?|segs?|s)\b\s*(?:de\s*)?/i,
+    /^\d+\s*(?:x|×)\s*/i,
+    /^\d+\s+/,
+  ];
+
+  // "3 rondas de 10 sentadillas" necesita más de una pasada.
+  for (let vuelta = 0; vuelta < 3; vuelta += 1) {
+    const antes = limpio;
+    patrones.forEach((patron) => {
+      limpio = limpio.replace(patron, '').trim();
+    });
+    if (limpio === antes) break;
+  }
+
+  return limpio;
+};
+
+const limpiarComponente = (texto) => {
+  const limpio = limpiarDosis(texto)
+    .replace(/\s*(?:x|×)\s*\d+\s*$/i, '')
+    .replace(/\s+\d+\s*(?:reps?|repeticiones?|segs?|segundos?|mins?|minutos?|s)\b\s*$/i, '')
+    .replace(/\s+\d+\s*$/, '')
+    .replace(/^[\s,;:+\-/]+/, '')
+    .replace(/[\s,;:+\-/]+$/, '')
+    .replace(/^(?:y|e|o|u|de|del|con)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return limpiarDosis(limpio);
+};
+
+/** Extrae los nombres de ejercicio que menciona la descripción del circuito. */
+const componentesDeCircuito = (descripcion) => {
+  const bruto = String(descripcion || '').trim();
+  if (!bruto) return [];
+
+  // Solo la primera frase: después vienen adaptaciones y aclaraciones que no
+  // son ejercicios ("Evita saltos...", "Agarre neutro...").
+  const finFrase = bruto.search(/\.(?:\s|$)/);
+  const primera = finFrase === -1 ? bruto : bruto.slice(0, finFrase);
+
+  const limpia = primera
+    // "Secuencia:", "Ronda 1:" o "Circuito de 4 estaciones:".
+    .replace(/^\s*(?:secuencia|circuito|rondas?|bloques?|trabajo)\b[^:]{0,50}:\s*/i, ' ')
+    .replace(/^\s*\d+\s*(?:rondas?|vueltas?|series?)\s*(?:de\s*)?:?\s*/i, ' ')
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\[[^\]]*\]/g, ' ');
+
+  return limpia
+    .split(/\s*(?:,|\+|;|\/|\by\b)\s*/i)
+    .map(limpiarComponente)
+    .filter((parte) => normalizarClave(parte).length >= 4);
+};
+
+/**
+ * Devuelve los gifs de los ejercicios que componen un circuito, en orden.
+ * Nunca busca media para el nombre completo del circuito.
+ * @param {string} nombre
+ * @param {{descripcion?: string}} [opciones]
+ * @returns {{componentes: Array<{id:string,gifUrl:string,imgUrl:string,nombreDataset:string,score:number,nombreComponente:string}>}|null}
+ */
+const buscarMediaDeCircuito = (nombre, opciones = {}) => {
+  if (!esCircuito(nombre)) return null;
+
+  const componentes = [];
+  const vistos = new Set();
+
+  componentesDeCircuito(opciones.descripcion).forEach((componente) => {
+    const media = buscarMedia(componente, { umbral: UMBRAL_CIRCUITO });
+    if (!media) return;
+    if (vistos.has(media.id) || vistos.has(media.gifUrl)) return;
+
+    vistos.add(media.id);
+    vistos.add(media.gifUrl);
+    componentes.push({ ...media, nombreComponente: componente });
+  });
+
+  return componentes.length ? { componentes } : null;
 };
 
 /* ---------- Proxy de archivos con caché en memoria ---------- */
@@ -547,6 +824,8 @@ const descargarMedia = async (archivo) => {
 
 module.exports = {
   buscarMedia,
+  buscarMediaDeCircuito,
+  esCircuito,
   descargarMedia,
   UMBRAL,
 };

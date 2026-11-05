@@ -22,11 +22,11 @@ const normalizarLugar = (lugar) => {
 /* ---------- Catálogo de ejercicios ---------- */
 
 const CALENTAMIENTO = [
-  { nombre: 'Movilidad articular', descripcion: 'Círculos suaves de cuello, hombros, cadera y tobillos.' },
+  { nombre: 'Movilidad articular', descripcion: 'Círculos suaves de tobillo; complementa con cuello, hombros y cadera.' },
   { nombre: 'Trote suave en el lugar', descripcion: 'Ritmo cómodo, sin llegar a fatigarte.' },
   { nombre: 'Sentadillas sin peso', descripcion: 'Baja controlado hasta donde te resulte cómodo.' },
   { nombre: 'Elevación de rodillas', descripcion: 'Alterna las piernas a un ritmo constante.' },
-  { nombre: 'Rotaciones de tronco', descripcion: 'Gira el torso de lado a lado con los brazos sueltos.' },
+  { nombre: 'Rotaciones de tronco', descripcion: 'Sentado, gira el torso de lado a lado con control.' },
   { nombre: 'Círculos de brazos', descripcion: 'Movimientos amplios hacia adelante y hacia atrás.' },
 ];
 

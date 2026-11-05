@@ -9,6 +9,7 @@
     "dev": "nodemon app.js",
     "doctor": "node scripts/doctor.js",
     "build:exercise-index": "node scripts/build-exercise-index.js",
+    "build:warmup-gifs": "node scripts/build-warmup-gifs.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -24,6 +25,8 @@
     "sesion": "^0.0.0"
   },
   "devDependencies": {
+    "gifenc": "^1.0.3",
+    "jpeg-js": "^0.4.4",
     "nodemon": "^3.1.14"
   },
   "repository": {

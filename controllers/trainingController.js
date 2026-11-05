@@ -5,7 +5,7 @@ const PlanEntrenamientoModel = require('../models/trainingModel.js');
 const PlanModel = require('../models/planModel');
 const SesionModel = require('../models/sesionEntrenamientoModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
-const { buscarMedia } = require('../services/exerciseMediaService');
+const { buscarMedia, buscarMediaDeCircuito } = require('../services/exerciseMediaService');
 
 const obtenerTiempoSugeridoSeg = (ejercicio = {}, bloque = '') => {
   if (!ejercicio) return null;
@@ -125,7 +125,8 @@ const crearPaso = (ejercicio, i) => {
   const totalSeg = series * duracionSeg + Math.max(0, series - 1) * descansoSeg;
   const nombre = String(ejercicio.nombre || 'Ejercicio').slice(0, 90);
   const descripcion = String(ejercicio.descripcion || '').slice(0, 500);
-  const media = buscarMedia(nombre, { descripcion });
+  const circuito = buscarMediaDeCircuito(nombre, { descripcion });
+  const media = circuito ? null : buscarMedia(nombre, { descripcion });
 
   return {
     i,
@@ -141,6 +142,15 @@ const crearPaso = (ejercicio, i) => {
     esIsometrico: esIsometrico(nombre, descripcion),
     esPorLado: esPorLado(repeticiones),
     media: media ? { gif: media.gifUrl, img: media.imgUrl, id: media.id, nombreDataset: media.nombreDataset } : null,
+    mediaCircuito: circuito
+      ? circuito.componentes.map((componente) => ({
+          gif: componente.gifUrl,
+          img: componente.imgUrl,
+          id: componente.id,
+          nombre: componente.nombreComponente,
+          nombreDataset: componente.nombreDataset,
+        }))
+      : null,
   };
 };
 

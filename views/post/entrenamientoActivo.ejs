@@ -6,6 +6,16 @@
     Math.max(0, reproductor.length - 1)
   );
   const inicial = reproductor[indiceInicial] || null;
+  const mediosCircuito = inicial && Array.isArray(inicial.mediaCircuito) ? inicial.mediaCircuito : [];
+  const mediaInicial = mediosCircuito.length
+    ? {
+        gif: mediosCircuito[0].gif,
+        img: mediosCircuito[0].img,
+        label: mediosCircuito.length > 1 ? `1/${mediosCircuito.length} · ${mediosCircuito[0].nombre}` : '',
+      }
+    : inicial && inicial.media && inicial.media.gif
+      ? { gif: inicial.media.gif, img: inicial.media.img, label: '' }
+      : null;
   const datos = JSON.stringify({
     ejercicios: reproductor,
     indiceInicial,
@@ -56,12 +66,13 @@
           <% } %>
         </div>
 
-        <figure class="ea-media" id="ea-media" <%= inicial && inicial.media && inicial.media.gif ? '' : 'hidden' %>>
-          <% if (inicial && inicial.media && inicial.media.gif) { %>
-            <img id="ea-media-img" src="<%= inicial.media.gif %>" alt="Demostración de <%= inicial.nombre %>" decoding="async" />
+        <figure class="ea-media" id="ea-media" <%= mediaInicial ? '' : 'hidden' %>>
+          <% if (mediaInicial) { %>
+            <img id="ea-media-img" src="<%= mediaInicial.gif %>" data-fallback="<%= mediaInicial.img || '' %>" alt="Demostración de <%= inicial.nombre %>" decoding="async" />
           <% } else { %>
             <img id="ea-media-img" alt="" decoding="async" />
           <% } %>
+          <figcaption class="ea-media-label" id="ea-media-label" <%= mediaInicial && mediaInicial.label ? '' : 'hidden' %>><%= mediaInicial ? mediaInicial.label : '' %></figcaption>
           <figcaption class="ea-media-credit">© Gym visual</figcaption>
         </figure>
       </section>

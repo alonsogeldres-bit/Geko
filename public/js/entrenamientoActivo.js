@@ -28,6 +28,7 @@
     meta: $('ea-meta'),
     media: $('ea-media'),
     mediaImg: $('ea-media-img'),
+    mediaLabel: $('ea-media-label'),
     cronometro: $('ea-cronometro'),
     fase: $('ea-fase'),
     countdown: $('ea-countdown'),
@@ -64,18 +65,32 @@
 
   /*
    * Si el gif no carga (red, archivo movido…), intenta la miniatura JPG.
-   * Si tampoco existe, oculta el bloque para no dejar un icono roto.
+   * Si tampoco existe y es un circuito, pasa al siguiente ejercicio; si no,
+   * oculta el bloque para no dejar un icono roto.
    */
   if (el.mediaImg) {
+    el.mediaImg.addEventListener('load', () => {
+      state.mediaFallos = 0;
+    });
+
     el.mediaImg.addEventListener('error', () => {
       const fallback = el.mediaImg.dataset.fallback;
       const actual = el.mediaImg.getAttribute('src');
 
       if (fallback && actual !== fallback) {
         el.mediaImg.src = fallback;
-      } else if (el.media) {
-        el.media.hidden = true;
+        return;
       }
+
+      state.mediaFallos += 1;
+
+      if (state.mediaLista.length > 1 && state.mediaFallos < state.mediaLista.length) {
+        state.mediaIndice = (state.mediaIndice + 1) % state.mediaLista.length;
+        pintarMedia();
+        return;
+      }
+
+      if (el.media) el.media.hidden = true;
     });
   }
 
@@ -101,6 +116,11 @@
     wakeLock: null,
     registrado: false,
     rpeSeleccionado: null,
+    mediaTimer: 0,
+    mediaLista: [],
+    mediaIndice: 0,
+    mediaPaso: null,
+    mediaFallos: 0,
   };
 
   /* ---------- Utilidades ---------- */
@@ -505,25 +525,86 @@
 
   /* ---------- Render ---------- */
 
+  const INTERVALO_MEDIA_MS = 4000;
+
+  function limpiarMediaTimer() {
+    if (state.mediaTimer) {
+      clearInterval(state.mediaTimer);
+      state.mediaTimer = 0;
+    }
+  }
+
+  /* Un circuito trae varios gifs; un ejercicio normal trae uno o ninguno. */
+  function listaMedia(paso) {
+    const componentes =
+      paso && Array.isArray(paso.mediaCircuito)
+        ? paso.mediaCircuito.filter((m) => m && m.gif)
+        : [];
+    if (componentes.length) return componentes;
+
+    return paso && paso.media && paso.media.gif
+      ? [{ gif: paso.media.gif, img: paso.media.img || '', nombre: '' }]
+      : [];
+  }
+
+  function pintarMedia() {
+    const paso = state.mediaPaso;
+    const lista = state.mediaLista;
+    const item = lista[state.mediaIndice];
+    if (!paso || !item) return;
+
+    el.media.hidden = false;
+    el.mediaImg.dataset.fallback = item.img || '';
+
+    const mostrarNombre = lista.length > 1 && Boolean(item.nombre);
+    el.mediaImg.alt = mostrarNombre
+      ? `Demostración de ${item.nombre}`
+      : `Demostración de ${paso.nombre}`;
+
+    if (el.mediaImg.getAttribute('src') !== item.gif) {
+      el.mediaImg.src = item.gif;
+    }
+
+    if (el.mediaLabel) {
+      if (mostrarNombre) {
+        el.mediaLabel.textContent = `${state.mediaIndice + 1}/${lista.length} · ${item.nombre}`;
+        el.mediaLabel.hidden = false;
+      } else {
+        el.mediaLabel.textContent = '';
+        el.mediaLabel.hidden = true;
+      }
+    }
+  }
+
   function renderMedia(paso) {
     if (!el.media || !el.mediaImg) return;
 
-    const media = paso && paso.media ? paso.media : null;
+    limpiarMediaTimer();
+    state.mediaPaso = paso;
+    state.mediaLista = listaMedia(paso);
+    state.mediaIndice = 0;
+    state.mediaFallos = 0;
 
-    if (!media || !media.gif) {
+    if (!state.mediaLista.length) {
       el.media.hidden = true;
       el.mediaImg.removeAttribute('src');
       el.mediaImg.alt = '';
       el.mediaImg.dataset.fallback = '';
+      if (el.mediaLabel) {
+        el.mediaLabel.textContent = '';
+        el.mediaLabel.hidden = true;
+      }
       return;
     }
 
-    el.media.hidden = false;
-    el.mediaImg.dataset.fallback = media.img || '';
-    el.mediaImg.alt = `Demostración de ${paso.nombre}`;
+    pintarMedia();
 
-    if (el.mediaImg.getAttribute('src') !== media.gif) {
-      el.mediaImg.src = media.gif;
+    if (state.mediaLista.length > 1) {
+      state.mediaTimer = setInterval(() => {
+        if (!state.mediaLista.length) return;
+        state.mediaIndice = (state.mediaIndice + 1) % state.mediaLista.length;
+        pintarMedia();
+      }, INTERVALO_MEDIA_MS);
     }
   }
 
@@ -836,6 +917,7 @@
   async function finalizarEntrenamiento() {
     cancelarTimeout();
     cancelarFin();
+    limpiarMediaTimer();
     cancelAnimationFrame(state.raf);
 
     if (state.running) {

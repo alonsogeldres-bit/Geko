@@ -106,6 +106,10 @@ REGLAS:
 - Equipamiento: si el usuario indicó equipamiento, priorízalo y no exijas material que no tenga.
 - Limitaciones: NO incluyas ejercicios que carguen, impacten o fuercen las zonas con lesión o limitación. Sustitúyelos por alternativas seguras y menciona en la descripción que el ejercicio fue adaptado. Si hay limitaciones, prefiere movimientos controlados y evita saltos y cargas máximas. No des consejos médicos ni diagnósticos.
 - Los ejercicios deben ser claros, seguros y ejecutables. "repeticiones" es texto (por ejemplo "12" o "30 s"). "descansoSeg" es el descanso después de cada serie (entre 30 y 120).
+- Para calentamiento y estiramiento usa EXACTAMENTE estos nombres cuando correspondan (así siempre hay demostración):
+  Calentamiento: Movilidad articular, Trote suave en el lugar, Sentadillas sin peso, Elevación de rodillas, Rotaciones de tronco, Círculos de brazos.
+  Estiramiento: Estiramiento de cuádriceps, Estiramiento de isquiotibiales, Estiramiento de pecho y hombros, Estiramiento de espalda baja, Estiramiento de pantorrillas.
+- Si usas un circuito, su nombre debe empezar con "Circuito" y su descripción debe listar los ejercicios separados por " + " (ejemplo: "Sentadilla + Flexiones + Remo invertido"). Deja las adaptaciones y aclaraciones para una segunda frase.
 - Escribe en español, descripciones de máximo 2 frases, sin emojis.`;
 };
 
@@ -229,7 +233,9 @@ const llamarGroq = (prompt) =>
       { role: 'user', content: prompt },
     ],
     temperature: 0.6,
-    maxTokens: 1500,
+    // El plan gratuito de Groq limita los tokens de salida por minuto (1000).
+    // Pedir 1500 hacía que la API rechazara la petición y cayera al generador local.
+    maxTokens: 1000,
     jsonMode: true,
   });
 

@@ -7,8 +7,9 @@
    - Teléfono (pantallas angostas, sin márgenes): se queda quieta en la
      esquina inferior derecha del viewport.
    - En ambos casos se duerme cada 20-30 s; al hacerle clic despierta y saluda.
-   - Al hacer clic emite "geko:click" en window (lo usa el chat con IA,
-     public/js/geko-chat.js).
+   - Al hacer clic emite "geko:click" en window: el chat con IA
+     (public/js/geko-chat.js, Premium) o los consejos fijos
+     (public/js/geko-tips.js, Gratis).
    - Mientras el chat está abierto avisa con "geko:chat-open"/"geko:chat-close":
      Geko se queda quieto mirando al frente y retoma su paseo al cerrarlo.
 
@@ -243,6 +244,15 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); poke(); }
   });
   window.addEventListener('pointermove', function (e) { ptr = { x: e.clientX, y: e.clientY }; });
+
+  /* Los consejos del plan Gratis despiertan a Geko para que los diga. */
+  window.addEventListener('geko:tip', function () {
+    wake();
+    happy = 1.2;
+    idle = 0;
+    if (onScreen()) route = null;
+    dir = 'down';
+  });
 
   /* El chat avisa cuando se abre o se cierra: mientras conversan, Geko se queda
      quieto mirando al frente; al cerrar, retoma su paseo normal. */

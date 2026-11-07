@@ -1,8 +1,7 @@
 /* ===========================================
    MIDDLEWARE DE PLANES
    Resuelve el plan efectivo del usuario y protege funciones de pago.
-   Reservado para CA3 de HU-013: hoy no hay funciones exclusivas de pago,
-   así que requirePaidPlan no se aplica a ninguna ruta todavía.
+   Se aplica al chat de la mascota Geko (/geko/chat), exclusivo de Premium.
    =========================================== */
 
 const PlanModel = require('../models/planModel');

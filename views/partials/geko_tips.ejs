@@ -1,0 +1,18 @@
+<!-- ===========================================
+     CONSEJOS DE LA MASCOTA GEKO (plan Gratis)
+     El chat directo con Geko es exclusivo de Premium. En el plan Gratis
+     Geko sigue igual, pero al hacer clic (o cada cierto tiempo) muestra
+     un consejo predeterminado en esta burbuja.
+     Los textos son fijos y están en public/js/geko-tips.js: no los genera
+     la IA. Estilos: public/css/geko-tips.css.
+     =========================================== -->
+<div id="geko-tips" class="geko-tips"
+     data-pagina="<%= typeof pagina !== 'undefined' ? pagina : 'dashboard' %>" hidden>
+  <div class="geko-tips-bubble">
+    <button type="button" class="geko-tips-close" id="geko-tips-close" aria-label="Cerrar el consejo">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <p class="geko-tips-text" id="geko-tips-text" role="status" aria-live="polite"></p>
+    <a class="geko-tips-cta" href="/planes">Hablar conmigo es Premium · Ver planes</a>
+  </div>
+</div>

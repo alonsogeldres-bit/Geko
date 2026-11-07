@@ -1,0 +1,133 @@
+/* ===========================================
+   CONSEJOS DE LA MASCOTA GEKO (plan Gratis)
+   Burbuja que aparece junto a Geko con consejos predeterminados.
+   La posición la calcula public/js/geko-tips.js con la posición real de
+   la mascota. Hereda los colores del dashboard (claro / oscuro).
+   =========================================== */
+
+.geko-tips {
+  position: fixed;
+  inset: 0;
+  z-index: 20;                 /* sobre Geko (15); debajo del menú (30) y los modales (100) */
+  pointer-events: none;        /* el resto de la página sigue siendo clicable */
+}
+
+.geko-tips[hidden] { display: none; }
+
+.geko-tips-bubble {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(270px, calc(100vw - 24px));
+  padding: 11px 26px 10px 13px;
+  background: var(--surface, #FFFFFF);
+  color: var(--text, #17352A);
+  border: 1px solid var(--line, #DCE8DF);
+  border-radius: 16px;
+  box-shadow: 0 10px 26px var(--shadow-pop, rgba(23, 53, 42, 0.14));
+  pointer-events: auto;
+  will-change: transform;
+  animation: geko-tips-in 0.18s ease-out;
+}
+
+/* Flecha que señala a Geko (--arrow-x / --arrow-y los pone el JS). */
+.geko-tips-bubble::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--surface, #FFFFFF);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.geko-tips.pos-right .geko-tips-bubble::before {
+  left: -6px;
+  top: var(--arrow-y, 50%);
+  border-left: 1px solid var(--line, #DCE8DF);
+  border-bottom: 1px solid var(--line, #DCE8DF);
+}
+
+.geko-tips.pos-left .geko-tips-bubble::before {
+  right: -6px;
+  top: var(--arrow-y, 50%);
+  border-right: 1px solid var(--line, #DCE8DF);
+  border-top: 1px solid var(--line, #DCE8DF);
+}
+
+.geko-tips.pos-above .geko-tips-bubble::before {
+  bottom: -6px;
+  left: var(--arrow-x, 50%);
+  border-right: 1px solid var(--line, #DCE8DF);
+  border-bottom: 1px solid var(--line, #DCE8DF);
+}
+
+@keyframes geko-tips-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geko-tips-bubble { animation: none; }
+}
+
+/* ---------- Texto y enlace ---------- */
+
+.geko-tips-text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.geko-tips-cta {
+  display: inline-block;
+  margin-top: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ac, #16A36A);
+  text-decoration: none;
+}
+
+.geko-tips-cta:hover { text-decoration: underline; }
+
+.geko-tips-cta:focus-visible {
+  outline: 2px solid var(--ac, #16A36A);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Cerrar ---------- */
+
+.geko-tips-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--mut, #587064);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.geko-tips-close:hover {
+  background: var(--hover, #E4F5EA);
+  color: var(--text, #17352A);
+}
+
+.geko-tips-close:focus-visible {
+  outline: 2px solid var(--ac, #16A36A);
+  outline-offset: 1px;
+}
+
+@media (max-width: 520px) {
+  .geko-tips-bubble { border-radius: 14px; }
+  .geko-tips-text { font-size: 0.82rem; }
+}

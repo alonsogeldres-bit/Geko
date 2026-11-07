@@ -46,11 +46,16 @@
   <link rel="stylesheet" href="/css/progreso.css" />
   <link rel="stylesheet" href="/css/geko-mascot.css" />
   <link rel="stylesheet" href="/css/geko-chat.css" />
+  <% if (!esPremium) { %><link rel="stylesheet" href="/css/geko-tips.css" /><% } %>
 </head>
 <body>
   <div class="dash-page has-geko<%= esPremium ? ' is-premium' : '' %>">
-    <%- include('../partials/geko_mascot') %>
-    <%- include('../partials/geko_chat', { pagina: 'progreso', usuario: u }) %>
+    <%- include('../partials/geko_mascot', { esPremium: esPremium }) %>
+    <% if (esPremium) { %>
+      <%- include('../partials/geko_chat', { pagina: 'progreso', usuario: u }) %>
+    <% } else { %>
+      <%- include('../partials/geko_tips', { pagina: 'progreso' }) %>
+    <% } %>
 
     <header class="dash-nav">
       <a href="/dashboard" class="logo-brand">
@@ -372,6 +377,10 @@
   <%- include('../partials/upgrade_modal') %>
   <script src="/js/dashboard.js"></script>
   <script src="/js/geko-mascot.js"></script>
-  <script src="/js/geko-chat.js"></script>
+  <% if (esPremium) { %>
+    <script src="/js/geko-chat.js"></script>
+  <% } else { %>
+    <script src="/js/geko-tips.js"></script>
+  <% } %>
 </body>
 </html>

@@ -1044,18 +1044,18 @@
     el.overlayKicker.textContent = todos ? 'Sesión completada' : 'Sesión guardada';
     el.overlayTitle.textContent = todos ? '¡Entrenamiento completado!' : 'Sesión registrada';
     el.overlayText.textContent = todos
-      ? 'Completaste todos los ejercicios de tu rutina. Puedes repetir la sesión o volver a tu plan de entrenamiento.'
-      : 'Tu sesión quedó guardada. Puedes repetirla o volver a tu plan de entrenamiento.';
+      ? 'Completaste todos los ejercicios de tu rutina. Puedes ver tu progreso o volver al inicio.'
+      : 'Tu sesión quedó guardada. Puedes ver tu progreso o volver al inicio.';
     crearStats([
       { valor: `${state.ejerciciosCompletados} / ${pasos.length}`, texto: 'ejercicios' },
       { valor: String(state.seriesCompletadas), texto: 'series completadas' },
       { valor: formatearTiempo(state.acumuladoMs), texto: 'tiempo total' },
     ]);
-    el.start.textContent = 'Repetir entrenamiento';
+    el.start.textContent = 'Ver mi progreso';
     if (el.secondary) {
       el.secondary.hidden = false;
-      el.secondary.href = '/progreso';
-      el.secondary.textContent = 'Ver mi progreso';
+      el.secondary.href = '/dashboard';
+      el.secondary.textContent = 'Volver al inicio';
     }
     mostrarResumenRpe();
     el.overlay.hidden = false;
@@ -1198,7 +1198,7 @@
     desbloquearAudio();
 
     if (state.fase === 'done') {
-      repetir();
+      window.location.href = '/progreso';
       return;
     }
 

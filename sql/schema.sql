@@ -76,7 +76,6 @@ INSERT INTO equipamiento (nombre) VALUES
   ('Mancuernas'),
   ('Barra'),
   ('Máquinas'),
-  ('Peso corporal'),
   ('Bandas elásticas'),
   ('Cuerda'),
   ('Banco');

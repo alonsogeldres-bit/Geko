@@ -71,4 +71,27 @@ const actualizarEsfuerzoHoy = async (idCliente, esfuerzo) => {
   return res.affectedRows;
 };
 
-module.exports = { registrar, actualizarEsfuerzoHoy, esfuerzoValido };
+/**
+ * Esfuerzo percibido de la sesión más reciente (por defecto, de los últimos 14
+ * días). Sirve para adaptar la siguiente rutina que genere la IA: si el usuario
+ * dijo que le costó mucho, baja un poco las repeticiones; si fue fácil, las sube.
+ * Devuelve { esfuerzo, fecha } o null si no hay una evaluación reciente.
+ */
+const getUltimoEsfuerzo = async (idCliente, dias = 14) => {
+  const [rows] = await pool.query(
+    `SELECT esfuerzo_percibido, fecha
+       FROM sesion_entrenamiento
+      WHERE id_cliente = ?
+        AND esfuerzo_percibido IS NOT NULL
+        AND fecha >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+      ORDER BY fecha DESC, id_sesion DESC
+      LIMIT 1`,
+    [idCliente, Math.max(1, Math.round(Number(dias) || 14))]
+  );
+  if (!rows.length) return null;
+
+  const esfuerzo = esfuerzoValido(rows[0].esfuerzo_percibido);
+  return esfuerzo ? { esfuerzo, fecha: rows[0].fecha } : null;
+};
+
+module.exports = { registrar, actualizarEsfuerzoHoy, getUltimoEsfuerzo, esfuerzoValido };

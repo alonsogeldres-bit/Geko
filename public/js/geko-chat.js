@@ -8,7 +8,11 @@
      queda bien si cambia el tamaño de la ventana o sus preferencias. En móvil
      (Geko en la esquina) el panel se abre encima de él.
    - Envía las preguntas a POST /geko/chat. El servidor añade el contexto de la
-     página y los datos del usuario; aquí no se modifica nada.
+     página y los datos del usuario.
+   - Si el usuario pide cambiar la rutina ("no tengo mancuernas"), el servidor
+     responde con una propuesta y aquí se muestra una tarjeta "Cambiar X por -> Y"
+     con Aceptar / Rechazar. La rutina solo cambia si el usuario acepta
+     (POST /geko/chat/rutina/aceptar); el perfil nunca se modifica.
    - Estilos: public/css/geko-chat.css
    =========================================== */
 (function () {
@@ -96,6 +100,123 @@
     return fila;
   }
 
+  /* ---------- Propuesta de cambio de rutina ---------- */
+
+  var tarjetaActiva = null;
+
+  function crearEl(tag, clase, texto) {
+    var el = document.createElement(tag);
+    if (clase) el.className = clase;
+    if (texto !== undefined) el.textContent = texto;
+    return el;
+  }
+
+  function cerrarTarjeta(t, estado, texto) {
+    if (!t) return;
+    t.classList.remove('is-busy');
+    t.classList.add('is-' + estado);
+    var acciones = t.querySelector('.geko-change-actions');
+    if (acciones) acciones.remove();
+    var pie = t.querySelector('.geko-change-status');
+    if (pie) pie.textContent = texto;
+    medir();
+    colocar();
+  }
+
+  function responderPropuesta(accion, propuesta, t) {
+    var botones = t.querySelectorAll('button');
+    botones.forEach(function (b) { b.disabled = true; });
+    t.classList.add('is-busy');
+
+    fetch('/geko/chat/rutina/' + accion, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ id: propuesta.id })
+    })
+      .then(function (res) {
+        return res.json().catch(function () { return {}; })
+          .then(function (data) { return { ok: res.ok, data: data || {} }; });
+      })
+      .then(function (r) {
+        if (r.ok && r.data.ok) {
+          if (tarjetaActiva === t) tarjetaActiva = null;
+          cerrarTarjeta(t, accion === 'aceptar' ? 'done' : 'rejected',
+            accion === 'aceptar' ? 'Cambio aplicado' : 'Cambio descartado');
+          agregarMensaje(r.data.mensaje || (accion === 'aceptar' ? 'Listo, cambié tu rutina.' : 'Entendido.'), 'bot');
+        } else {
+          t.classList.remove('is-busy');
+          botones.forEach(function (b) { b.disabled = false; });
+          /* 409/410: la propuesta ya no vale (rutina distinta o caducada). */
+          if (r.data.message && /ya no está vigente|caducó|cambió|ya es distinta/.test(r.data.message)) {
+            if (tarjetaActiva === t) tarjetaActiva = null;
+            cerrarTarjeta(t, 'stale', 'Propuesta no vigente');
+          }
+          agregarMensaje(r.data.message || 'No pude completar la acción. Inténtalo de nuevo.', 'error');
+        }
+      })
+      .catch(function () {
+        t.classList.remove('is-busy');
+        botones.forEach(function (b) { b.disabled = false; });
+        agregarMensaje('No pude conectarme. Revisa tu conexión e inténtalo otra vez.', 'error');
+      });
+  }
+
+  /* Tarjeta: "Cambiar X por -> Y" por cada ejercicio, con Aceptar / Rechazar. */
+  function agregarPropuesta(propuesta) {
+    if (!propuesta || !propuesta.cambios || !propuesta.cambios.length) return;
+
+    /* Solo la última propuesta está vigente: la anterior se marca como reemplazada. */
+    if (tarjetaActiva) cerrarTarjeta(tarjetaActiva, 'stale', 'Propuesta reemplazada');
+
+    var fila = crearEl('div', 'geko-msg from-bot geko-msg-change');
+    fila.appendChild(crearMini());
+
+    var t = crearEl('div', 'geko-change');
+    t.setAttribute('role', 'group');
+    t.setAttribute('aria-label', 'Propuesta de cambio de rutina');
+    t.appendChild(crearEl('div', 'geko-change-title', 'Cambio propuesto en tu rutina'));
+
+    var lista = crearEl('ul', 'geko-change-list');
+    propuesta.cambios.forEach(function (c) {
+      var li = crearEl('li', 'geko-change-item');
+      li.appendChild(crearEl('span', 'geko-change-block', c.bloque));
+
+      var linea = crearEl('span', 'geko-change-line');
+      linea.appendChild(document.createTextNode('Cambiar '));
+      linea.appendChild(crearEl('strong', 'geko-change-from', c.de));
+      linea.appendChild(document.createTextNode(' por \u2192 '));
+      linea.appendChild(crearEl('strong', 'geko-change-to', c.a));
+      li.appendChild(linea);
+
+      if (c.detalle) li.appendChild(crearEl('span', 'geko-change-detail', c.detalle));
+      lista.appendChild(li);
+    });
+    t.appendChild(lista);
+
+    var acciones = crearEl('div', 'geko-change-actions');
+    var aceptar = crearEl('button', 'geko-change-btn is-accept', 'Aceptar');
+    aceptar.type = 'button';
+    var rechazar = crearEl('button', 'geko-change-btn is-reject', 'Rechazar');
+    rechazar.type = 'button';
+    aceptar.addEventListener('click', function () { responderPropuesta('aceptar', propuesta, t); });
+    rechazar.addEventListener('click', function () { responderPropuesta('rechazar', propuesta, t); });
+    acciones.appendChild(aceptar);
+    acciones.appendChild(rechazar);
+    t.appendChild(acciones);
+
+    var pie = crearEl('div', 'geko-change-status');
+    pie.setAttribute('role', 'status');
+    t.appendChild(pie);
+
+    fila.appendChild(t);
+    log.appendChild(fila);
+    tarjetaActiva = t;
+    scrollAbajo();
+    medir();
+    colocar();
+  }
+
   function mostrarEscribiendo() {
     quitarEscribiendo();
 
@@ -129,7 +250,8 @@
 
     var saludo = (nombre ? '¡Hola, ' + nombre + '! ' : '¡Hola! ') +
       'Soy Geko, tu mascota. Puedo explicarte tu rutina, tus datos o cómo usar la app. ' +
-      'Te respondo con información: no cambio tu entrenamiento ni tu perfil. ¿Qué quieres saber?';
+      'Si algo de tu rutina no te sirve (por ejemplo, "no tengo mancuernas"), te propongo un cambio y tú decides si lo aceptas. ' +
+      'Tus datos personales no los modifico. ¿Qué necesitas?';
     agregarMensaje(saludo, 'bot');
   }
 
@@ -329,6 +451,7 @@
 
         if (r.ok && r.data.ok && r.data.respuesta) {
           agregarMensaje(r.data.respuesta, 'bot');
+          if (r.data.propuesta) agregarPropuesta(r.data.propuesta);
         } else if (r.status === 401) {
           agregarMensaje('Tu sesión expiró. Recarga la página e inicia sesión de nuevo.', 'error');
         } else {

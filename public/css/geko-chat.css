@@ -594,3 +594,105 @@
   background: rgba(255, 215, 94, 0.16);
   color: #FFF1B8;
 }
+
+
+/* ===========================================
+   TARJETA "CAMBIAR X POR -> Y" (propuesta de cambio de rutina)
+   Usa solo las variables de color del chat, así hereda los 4 temas.
+   =========================================== */
+
+.geko-msg.geko-msg-change { align-items: flex-start; }
+
+.geko-change {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--line, #dce8df);
+  border-left: 4px solid var(--ac, #16a36a);
+  border-radius: 14px;
+  background: var(--surface, #ffffff);
+  color: var(--text, #17352a);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.geko-change-title {
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--mut, #587064);
+}
+
+.geko-change-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.geko-change-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--field, #f0f6f1);
+  overflow-wrap: anywhere;
+}
+
+.geko-change-block {
+  font-size: 0.7rem;
+  color: var(--mut, #587064);
+}
+
+.geko-change-from { text-decoration: line-through; text-decoration-thickness: 1px; opacity: 0.8; }
+.geko-change-to { color: var(--ac, #16a36a); }
+.geko-change-detail { font-size: 0.74rem; color: var(--mut, #587064); }
+
+.geko-change-actions { display: flex; gap: 8px; }
+
+.geko-change-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line, #dce8df);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text, #17352a);
+}
+
+.geko-change-btn.is-accept {
+  background: var(--ac, #16a36a);
+  border-color: var(--ac, #16a36a);
+  color: var(--on-ac, #ffffff);
+}
+
+.geko-change-btn.is-accept:hover:not(:disabled) { background: var(--ac-hover, #128456); }
+.geko-change-btn.is-reject:hover:not(:disabled) { background: var(--hover, #e4f5ea); }
+.geko-change-btn:focus-visible { outline: 2px solid var(--ac, #16a36a); outline-offset: 2px; }
+.geko-change-btn:disabled { opacity: 0.55; cursor: default; }
+
+.geko-change-status {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mut, #587064);
+}
+
+.geko-change-status:empty { display: none; }
+
+.geko-change.is-done { border-left-color: var(--ac, #16a36a); }
+.geko-change.is-rejected,
+.geko-change.is-stale { border-left-color: var(--line, #dce8df); opacity: 0.75; }
+.geko-change.is-stale .geko-change-from,
+.geko-change.is-rejected .geko-change-from { text-decoration: none; }
+
+@media (max-width: 480px) {
+  .geko-change-actions { flex-direction: column; }
+}

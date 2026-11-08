@@ -6,6 +6,7 @@ const PlanModel = require('../models/planModel');
 const SesionModel = require('../models/sesionEntrenamientoModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
 const { buscarMedia, buscarMediaDeCircuito } = require('../services/exerciseMediaService');
+const { ajustarRutinaPorEsfuerzo } = require('../services/routineAdaptationService');
 
 const obtenerTiempoSugeridoSeg = (ejercicio = {}, bloque = '') => {
   if (!ejercicio) return null;
@@ -204,6 +205,16 @@ const index = async (req, res) => {
     } else {
       try {
         rutina = await generarRutinaPersonalizada({ perfil });
+
+        /* Si en el último entrenamiento dijo que le costó mucho (o que fue fácil),
+           la rutina nueva ya sale con las repeticiones un poco más bajas (o altas). */
+        try {
+          const ultimo = await SesionModel.getUltimoEsfuerzo(perfil.idCliente);
+          if (ultimo) rutina = ajustarRutinaPorEsfuerzo(rutina, ultimo.esfuerzo).rutina;
+        } catch (errEsfuerzo) {
+          console.error('[entrenamiento] no se pudo leer el último esfuerzo:', errEsfuerzo.message);
+        }
+
         req.session.rutinaIA = { fecha: hoy, huella, rutina, generadaEn: Date.now() };
 
         /* Se guarda en plan_entrenamiento / detalle_plan_entrenamiento. Si la base
@@ -345,8 +356,12 @@ const finalizar = async (req, res) => {
 
 /**
  * POST /entrenamiento/esfuerzo
- * Guarda el esfuerzo percibido (RPE 1-4) de la sesión de hoy.
+ * Guarda el esfuerzo percibido (RPE 1-4) de la sesión de hoy y adapta la rutina:
+ *   3-4 (le costó mucho)  -> baja un poco las repeticiones
+ *   1   (fue fácil)       -> las sube un poco
+ *   2   (moderado)        -> no cambia nada
  * Body: { esfuerzo: 1..4 }
+ * Respuesta: { ok: true, ajuste: { direccion, mensaje, cambios } }
  */
 const evaluarEsfuerzo = async (req, res) => {
   try {
@@ -362,7 +377,41 @@ const evaluarEsfuerzo = async (req, res) => {
     if (!affected) {
       return res.status(404).json({ ok: false, message: 'No hay sesión registrada hoy.' });
     }
-    return res.json({ ok: true });
+
+    const resultado = ajustarRutinaPorEsfuerzo(req.session.rutinaIA && req.session.rutinaIA.rutina, valor);
+
+    /* La rutina de hoy se modifica UNA sola vez por entrenamiento terminado
+       (guardarSesion marca `esfuerzoPendiente`); así reenviar la evaluación no
+       baja o sube las repeticiones varias veces. Si la sesión del navegador se
+       perdió, la rutina de mañana se adapta igual con el esfuerzo guardado. */
+    const cache = req.session.rutinaIA;
+    if (cache && cache.rutina && cache.esfuerzoPendiente && resultado.cambios.length) {
+      cache.rutina = resultado.rutina;
+      cache.esfuerzoPendiente = false;
+
+      try {
+        await PlanEntrenamientoModel.guardarRutinaIA({
+          idCliente: perfil.idCliente,
+          rutina: resultado.rutina,
+          nivelFisico: perfil.nivelFisico,
+          fecha: RoutineModel.aFechaISO(new Date()),
+          diaSemana: RoutineModel.DIAS_SEMANA[RoutineModel.indiceHoy()],
+        });
+      } catch (errGuardado) {
+        console.error('[entrenamiento/esfuerzo] no se pudo guardar la rutina ajustada:', errGuardado.message);
+      }
+    } else if (cache) {
+      cache.esfuerzoPendiente = false;
+    }
+
+    return res.json({
+      ok: true,
+      ajuste: {
+        direccion: resultado.direccion,
+        mensaje: resultado.mensaje,
+        cambios: resultado.cambios,
+      },
+    });
   } catch (err) {
     console.error('[entrenamiento] no se pudo guardar el esfuerzo:', err.message);
     return res.status(500).json({ ok: false, message: 'No pudimos guardar tu evaluación.' });
@@ -457,6 +506,9 @@ const guardarSesion = async (req, res) => {
       ejerciciosTotal,
       detalle,
     });
+
+    /* Entrenamiento terminado: el próximo esfuerzo que evalúe ajusta esta rutina. */
+    if (req.session.rutinaIA) req.session.rutinaIA.esfuerzoPendiente = true;
 
     return res.json({
       ok: true,

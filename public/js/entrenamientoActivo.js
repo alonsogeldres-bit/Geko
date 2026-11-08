@@ -1148,7 +1148,12 @@
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) {
-          if (el.rpeStatus) el.rpeStatus.textContent = 'Evaluación guardada.';
+          /* El servidor adapta la rutina según el esfuerzo y devuelve el aviso:
+             "Modificaremos tu rutina para que te sea más cómoda", etc. */
+          if (el.rpeStatus) {
+            el.rpeStatus.textContent =
+              (data.ajuste && data.ajuste.mensaje) || 'Evaluación guardada.';
+          }
           document.querySelectorAll('.ea-rpe-btn').forEach((b) => (b.disabled = true));
         } else {
           if (el.rpeStatus) el.rpeStatus.textContent = data.message || 'No se pudo guardar.';

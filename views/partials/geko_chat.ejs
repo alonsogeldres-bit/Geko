@@ -3,7 +3,8 @@
      Panel flotante que se abre al hacer clic en Geko (evento "geko:click").
      Mientras está abierto, Geko se queda quieto y la ventana se coloca a su
      lado con su posición real (lo controla public/js/geko-chat.js).
-     Solo lee datos: no modifica la rutina ni el perfil.
+     Puede proponer cambios de ejercicios en la rutina (el usuario los acepta con un botón);
+     nunca modifica el perfil ni otros datos.
      Estilos: public/css/geko-chat.css (con los 4 temas de la app).
      =========================================== -->
 <div id="geko-chat" class="geko-chat" data-pagina="<%= typeof pagina !== 'undefined' ? pagina : 'dashboard' %>"
@@ -27,7 +28,7 @@
     <div class="geko-chat-chips" id="geko-chat-chips">
       <button type="button" data-q="¿Qué me toca entrenar hoy?">¿Qué entreno hoy?</button>
       <button type="button" data-q="¿Cómo subo mi racha?">¿Cómo subo mi racha?</button>
-      <button type="button" data-q="¿Dónde cambio mi tiempo o mi lugar de entrenamiento?">Cambiar mi rutina</button>
+      <button type="button" data-q="Quiero cambiar un ejercicio de mi rutina">Cambiar un ejercicio</button>
       <button type="button" data-q="¿Qué incluye el plan Premium?">Plan Premium</button>
     </div>
 

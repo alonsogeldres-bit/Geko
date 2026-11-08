@@ -256,4 +256,6 @@ module.exports = {
   normalizarLugar,
   LUGARES_PERMITIDOS,
   NIVELES,
+  CALENTAMIENTO,
+  ESTIRAMIENTO,
 };

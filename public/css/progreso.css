@@ -247,6 +247,13 @@
   font-weight: 700;
 }
 
+/* Consejo generado con el cuestionario, debajo de cada fila del historial
+   de retroalimentación. */
+.prog-retro-consejo {
+  margin: -6px 0 10px;
+  line-height: 1.5;
+}
+
 @media (max-width: 640px) {
   .prog-bars {
     height: 130px;

@@ -2,6 +2,7 @@
 const RoutineModel = require('../models/routineModel');
 const PlanModel = require('../models/planModel');
 const SugerenciaUsoModel = require('../models/sugerenciaUsoModel');
+const RetroModel = require('../models/retroalimentacionModel');
 
 /** true si el cliente tiene un plan de pago activo (Premium): cambios ilimitados. */
 const tienePlanDePago = async (idCliente) => {
@@ -139,6 +140,10 @@ console.log('[dashboard] Resultado TMB:', calorias);
     const resumen = RoutineModel.calcularResumen(sesiones, perfil.dias, perfil.diasSemana);
     const actividad = RoutineModel.construirActividad(sesiones, 5, rutinaActual);
 
+    // Cuestionario de la última sesión que quedó sin responder (aviso en el
+    // dashboard). Si el usuario lo omitió a propósito, no se le molesta.
+    const retroPendiente = await RetroModel.getPendiente(perfil.idCliente);
+
     return res.render('post/dashboard', {
       usuario: req.session.usuario,
       perfil,
@@ -150,6 +155,7 @@ console.log('[dashboard] Resultado TMB:', calorias);
       // sesiones; el modelo ya devuelve el historial cuando exista.
       enProgreso: null,
       calorias,
+      retroPendiente,
     });
   } catch (err) {
     console.error('[dashboard] error al cargar los datos:', err.message);

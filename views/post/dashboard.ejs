@@ -12,8 +12,17 @@
   const prog = locals.enProgreso || null;           // { hechos: 2, total: 5 } o null
   const actividad = locals.actividad || [];          // [{ nombre, detalle }]
   const calorias = locals.calorias || null;
+  const retroPendiente = locals.retroPendiente || null;  // { fecha, titulo } | null
   const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
   const diasCompletos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+                 'agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaLarga = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return '';
+    return `${Number(m[3])} de ${MESES[Number(m[2]) - 1]}`;
+  };
 
   /* Días que el usuario eligió en el wizard (perfil.dias). Si no hay, se usa
      lo que traiga el controlador en resumen.plan / resumen.meta. */
@@ -158,6 +167,20 @@
           </button>
         </div>
       </section>
+
+      <!-- Cuestionario de la última sesión, si quedó sin responder -->
+      <% if (retroPendiente) { %>
+        <section class="card retro-aviso">
+          <p>
+            <strong>Tienes un cuestionario pendiente</strong><br />
+            <span class="muted small">
+              Cuéntanos cómo fue tu sesión del <%= fechaLarga(retroPendiente.fecha) %>
+              para ajustar tu próxima rutina.
+            </span>
+          </p>
+          <a class="cta" href="/entrenamiento/retroalimentacion">Responder ahora</a>
+        </section>
+      <% } %>
 
       <!-- Resumen, racha y progreso -->
       <section class="grid">

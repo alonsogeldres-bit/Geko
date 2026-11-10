@@ -72,6 +72,37 @@ const actualizarEsfuerzoHoy = async (idCliente, esfuerzo) => {
 };
 
 /**
+ * Igual que actualizarEsfuerzoHoy, pero para una fecha cualquiera. Lo usa el
+ * cuestionario de retroalimentación, que puede responderse días después.
+ */
+const actualizarEsfuerzoEnFecha = async (idCliente, fecha, esfuerzo) => {
+  const valor = esfuerzoValido(esfuerzo);
+  if (!valor) return 0;
+  const [res] = await pool.query(
+    `UPDATE sesion_entrenamiento
+        SET esfuerzo_percibido = ?, actualizado_en = CURRENT_TIMESTAMP
+      WHERE id_cliente = ? AND fecha = ?`,
+    [valor, idCliente, fecha]
+  );
+  return res.affectedRows;
+};
+
+/**
+ * La sesión de un día concreto (o null). Sirve para validar que el
+ * cuestionario de retroalimentación evalúe un entrenamiento que existió.
+ */
+const getSesionDeFecha = async (idCliente, fecha) => {
+  const [rows] = await pool.query(
+    `SELECT id_sesion, fecha, titulo, duracion_segundos, ejercicios_completados, ejercicios_total
+       FROM sesion_entrenamiento
+      WHERE id_cliente = ? AND fecha = ?
+      LIMIT 1`,
+    [idCliente, fecha]
+  );
+  return rows[0] || null;
+};
+
+/**
  * Esfuerzo percibido de la sesión más reciente (por defecto, de los últimos 14
  * días). Sirve para adaptar la siguiente rutina que genere la IA: si el usuario
  * dijo que le costó mucho, baja un poco las repeticiones; si fue fácil, las sube.
@@ -94,4 +125,4 @@ const getUltimoEsfuerzo = async (idCliente, dias = 14) => {
   return esfuerzo ? { esfuerzo, fecha: rows[0].fecha } : null;
 };
 
-module.exports = { registrar, actualizarEsfuerzoHoy, getUltimoEsfuerzo, esfuerzoValido };
+module.exports = { registrar, actualizarEsfuerzoHoy, actualizarEsfuerzoEnFecha, getSesionDeFecha, getUltimoEsfuerzo, esfuerzoValido };

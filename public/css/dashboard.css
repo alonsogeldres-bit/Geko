@@ -1053,3 +1053,29 @@ body.modal-abierto { overflow: hidden; }
   pointer-events: none;
 }
 .dash-page.has-geko .dash-nav > * { pointer-events: auto; }
+
+/* ===========================================
+   CUESTIONARIO DE RETROALIMENTACIÓN
+   Tarjeta "Consejo de Geko" de /entrenamiento
+   y aviso de cuestionario pendiente del dashboard.
+   =========================================== */
+
+.retro-consejo-texto {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.retro-aviso {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.retro-aviso p {
+  margin: 0;
+}
+

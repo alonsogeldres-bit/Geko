@@ -40,10 +40,7 @@
     skip: $('ea-skip'),
     prev: $('ea-prev'),
     finalizar: $('ea-finalizar'),
-    rpe: $('ea-rpe'),
-    rpeConfirm: $('ea-rpe-confirm'),
-    rpeSkip: $('ea-rpe-skip'),
-    rpeStatus: $('ea-rpe-status'),
+    retro: $('ea-retro'),
     sound: $('ea-sound'),
     descripcion: $('ea-descripcion'),
     nextNombre: $('ea-next-nombre'),
@@ -115,7 +112,7 @@
     mudo: leerMudo(),
     wakeLock: null,
     registrado: false,
-    rpeSeleccionado: null,
+    retroCerrado: false,   // el cuestionario ya se respondió/omitió en esta vista
     mediaTimer: 0,
     mediaLista: [],
     mediaIndice: 0,
@@ -942,13 +939,24 @@
     mostrarResumen();
   }
 
-  function mostrarResumenRpe() {
-    if (!el.rpe) return;
-    el.rpe.hidden = false;
-    state.rpeSeleccionado = null;
-    if (el.rpeConfirm) el.rpeConfirm.disabled = true;
-    if (el.rpeStatus) el.rpeStatus.textContent = '';
-    document.querySelectorAll('.ea-rpe-btn').forEach((b) => b.classList.remove('is-selected'));
+  /* Cuestionario de retroalimentación: el partial trae el formulario y
+     retroCuestionario.js maneja selección, envío y confirmación. Aquí
+     solo se decide cuándo mostrarlo (una vez por vista). */
+  function mostrarCuestionario() {
+    if (!el.retro || state.retroCerrado) return;
+
+    if (window.GekoRetro) {
+      window.GekoRetro.init(el.retro, {
+        onGuardado: () => {
+          state.retroCerrado = true;
+        },
+        onOmitido: () => {
+          state.retroCerrado = true;
+        },
+      });
+    }
+
+    el.retro.hidden = false;
   }
 
   async function registrarSesion() {
@@ -989,7 +997,7 @@
       el.finalizar.disabled = false;
       el.finalizar.textContent = 'Finalizar entrenamiento';
     }
-    if (el.rpe) el.rpe.hidden = true;
+    if (el.retro) el.retro.hidden = true;
     state.remainingMs = 0;
     state.faseInicio = 0;
     state.lastTick = null;
@@ -1057,7 +1065,7 @@
       el.secondary.href = '/dashboard';
       el.secondary.textContent = 'Volver al inicio';
     }
-    mostrarResumenRpe();
+    mostrarCuestionario();
     el.overlay.hidden = false;
     el.start.focus();
   }
@@ -1125,50 +1133,6 @@
   if (el.finalizar) {
     el.finalizar.addEventListener('click', () => {
       if (state.fase !== 'done') finalizarEntrenamiento();
-    });
-  }
-
-  document.querySelectorAll('.ea-rpe-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.rpeSeleccionado = Number(btn.dataset.rpe);
-      document.querySelectorAll('.ea-rpe-btn').forEach((b) => b.classList.toggle('is-selected', b === btn));
-      if (el.rpeConfirm) el.rpeConfirm.disabled = false;
-    });
-  });
-
-  if (el.rpeConfirm) {
-    el.rpeConfirm.addEventListener('click', async () => {
-      if (state.rpeSeleccionado === null) return;
-      el.rpeConfirm.disabled = true;
-      try {
-        const res = await fetch('/entrenamiento/esfuerzo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ esfuerzo: state.rpeSeleccionado }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.ok) {
-          /* El servidor adapta la rutina según el esfuerzo y devuelve el aviso:
-             "Modificaremos tu rutina para que te sea más cómoda", etc. */
-          if (el.rpeStatus) {
-            el.rpeStatus.textContent =
-              (data.ajuste && data.ajuste.mensaje) || 'Evaluación guardada.';
-          }
-          document.querySelectorAll('.ea-rpe-btn').forEach((b) => (b.disabled = true));
-        } else {
-          if (el.rpeStatus) el.rpeStatus.textContent = data.message || 'No se pudo guardar.';
-          el.rpeConfirm.disabled = false;
-        }
-      } catch (err) {
-        if (el.rpeStatus) el.rpeStatus.textContent = 'No se pudo guardar.';
-        el.rpeConfirm.disabled = false;
-      }
-    });
-  }
-
-  if (el.rpeSkip) {
-    el.rpeSkip.addEventListener('click', () => {
-      if (el.rpe) el.rpe.hidden = true;
     });
   }
 

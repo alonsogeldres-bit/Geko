@@ -32,6 +32,7 @@
   <title>GEKO - Entrenamiento Activo</title>
   <script src="/js/theme.js"></script>
   <link rel="stylesheet" href="/css/entrenamientoActivo.css" />
+  <link rel="stylesheet" href="/css/retroCuestionario.css" />
 </head>
 
 <body class="<%= esPremium ? 'is-premium' : '' %>">
@@ -152,20 +153,12 @@
       </p>
       <ul class="ea-overlay-stats" id="ea-overlay-stats"></ul>
 
-      <div class="ea-rpe" id="ea-rpe" hidden>
-        <p class="ea-rpe-title">¿Cómo fue el esfuerzo?</p>
-        <div class="ea-rpe-options">
-          <button type="button" class="ea-rpe-btn" data-rpe="1">😌 Fácil</button>
-          <button type="button" class="ea-rpe-btn" data-rpe="2">🙂 Moderado</button>
-          <button type="button" class="ea-rpe-btn" data-rpe="3">😓 Difícil</button>
-          <button type="button" class="ea-rpe-btn" data-rpe="4">😤 Muy difícil</button>
+      <% if (!retroYaRegistrada) { %>
+        <!-- Cuestionario de retroalimentación de la sesión (aparece al terminar) -->
+        <div id="ea-retro" hidden>
+          <%- include('../partials/retro_cuestionario', { fecha: retroFecha, mostrarOmitir: true }) %>
         </div>
-        <div class="ea-rpe-actions">
-          <button type="button" class="ea-btn ea-btn-ghost" id="ea-rpe-confirm" disabled>Guardar evaluación</button>
-          <button type="button" class="ea-btn ea-btn-ghost" id="ea-rpe-skip">Omitir</button>
-        </div>
-        <span class="ea-rpe-status" id="ea-rpe-status" role="status"></span>
-      </div>
+      <% } %>
       <div class="ea-overlay-audio">
         <button class="ea-audio-test" id="ea-audio-test" type="button">Probar sonido</button>
         <span class="ea-audio-status" id="ea-audio-status" role="status" aria-live="polite"></span>
@@ -178,6 +171,7 @@
   </div>
 
   <script type="application/json" id="ea-datos"><%- datos %></script>
+  <script src="/js/retroCuestionario.js"></script>
   <script src="/js/entrenamientoActivo.js"></script>
 </body>
 

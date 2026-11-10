@@ -5,6 +5,7 @@
   const esPremium = Boolean(locals.esPremium);       // plan de pago activo: look dorado
   const rutina = locals.rutina || null;
   const errorRutina = locals.errorRutina || null;
+  const consejo = locals.consejo || null;   // última recomendación del cuestionario
   const nombre = u.nombre || 'Atleta';
   const inicial = nombre.charAt(0).toUpperCase();
 
@@ -146,6 +147,21 @@
           <a class="ghost" href="/dashboard">← Volver al inicio</a>
         </div>
       </section>
+
+      <!-- Consejo generado con el cuestionario de la última sesión -->
+      <% if (consejo && consejo.recomendacion) { %>
+        <section class="card retro-consejo">
+          <span class="chip">Consejo de Geko</span>
+          <p class="retro-consejo-texto"><%= consejo.recomendacion %></p>
+          <p class="muted small aviso">
+            <% if (consejo.aplicada) { %>
+              Ya aplicamos estos ajustes en tu rutina de hoy.
+            <% } else { %>
+              Los aplicaremos automáticamente al generar tu próxima rutina.
+            <% } %>
+          </p>
+        </section>
+      <% } %>
 
       <section class="card">
         <h3>Lo que ya sabemos de tu plan</h3>

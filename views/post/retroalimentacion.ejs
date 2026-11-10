@@ -1,0 +1,151 @@
+<%
+  /* Página del cuestionario de retroalimentación pendiente.
+     El controlador pasa `pendiente` ({ fecha, titulo } | null): la última
+     sesión que todavía se puede evaluar. El formulario es el mismo partial
+     que aparece al terminar un entrenamiento. */
+  const u = locals.usuario || {};
+  const p = locals.perfil || {};
+  const esPremium = Boolean(locals.esPremium);
+  const pendiente = locals.pendiente || null;
+  const nombre = u.nombre || 'Atleta';
+  const inicial = nombre.charAt(0).toUpperCase();
+
+  const menu = [
+    { href: '/dashboard',     icono: '', texto: 'Mi dashboard' },
+    { href: '/configuracion', icono: '', texto: 'Configuración' },
+    { href: '/planes',        icono: '', texto: 'Planes' },
+    { href: '/progreso',      icono: '', texto: 'Mi progreso' },
+    { href: '/ayuda',         icono: '', texto: 'Ayuda' }
+  ];
+
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+                 'agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaLarga = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return '';
+    return `${Number(m[3])} de ${MESES[Number(m[2]) - 1]}`;
+  };
+%>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEKO - Cuestionario de tu entrenamiento</title>
+  <script src="/js/theme.js"></script>
+  <script src="/js/geko-mascot-prefs.js"></script>
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/geko-mascot.css" />
+  <link rel="stylesheet" href="/css/geko-chat.css" />
+  <link rel="stylesheet" href="/css/retroCuestionario.css" />
+  <% if (!esPremium) { %><link rel="stylesheet" href="/css/geko-tips.css" /><% } %>
+</head>
+<body>
+  <div class="dash-page has-geko<%= esPremium ? ' is-premium' : '' %>">
+
+    <!-- ========== Mascota Geko (camina por los laterales) ========== -->
+    <%- include('../partials/geko_mascot', { esPremium: esPremium }) %>
+    <% if (esPremium) { %>
+      <%- include('../partials/geko_chat', { pagina: 'entrenamiento', usuario: u }) %>
+    <% } else { %>
+      <%- include('../partials/geko_tips', { pagina: 'entrenamiento' }) %>
+    <% } %>
+
+    <header class="dash-nav">
+      <a href="/dashboard" class="logo-brand">
+        <img src="/assets/geko-logo.png" alt="GEKO" width="30" height="30" data-logo />
+        <span class="brand-text">GEKO</span>
+        <% if (esPremium) { %><span class="premium-badge">Premium</span><% } %>
+      </a>
+
+      <details class="user-menu" id="user-menu">
+        <summary class="avatar-btn" aria-label="Abrir menú de usuario"><%= inicial %></summary>
+
+        <div class="dropdown" role="menu">
+          <div class="dropdown-head">
+            <strong><%= nombre %></strong>
+            <span class="muted small">Mi cuenta</span>
+          </div>
+
+          <% menu.forEach(function (item) { %>
+            <a href="<%= item.href %>" role="menuitem"
+               class="dropdown-item<%= item.pronto ? ' is-soon' : '' %>">
+              <span class="dropdown-ico"><%= item.icono %></span>
+              <%= item.texto %>
+              <% if (item.pronto) { %><span class="soon-tag">Pronto</span><% } %>
+            </a>
+          <% }) %>
+
+          <button type="button" class="dropdown-item theme-toggle" role="menuitemcheckbox"
+                  aria-checked="false" data-theme-toggle>
+            <span class="dropdown-ico" data-theme-icon>☀️</span>
+            Modo oscuro
+            <span class="theme-switch" aria-hidden="true"></span>
+          </button>
+
+          <form action="/auth/logout" method="POST" class="dropdown-logout">
+            <button type="submit" class="dropdown-item" role="menuitem">
+              <span class="dropdown-ico"></span> Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <main class="dash-main">
+      <h1 class="dash-title">¿Cómo fue tu entrenamiento?</h1>
+      <p class="muted subtitle">Un minuto de respuestas ayuda a que tu próxima rutina sea mejor.</p>
+
+      <% if (pendiente) { %>
+        <section class="card">
+          <span class="tag">Sesión a evaluar</span>
+          <h2 class="hero-title"><%= pendiente.titulo %></h2>
+          <p class="muted small">Del <%= fechaLarga(pendiente.fecha) %>.</p>
+
+          <%- include('../partials/retro_cuestionario', { fecha: pendiente.fecha, mostrarOmitir: false }) %>
+        </section>
+      <% } else { %>
+        <section class="card">
+          <span class="tag">Todo al día</span>
+          <h2 class="hero-title">No tienes cuestionarios pendientes</h2>
+          <p class="muted">
+            Cuando completes un entrenamiento, aquí podrás responder el
+            cuestionario si lo dejaste para después.
+          </p>
+          <div class="acts">
+            <a class="cta" href="/entrenamiento">Ir a mi entrenamiento</a>
+            <a class="ghost" href="/dashboard">← Volver al inicio</a>
+          </div>
+        </section>
+      <% } %>
+
+      <section class="card">
+        <h3>Para qué usamos tus respuestas</h3>
+        <p class="muted small">
+          Con tu esfuerzo, tus molestias y tu satisfacción ajustamos
+          automáticamente tu próxima rutina: corregimos la intensidad y
+          cambiamos los ejercicios que puedan cargar una zona que te molesta.
+          Puedes ver los ajustes en <a href="/entrenamiento" class="link">tu entrenamiento</a>
+          y el historial en <a href="/progreso" class="link">Mi progreso</a>.
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/retroCuestionario.js"></script>
+  <script src="/js/geko-mascot.js"></script>
+  <% if (esPremium) { %>
+    <script src="/js/geko-chat.js"></script>
+  <% } else { %>
+    <script src="/js/geko-tips.js"></script>
+  <% } %>
+  <% if (pendiente) { %>
+    <script>
+      /* Engancha el formulario de esta página (el partial trae el HTML). */
+      if (window.GekoRetro) window.GekoRetro.init(document.body);
+    </script>
+  <% } %>
+</body>
+</html>

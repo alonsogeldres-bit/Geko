@@ -1,0 +1,81 @@
+<%
+  /* Cuestionario de retroalimentación post-entrenamiento.
+     Lo comparten el overlay del reproductor (entrenamientoActivo) y la
+     página /entrenamiento/retroalimentacion. La lógica vive en
+     public/js/retroCuestionario.js y se engancha por data-atributos.
+
+     Parámetros:
+       fecha        'YYYY-MM-DD' de la sesión que se evalúa
+       mostrarOmitir  true para mostrar el botón "Omitir" (overlay) */
+  const retroFecha = typeof fecha !== 'undefined' ? fecha : '';
+  const retroOmitir = typeof mostrarOmitir !== 'undefined' ? Boolean(mostrarOmitir) : true;
+%>
+<div class="retro-form" data-retro-form data-fecha="<%= retroFecha %>">
+  <p class="retro-titulo">¿Cómo fue tu experiencia?</p>
+  <p class="retro-sub">Tus respuestas nos ayudan a ajustar tu próxima rutina. Es un minuto.</p>
+
+  <fieldset class="retro-pregunta">
+    <legend>¿Cómo fue el esfuerzo?</legend>
+    <div class="retro-opciones" data-retro-grupo="esfuerzo">
+      <button type="button" class="retro-chip" data-valor="1">😌 Fácil</button>
+      <button type="button" class="retro-chip" data-valor="2">🙂 Moderado</button>
+      <button type="button" class="retro-chip" data-valor="3">😓 Difícil</button>
+      <button type="button" class="retro-chip" data-valor="4">😤 Muy difícil</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="retro-pregunta">
+    <legend>¿Tuviste alguna molestia?</legend>
+    <span class="retro-hint">Puedes elegir más de una.</span>
+    <div class="retro-opciones" data-retro-grupo="molestias">
+      <button type="button" class="retro-chip" data-valor="ninguna">Ninguna</button>
+      <button type="button" class="retro-chip" data-valor="rodilla">Rodillas</button>
+      <button type="button" class="retro-chip" data-valor="espalda">Espalda</button>
+      <button type="button" class="retro-chip" data-valor="hombro">Hombros</button>
+      <button type="button" class="retro-chip" data-valor="cuello">Cuello</button>
+      <button type="button" class="retro-chip" data-valor="muñeca">Muñecas</button>
+      <button type="button" class="retro-chip" data-valor="codo">Codos</button>
+      <button type="button" class="retro-chip" data-valor="tobillo">Tobillos</button>
+      <button type="button" class="retro-chip" data-valor="cadera">Cadera</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="retro-pregunta">
+    <legend>¿Qué te pareció la rutina?</legend>
+    <div class="retro-opciones" data-retro-grupo="satisfaccion">
+      <button type="button" class="retro-chip" data-valor="1" aria-label="1 de 5">😞 1</button>
+      <button type="button" class="retro-chip" data-valor="2" aria-label="2 de 5">🙁 2</button>
+      <button type="button" class="retro-chip" data-valor="3" aria-label="3 de 5">😐 3</button>
+      <button type="button" class="retro-chip" data-valor="4" aria-label="4 de 5">🙂 4</button>
+      <button type="button" class="retro-chip" data-valor="5" aria-label="5 de 5">😀 5</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="retro-pregunta">
+    <legend>¿Algo más que quieras contar? <span class="retro-opcional">(opcional)</span></legend>
+    <textarea class="retro-texto" data-retro-input="comentario" rows="2" maxlength="280"
+              placeholder="Por ejemplo: las sentadillas se me hicieron muy pesadas..."></textarea>
+  </fieldset>
+
+  <div class="retro-acciones">
+    <button type="button" class="retro-enviar" data-retro-enviar disabled>Enviar respuestas</button>
+    <% if (retroOmitir) { %>
+      <button type="button" class="retro-omitir" data-retro-omitir>Omitir</button>
+    <% } %>
+  </div>
+
+  <p class="retro-status" data-retro-status role="status" aria-live="polite"></p>
+
+  <!-- Confirmación: se muestra cuando el servidor registró las respuestas -->
+  <div class="retro-resultado" data-retro-resultado hidden>
+    <strong class="retro-resultado-titulo">Respuestas registradas ✓</strong>
+    <p class="retro-resultado-texto" data-retro-recomendacion></p>
+  </div>
+
+  <!-- Mensaje de "más tarde": se muestra cuando el usuario omite -->
+  <div class="retro-resultado" data-retro-later hidden>
+    <strong class="retro-resultado-titulo">Sin problema</strong>
+    <p class="retro-resultado-texto">Puedes responder el cuestionario más tarde desde
+      <a href="/entrenamiento/retroalimentacion" class="retro-link">tu perfil</a> o en Mi progreso.</p>
+  </div>
+</div>

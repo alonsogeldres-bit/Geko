@@ -2,6 +2,7 @@ const DashboardModel = require('../models/dashboardModel');
 const PlanModel = require('../models/planModel');
 const ProgressModel = require('../models/progressModel');
 const ProgressService = require('../services/progressService');
+const RetroModel = require('../models/retroalimentacionModel');
 
 const NIVELES = ['Alto', 'Medio', 'Bajo'];
 
@@ -32,9 +33,11 @@ const index = async (req, res) => {
 
     const semanas = Math.min(26, Math.max(4, parseInt(req.query.semanas, 10) || 8));
 
-    const [sesiones, mediciones] = await Promise.all([
+    const [sesiones, mediciones, retroHistorial, retroPendiente] = await Promise.all([
       ProgressModel.getSesiones(idCliente, 500),
       ProgressModel.getMediciones(idCliente, 100),
+      RetroModel.getHistorial(idCliente, 10),
+      RetroModel.getPendiente(idCliente),
     ]);
 
     const progreso = ProgressService.calcularProgreso({
@@ -50,6 +53,8 @@ const index = async (req, res) => {
       esPremium,
       progreso,
       semanas,
+      retroHistorial,   // [{ fecha, esfuerzo, molestias, satisfaccion, recomendacion, aplicada }]
+      retroPendiente,   // { fecha, titulo } | null
       errorMedicion: null,
       okMedicion: req.query.ok === '1',
     });

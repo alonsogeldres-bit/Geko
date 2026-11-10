@@ -4,9 +4,11 @@ const RoutineModel = require('../models/routineModel');
 const PlanEntrenamientoModel = require('../models/trainingModel.js');
 const PlanModel = require('../models/planModel');
 const SesionModel = require('../models/sesionEntrenamientoModel');
+const RetroModel = require('../models/retroalimentacionModel');
 const { generarRutinaPersonalizada, contextoDesdePerfil } = require('../services/groqService');
 const { buscarMedia, buscarMediaDeCircuito } = require('../services/exerciseMediaService');
 const { ajustarRutinaPorEsfuerzo } = require('../services/routineAdaptationService');
+const RetroService = require('../services/retroalimentacionService');
 
 const obtenerTiempoSugeridoSeg = (ejercicio = {}, bloque = '') => {
   if (!ejercicio) return null;
@@ -206,13 +208,37 @@ const index = async (req, res) => {
       try {
         rutina = await generarRutinaPersonalizada({ perfil });
 
-        /* Si en el último entrenamiento dijo que le costó mucho (o que fue fácil),
-           la rutina nueva ya sale con las repeticiones un poco más bajas (o altas). */
+        /* Retroalimentación pendiente del cuestionario: se aplican sus ajustes
+           (molestias -> sustituye los ejercicios que cargan esa zona; esfuerzo
+           -> corrige repeticiones) y se marca como aplicada para no repetirlos. */
+        let ajustadaPorRetro = false;
         try {
-          const ultimo = await SesionModel.getUltimoEsfuerzo(perfil.idCliente);
-          if (ultimo) rutina = ajustarRutinaPorEsfuerzo(rutina, ultimo.esfuerzo).rutina;
-        } catch (errEsfuerzo) {
-          console.error('[entrenamiento] no se pudo leer el último esfuerzo:', errEsfuerzo.message);
+          const retro = await RetroModel.getPendienteAplicar(perfil.idCliente);
+          if (retro) {
+            const ajuste = await RetroService.aplicarAjustesARutina({ rutina, perfil, retro });
+            rutina = ajuste.rutina;
+            ajustadaPorRetro = true;
+
+            try {
+              await RetroModel.marcarAplicada(retro.id, ajuste.ajustes);
+            } catch (errMarca) {
+              console.error('[entrenamiento] no se pudo marcar la retroalimentación como aplicada:', errMarca.message);
+            }
+          }
+        } catch (errRetro) {
+          console.error('[entrenamiento] no se pudo aplicar la retroalimentación:', errRetro.message);
+        }
+
+        /* Respaldo anterior: si no hubo cuestionario, la rutina nueva sigue
+           saliendo con las repeticiones corregidas según el último esfuerzo
+           que el usuario reportó en el panel RPE. */
+        if (!ajustadaPorRetro) {
+          try {
+            const ultimo = await SesionModel.getUltimoEsfuerzo(perfil.idCliente);
+            if (ultimo) rutina = ajustarRutinaPorEsfuerzo(rutina, ultimo.esfuerzo).rutina;
+          } catch (errEsfuerzo) {
+            console.error('[entrenamiento] no se pudo leer el último esfuerzo:', errEsfuerzo.message);
+          }
         }
 
         req.session.rutinaIA = { fecha: hoy, huella, rutina, generadaEn: Date.now() };
@@ -238,6 +264,11 @@ const index = async (req, res) => {
 
     const esPremium = await tienePlanDePago(perfil.idCliente);
 
+    /* Última recomendación del cuestionario de la sesión, para la tarjeta
+       "Consejo de Geko". Si la retroalimentación todavía no ajustó ninguna
+       rutina, se avisa que se aplicará en la próxima. */
+    const consejo = await RetroModel.getUltimaRecomendacion(perfil.idCliente);
+
     return res.render('post/entrenamiento', {
       usuario: req.session.usuario,
       esPremium,
@@ -245,6 +276,7 @@ const index = async (req, res) => {
       sugerencia,
       rutina,
       errorRutina,
+      consejo,
     });
   } catch (err) {
     console.error('[entrenamiento] error al cargar los datos:', err.message);
@@ -296,6 +328,10 @@ const activo = async (req, res) => {
 
     const esPremium = await tienePlanDePago(perfil.idCliente);
 
+    /* Cuestionario de la sesión: se muestra al terminar el entrenamiento,
+       salvo que hoy ya se haya respondido u omitido antes. */
+    const retroYaRegistrada = Boolean(await RetroModel.getDeHoy(perfil.idCliente));
+
     return res.render('post/entrenamientoActivo', {
       usuario: req.session.usuario,
       esPremium,
@@ -309,6 +345,8 @@ const activo = async (req, res) => {
       total: ejerciciosLista.length,
       tiempoSugeridoSeg,
       haySugerido,
+      retroYaRegistrada,
+      retroFecha: RoutineModel.aFechaISO(new Date()),
     });
   } catch (err) {
     console.error('[entrenamiento/activo] error al cargar el entrenamiento activo:', err.message);

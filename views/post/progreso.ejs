@@ -20,6 +20,25 @@
   const pesoSeries = Array.isArray(progreso.pesoSeries) ? progreso.pesoSeries : [];
   const recientes = Array.isArray(progreso.recientes) ? progreso.recientes : [];
 
+  /* Retroalimentación de las sesiones (cuestionario post-entrenamiento). */
+  const retroHistorial = Array.isArray(locals.retroHistorial) ? locals.retroHistorial : [];
+  const retroPendiente = locals.retroPendiente || null;
+
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+                 'agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaLarga = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return '';
+    return `${Number(m[3])} de ${MESES[Number(m[2]) - 1]}`;
+  };
+  const ETIQUETAS_ZONA = {
+    rodilla: 'rodillas', espalda: 'espalda', hombro: 'hombros', cuello: 'cuello',
+    'muñeca': 'muñecas', codo: 'codos', tobillo: 'tobillos', cadera: 'cadera',
+  };
+  const textoMolestias = (zonas) => Array.isArray(zonas) && zonas.length
+    ? zonas.map(function (z) { return ETIQUETAS_ZONA[z] || z; }).join(', ')
+    : 'ninguna';
+
   // SVG del peso
   const svgW = 600, svgH = 220, padX = 24, padY = 20;
   const pesos = pesoSeries.map(function (x) { return x.peso; }).filter(function (x) { return typeof x === 'number'; });
@@ -350,6 +369,50 @@
                 </svg>
               </div>
             </div>
+          </div>
+        <% } %>
+      </section>
+
+      <!-- Retroalimentación de las sesiones -->
+      <section class="card">
+        <h3>Retroalimentación de tus sesiones</h3>
+
+        <% if (retroPendiente) { %>
+          <div class="retro-aviso">
+            <p>
+              <strong>Tienes un cuestionario pendiente</strong><br />
+              <span class="muted small">
+                De tu sesión del <%= fechaLarga(retroPendiente.fecha) %>.
+                Con tus respuestas ajustamos tu próxima rutina.
+              </span>
+            </p>
+            <a class="cta" href="/entrenamiento/retroalimentacion">Responder ahora</a>
+          </div>
+        <% } %>
+
+        <% if (retroHistorial.length) { %>
+          <% retroHistorial.forEach(function (r) { %>
+            <div class="recent">
+              <span>
+                <%= fechaLarga(r.fecha) %> · Esfuerzo <%= r.esfuerzo || '—' %>/4
+                · Molestias: <%= textoMolestias(r.molestias) %>
+                · Satisfacción <%= r.satisfaccion || '—' %>/5
+              </span>
+              <span class="muted recent-meta">
+                <%= r.aplicada ? '✔ ajustes aplicados' : 'ajustes pendientes' %>
+              </span>
+            </div>
+            <% if (r.recomendacion) { %>
+              <p class="muted small prog-retro-consejo">↳ <%= r.recomendacion %></p>
+            <% } %>
+          <% }) %>
+        <% } else { %>
+          <div class="empty">
+            <strong>Sin cuestionarios respondidos</strong>
+            <span class="muted">
+              Cuando termines un entrenamiento, responde el breve
+              cuestionario y aquí verás los consejos y ajustes.
+            </span>
           </div>
         <% } %>
       </section>

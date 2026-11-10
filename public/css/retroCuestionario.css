@@ -1,0 +1,211 @@
+/* ===========================================
+   CUESTIONARIO DE RETROALIMENTACIÓN POST-ENTRENAMIENTO
+   Lo usan el overlay del reproductor (entrenamientoActivo) y la página
+   /entrenamiento/retroalimentacion. Usa las variables de tema de cada
+   contexto (--surface, --text, --mut, --line, --ac), así funciona igual
+   en claro, oscuro y Premium.
+   =========================================== */
+
+.retro-form {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(var(--ac-rgb, 22, 163, 106), 0.05);
+  text-align: left;
+}
+
+/* La tarjeta del overlay centra el texto: el formulario se alinea a la izquierda. */
+.retro-form,
+.retro-form * {
+  box-sizing: border-box;
+}
+
+.retro-titulo {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.retro-sub {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mut);
+}
+
+.retro-pregunta {
+  margin: 0;
+  padding: 10px 0 0;
+  border: 0;
+}
+
+.retro-pregunta legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  float: left;
+  width: 100%;
+}
+
+.retro-hint {
+  display: block;
+  margin: -4px 0 6px;
+  font-size: 12px;
+  color: var(--mut);
+}
+
+.retro-opcional {
+  font-weight: 400;
+  color: var(--mut);
+}
+
+.retro-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  clear: both;
+}
+
+.retro-chip {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.retro-chip:hover:not(:disabled) {
+  border-color: var(--ac);
+}
+
+.retro-chip:focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: 2px;
+}
+
+.retro-chip.is-selected {
+  background: var(--ac);
+  border-color: var(--ac);
+  color: var(--on-ac, #fff);
+  font-weight: 700;
+}
+
+.retro-chip:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.retro-texto {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.retro-texto:focus {
+  outline: 2px solid var(--ac);
+  outline-offset: 1px;
+}
+
+.retro-texto:disabled {
+  opacity: 0.6;
+}
+
+.retro-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.retro-enviar {
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ac);
+  color: var(--on-ac, #fff);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.retro-enviar:hover:not(:disabled) {
+  background: var(--ac-hover, var(--ac));
+}
+
+.retro-enviar:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.retro-omitir {
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mut);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+}
+
+.retro-omitir:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--ac);
+}
+
+.retro-omitir:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.retro-status {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--mut);
+  min-height: 1em;
+}
+
+/* Confirmación (respuestas registradas / omitido por ahora) */
+.retro-resultado {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: left;
+}
+
+.retro-resultado-titulo {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.retro-resultado-texto {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--mut);
+}
+
+.retro-link {
+  color: var(--ac);
+  font-weight: 600;
+}

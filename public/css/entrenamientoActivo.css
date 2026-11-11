@@ -1254,47 +1254,7 @@ html:has(body.is-premium) {
   color: var(--mut);
 }
 
-/* ---------- Prueba de sonido del overlay ---------- */
-
-.ea-overlay-audio {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  margin: -4px 0 20px;
-}
-
-.ea-audio-test {
-  appearance: none;
-  border: 1px solid rgba(var(--ac-rgb), 0.45);
-  border-radius: 999px;
-  padding: 8px 16px;
-  background: rgba(var(--btn2-rgb), 0.85);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 140ms ease, border-color 140ms ease;
-}
-
-.ea-audio-test:hover {
-  background: rgba(var(--ac-rgb), 0.16);
-  border-color: rgba(var(--ac-rgb), 0.6);
-}
-
-.ea-audio-test:focus-visible {
-  outline: 2px solid rgba(var(--ac-rgb), 0.9);
-  outline-offset: 2px;
-}
-
-.ea-audio-status {
-  min-height: 16px;
-  max-width: 380px;
-  color: var(--mut);
-  font-size: 12px;
-  line-height: 1.45;
-}
+/* ---------- Acciones del overlay ---------- */
 
 .ea-overlay-actions {
   display: flex;
@@ -1365,21 +1325,6 @@ html:has(body.is-premium) {
 
 .is-premium .ea-timer-ring {
   background: conic-gradient(var(--ring, var(--ac)) calc(var(--p) * 1%), rgba(255, 215, 94, 0.15) 0);
-}
-
-.is-premium .ea-audio-test {
-  border-color: rgba(212, 160, 23, 0.4);
-  background: rgba(255, 215, 94, 0.08);
-  color: var(--gold-soft);
-}
-
-.is-premium .ea-audio-test:hover {
-  background: rgba(255, 215, 94, 0.16);
-  border-color: rgba(255, 215, 94, 0.6);
-}
-
-.is-premium .ea-audio-test:focus-visible {
-  outline-color: var(--gold-2);
 }
 
 .is-premium .ea-audio-hint {
@@ -1590,21 +1535,6 @@ html:has(body.is-premium) {
   color: var(--mut);
 }
 
-:root:not([data-theme="dark"]) .is-premium .ea-audio-test {
-  border-color: rgba(229, 169, 0, 0.60);
-  background: var(--btn-2);
-  color: #795700;
-}
-
-:root:not([data-theme="dark"]) .is-premium .ea-audio-test:hover {
-  background: var(--hover);
-  border-color: #E5A900;
-}
-
-:root:not([data-theme="dark"]) .is-premium .ea-audio-test:focus-visible {
-  outline-color: #E5A900;
-}
-
 :root:not([data-theme="dark"]) .is-premium .ea-start {
   border-color: #E5A900;
   background: linear-gradient(180deg, var(--ac) 0%, var(--ac-hover) 100%);
@@ -1766,16 +1696,6 @@ html:has(body.is-premium) {
 
   .ea-overlay-stats span {
     font-size: 11px;
-  }
-
-  .ea-overlay-audio {
-    gap: 5px;
-    margin: -2px 0 14px;
-  }
-
-  .ea-audio-test {
-    padding: 7px 14px;
-    font-size: 12px;
   }
 
   .ea-flash {

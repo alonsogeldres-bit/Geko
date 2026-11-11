@@ -54,8 +54,6 @@
     start: $('ea-start'),
     secondary: $('ea-overlay-secondary'),
     audioHint: $('ea-audio-hint'),
-    audioTest: $('ea-audio-test'),
-    audioStatus: $('ea-audio-status'),
   };
 
   const clamp = (valor, min, max) => Math.min(max, Math.max(min, valor));
@@ -462,29 +460,11 @@
     if (state.mudo) return;
     audio.bloqueado = true;
     if (el.audioHint) el.audioHint.hidden = false;
-    if (el.audioStatus) el.audioStatus.textContent = 'El navegador bloqueó el audio.';
   }
 
   function sonidoFin(esUltimo) {
     if (state.fase === 'rest') reproducir('descanso');
     else reproducir(esUltimo ? 'fin' : 'serie');
-  }
-
-  async function probarSonido() {
-    if (state.mudo) {
-      state.mudo = false;
-      guardarMudo(false);
-      actualizarBotonSonido();
-    }
-
-    const listo = await desbloquearAudio();
-    reproducir('serie');
-
-    if (el.audioStatus) {
-      el.audioStatus.textContent = listo
-        ? 'Sonido activado. Si no lo escuchas, revisa el volumen o el modo silencio del dispositivo.'
-        : 'No pudimos reproducir audio. Revisa el volumen y el modo silencio del dispositivo.';
-    }
   }
 
   function vibrar() {
@@ -502,22 +482,6 @@
     el.sound.classList.toggle('is-off', state.mudo);
 
     if (el.audioHint) el.audioHint.hidden = state.mudo || !audio.bloqueado;
-
-    if (el.audioTest) {
-      el.audioTest.textContent = state.mudo ? 'Activar sonido y probar' : 'Probar sonido';
-    }
-
-    if (el.audioStatus) {
-      if (state.mudo) {
-        el.audioStatus.textContent = 'El sonido está desactivado.';
-      } else if (audio.bloqueado) {
-        el.audioStatus.textContent = 'El navegador bloqueó el audio.';
-      } else if (!audio.intentado) {
-        el.audioStatus.textContent = 'Comprueba el audio antes de empezar.';
-      } else {
-        el.audioStatus.textContent = '';
-      }
-    }
   }
 
   /* ---------- Render ---------- */
@@ -1145,10 +1109,6 @@
       reproducir('serie');
     }
   });
-
-  if (el.audioTest) {
-    el.audioTest.addEventListener('click', probarSonido);
-  }
 
   /* Cualquier gesto sirve para desbloquear el audio, no solo los botones. */
   ['pointerdown', 'touchstart', 'keydown'].forEach((tipo) => {

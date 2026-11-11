@@ -449,8 +449,8 @@
       .then(function (r) {
         quitarEscribiendo();
 
-        if (r.ok && r.data.ok && r.data.respuesta) {
-          agregarMensaje(r.data.respuesta, 'bot');
+        if (r.ok && r.data.ok && (r.data.respuesta || r.data.propuesta)) {
+          if (r.data.respuesta) agregarMensaje(r.data.respuesta, 'bot');
           if (r.data.propuesta) agregarPropuesta(r.data.propuesta);
         } else if (r.status === 401) {
           agregarMensaje('Tu sesión expiró. Recarga la página e inicia sesión de nuevo.', 'error');

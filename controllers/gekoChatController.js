@@ -219,7 +219,7 @@ const chat = async (req, res) => {
         }
       : null;
 
-    const { texto, fallback } = await responderChat({
+    const respuesta = await responderChat({
       mensaje,
       historial: estado.historial,
       fuentes,
@@ -235,6 +235,29 @@ const chat = async (req, res) => {
       },
     });
 
+    let texto = respuesta.texto;
+    let propuesta = null;
+
+    /* Red de seguridad: el chat general no aplica cambios. Si aun así la IA
+       afirma que ya cambió la rutina, se corrige y se prepara una propuesta
+       real (tarjeta con Aceptar/Rechazar) para que nada quede a medias. */
+    if (RoutineChanges.reclamaCambioAplicado(texto)) {
+      const gestion = await gestionarPedidoDeCambio(
+        req,
+        mensaje,
+        { esCambio: true, sinEquipo: [], conEquipo: [], zonas: [], dolor: false },
+        estado,
+        idUsuario
+      );
+
+      if (gestion.error) {
+        texto = 'No he modificado tu rutina todavía. Dime qué ejercicio quieres cambiar y te propongo una alternativa para que la aceptes.';
+      } else {
+        texto = gestion.texto;
+        propuesta = gestion.propuesta;
+      }
+    }
+
     /* Historial corto en la sesión: solo los últimos turnos. */
     estado.historial = [
       ...estado.historial,
@@ -245,7 +268,7 @@ const chat = async (req, res) => {
     estado.total += 1;
     guardarEstado(req, estado);
 
-    return res.json({ ok: true, respuesta: texto, fallback });
+    return res.json({ ok: true, respuesta: texto, fallback: respuesta.fallback, propuesta });
   } catch (err) {
     console.error('[geko-chat] error al responder:', err.message);
     return res.status(500).json({

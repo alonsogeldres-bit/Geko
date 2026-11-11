@@ -16,8 +16,12 @@
        del usuario, lugar, nivel, equipamiento, limitaciones y estilo de
        respuesta salen de groqService (lineasDatosUsuario / reglasRutina), la
        única fuente de esas reglas.
-     - Si la IA no responde, un respaldo determinista igual propone los
-       cambios obligatorios (p. ej. todo lo que use mancuernas).
+     - Si la IA no responde (o devuelve datos que no se pueden validar), un
+       respaldo determinista igual propone los cambios: lo obligatorio (p. ej.
+       todo lo que use mancuernas) y el ejercicio que el usuario nombró.
+     - Geko nunca dice que ya cambió algo: solo propone. El texto de la IA se
+       descarta si afirma lo contrario, y sin cambios validados nunca se muestra
+       una confirmación.
 
    Es independiente de la base de datos: el controlador guarda la propuesta en
    la sesión y la aplica al aceptar.
@@ -86,14 +90,28 @@ const equiposTrasFrase = (texto, patron) => {
   return resultado;
 };
 
-const PALABRAS_DOLOR = /\b(me duele|me duelen|dolor|molestia|molestias|lesion|lesione|lesionado|lesionada|lastim|torci|esguince|tendinitis|contractura|inflamad|me operaron|operad[oa]|cirugia|no puedo (?:apoyar|cargar|doblar|flexionar|usar)|no me deja)\b/;
+/* Se usan raíces ("molest\w*") para no depender de la conjugación exacta:
+   "me molesta", "me molestan" o "tengo molestias" cuentan igual. */
+const PALABRAS_DOLOR = /\b(me duele|me duelen|dolor|molest\w*|lesion\w*|lastim\w*|torci\w*|esguince\w*|tendinitis|contractura\w*|inflam\w*|me operaron|operad[oa]s?|cirugia\w*|no puedo (?:apoyar|cargar|doblar|flexionar|usar|con)|no me deja|me cuest\w*|me limit\w*)\b/;
 
-const VERBOS_CAMBIO = /\b(cambia|cambiame|cambiar|cambies|cambialo|cambialos|cambiala|cambiarlo|sustituye|sustituir|sustituyas|reemplaza|reemplazar|remplaza|quita|quitame|quitar|quitalo|saca|sacame|sacar|elimina|eliminar|borra|borrar|evita|evitar|otra opcion|otro ejercicio|otros ejercicios|alternativa|en vez de|en lugar de|no quiero hacer|no puedo hacer|no me gusta|no me gustan|odio|prefiero|ponme|mas facil|mas dificil|mas suave)\b/;
+/* Verbos de cambio por raíz: cubre "cambia", "cambiame", "cambias", "cambiarme",
+   "cambiámela", "reemplázame"... El verbo solo no basta: además hace falta que
+   el mensaje nombre un ejercicio/rutina o equipo (ver `detectarPeticion`). */
+const VERBOS_CAMBIO = /\b(cambi\w*|sustitu\w*|reempla[cz]\w*|rempla[cz]\w*|quit\w*|sac\w*|elimin\w*|borr\w*|evit\w*|modifi[cq]\w*|otra opcion|otro ejercicio|otros ejercicios|alternativa\w*|en vez de|en lugar de|no quiero hacer|no puedo hacer|no me gusta|no me gustan|odio|prefiero|ponme|mas facil|mas dificil|mas suave)\b/;
 
 const OBJETO_RUTINA = /\b(ejercicio|ejercicios|rutina|entrenamiento|calentamiento|estiramiento|sentadillas?|zancadas?|flexion(?:es)?|press|remo|curl|plancha|abdominales|crunch|burpees?|saltos?|peso muerto|puente|jalon|prensa|fondos|elevacion(?:es)?|aperturas|extension|trote|superman|dominadas?|mountain)\b/;
 
 /* "¿Dónde cambio mi tiempo?" es una pregunta sobre la app, no un pedido de cambio. */
 const PREGUNTA_DE_AYUDA = /\b(?:donde|como|en que pantalla|en que parte)\s+(?:puedo\s+)?(?:cambio|cambiar|modifico|modificar|edito|editar|actualizo|actualizar)\b/;
+
+/* "me lo cambias por otro" pide un cambio aunque no nombre el ejercicio. */
+const PIDE_OTRO = /\b(?:por|a)\s+(?:otr[oa]s?|algo (?:distinto|diferente)|uno (?:distinto|diferente)|una (?:distinta|diferente)|otra opcion)\b/;
+
+/* "quiero otra opción" / "dame una alternativa": tampoco nombra el ejercicio. */
+const PIDE_ALTERNATIVA = /\b(?:otra opcion|otra alternativa|una alternativa|alternativa)\b/;
+
+/* Temas de perfil/plan: no son cambios de ejercicios. */
+const TEMA_PERFIL = /\b(plan|suscripcion|premium|perfil|datos|tiempo|minutos|lugar|entorno|nivel|dias)\b/;
 
 /**
  * Lee el mensaje del usuario (sin IA) y dice si pide cambiar la rutina.
@@ -112,7 +130,11 @@ const detectarPeticion = (mensaje) => {
   const zonas = dolor ? catalogo.zonasDesdeTexto(texto) : [];
 
   const mencionaEquipo = equiposEnTramo(texto).size > 0;
-  const pideCambio = VERBOS_CAMBIO.test(texto) && (OBJETO_RUTINA.test(texto) || mencionaEquipo);
+  const verboCambio = VERBOS_CAMBIO.test(texto);
+  const sinTemaPerfil = !TEMA_PERFIL.test(texto);
+  const pideCambio =
+    (verboCambio && (OBJETO_RUTINA.test(texto) || mencionaEquipo)) ||
+    (verboCambio && sinTemaPerfil && (PIDE_OTRO.test(texto) || PIDE_ALTERNATIVA.test(texto)));
 
   const esCambio = sinEquipo.size > 0 || dolor || pideCambio;
   return { esCambio, sinEquipo: [...sinEquipo], conEquipo: [...conEquipo], zonas, dolor };
@@ -256,8 +278,13 @@ const limpiarMensajeGeko = (valor) =>
     .trim()
     .slice(0, MAX_MENSAJE_GEKO);
 
-/* Geko solo PROPONE: si la IA afirma que ya cambió algo, ese texto no sirve. */
-const DICE_QUE_YA_LO_HIZO = /\b(ya (?:lo|los|la|las|te lo|se lo)?\s*(?:cambie|modifique|aplique|actualice|sustitui|reemplace)|he (?:cambiado|modificado|aplicado|actualizado)|listo|hecho)\b/;
+/* Geko solo PROPONE: si la IA afirma que ya cambió algo, ese texto no sirve.
+   Se aplica SIEMPRE (haya o no cambios validados) para que el usuario nunca
+   lea una confirmación que no ocurrió. */
+const DICE_QUE_YA_LO_HIZO = /(?<!(?:no|nunca|jamas)\s)\b(?:ya\s+(?:lo|los|la|las|te\s+lo|se\s+lo)?\s*(?:cambi\w*|modifi[cq]\w*|apli[cq]\w*|actuali[cz]\w*|sustitu\w*|reempla[cz]\w*|rempla[cz]\w*)|(?:lo|los|la|las|te\s+lo)\s+(?:cambi\w*|modifi[cq]\w*|apli[cq]\w*|actuali[cz]\w*|sustitu\w*|reempla[cz]\w*|rempla[cz]\w*)|he\s+(?:cambiado|modificado|aplicado|actualizado|sustituido|reemplazado)|(?:quedo|quedaron)\s+(?:cambi\w*|actuali[cz]\w*)|tu\s+rutina\s+(?:ya\s+)?(?:esta\s+)?(?:cambiad\w*|actualizad\w*)|cambio\s+aplicado|listo,?\s+(?:ya\s+)?(?:cambi\w*|modifi[cq]\w*|actuali[cz]\w*))\b/;
+
+/** true si el texto afirma que un cambio ya se aplicó (nunca es cierto desde el chat). */
+const reclamaCambioAplicado = (texto) => DICE_QUE_YA_LO_HIZO.test(plano(texto));
 
 /* ---------- 4. Elegir y validar los reemplazos ---------- */
 
@@ -282,6 +309,114 @@ const elegirReemplazo = (item, candidatos, usados) => {
     if (encontrado) return encontrado;
   }
   return null;
+};
+
+/* ---------- Interpretar lo que pidió el usuario (respaldo sin IA) ---------- */
+
+/* Palabras que no ayudan a identificar un ejercicio. */
+const SIN_VALOR = new Set([
+  'para', 'por', 'con', 'los', 'las', 'del', 'una', 'unos', 'unas', 'que', 'como',
+  'este', 'esta', 'estos', 'estas', 'muy', 'mas', 'pero', 'porque', 'quiero',
+  'puedo', 'puedes', 'podrias', 'hacer', 'tengo', 'tiene', 'cambio', 'cambia',
+  'cambiar', 'cambiame', 'cambias', 'cambiarme', 'sustituye', 'sustituir',
+  'reemplaza', 'reemplazar', 'remplaza', 'quita', 'quitar', 'saca', 'sacar',
+  'elimina', 'eliminar', 'borra', 'borrar', 'otro', 'otra', 'otros', 'otras',
+  'algo', 'nada', 'ejercicio', 'ejercicios', 'rutina', 'entrenamiento', 'hoy',
+  'el', 'la', 'lo', 'se', 'no', 'de', 'en', 'y', 'o', 'al', 'es', 'son',
+  'favor', 'mejor', 'peor', 'suave', 'facil', 'dificil', 'sin', 'todo', 'toda',
+]);
+
+/** Palabras distintivas de un nombre ("Press de banca con mancuernas" -> press, banca, mancuernas). */
+const tokensDeNombre = (nombre) =>
+  catalogo.normalizar(nombre).split(' ').filter((t) => t.length >= 4 && !SIN_VALOR.has(t));
+
+/** true si el mensaje menciona la palabra (compara raíces: "sentadillas" ~ "sentadilla"). */
+const mencionaPalabra = (palabras, token) =>
+  palabras.some((p) => p === token || (p.length >= 4 && (p.startsWith(token) || token.startsWith(p))));
+
+/** Referencia de la rutina ("p1." -> "P1"); cadena vacía si no lo es. */
+const normalizarRef = (valor) => {
+  const t = String(valor ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return /^[CPE]\d+$/.test(t) ? t : '';
+};
+
+/** Item de la rutina por referencia (P1) o por nombre. */
+const buscarItem = (items, valor) => {
+  const ref = normalizarRef(valor);
+  if (ref) return items.find((it) => it.ref === ref) || null;
+
+  const norm = catalogo.normalizar(valor);
+  if (!norm) return null;
+  return (
+    items.find((it) => catalogo.normalizar(it.ejercicio.nombre) === norm) ||
+    items.find((it) => catalogo.normalizar(it.ejercicio.nombre).includes(norm)) ||
+    null
+  );
+};
+
+/** Candidato del catálogo por id o por nombre (tolera mayúsculas, tildes y espacios). */
+const buscarCandidato = (lista, valor) => {
+  const bruto = String(valor ?? '').trim();
+  if (!bruto) return null;
+
+  const directo = lista.find((e) => e.id === bruto);
+  if (directo) return directo;
+
+  const norm = catalogo.normalizar(bruto);
+  if (!norm) return null;
+  return (
+    lista.find((e) => catalogo.normalizar(e.nombre) === norm) ||
+    lista.find((e) => {
+      const n = catalogo.normalizar(e.nombre);
+      return n.includes(norm) || norm.includes(n);
+    }) ||
+    null
+  );
+};
+
+/**
+ * Ejercicio de la rutina que menciona el usuario ("cambia el press de banca").
+ * Gana el que más palabras distintas comparte; si hay empate real no se adivina:
+ * devuelve { item: null, ambiguo: true }.
+ */
+const objetivoExplicito = (mensaje, items) => {
+  const texto = catalogo.normalizar(mensaje);
+  if (!texto) return { item: null, ambiguo: false };
+  const palabras = texto.split(' ');
+
+  const puntuados = items
+    .map((it) => {
+      const tokens = tokensDeNombre(it.ejercicio.nombre);
+      const coincidencias = tokens.filter((t) => mencionaPalabra(palabras, t)).length;
+      return { it, coincidencias, total: tokens.length };
+    })
+    .filter((x) => x.coincidencias > 0);
+
+  if (!puntuados.length) return { item: null, ambiguo: false };
+
+  const maximo = Math.max(...puntuados.map((x) => x.coincidencias));
+  const mejores = puntuados.filter((x) => x.coincidencias === maximo);
+  if (mejores.length === 1) return { item: mejores[0].it, ambiguo: false };
+
+  /* Desempate: si solo uno de los empatados cubre todas sus palabras, es ese. */
+  const completos = mejores.filter((x) => x.coincidencias === x.total);
+  if (completos.length === 1) return { item: completos[0].it, ambiguo: false };
+
+  return { item: null, ambiguo: true };
+};
+
+/** Candidato pedido explícitamente tras "por"/"en vez de" ("... por flexiones"). */
+const reemplazoPedido = (mensaje, tipo, candidatos) => {
+  const m = catalogo.normalizar(mensaje).match(/\b(?:por|en vez de|en lugar de)\b([\s\S]*)$/);
+  const pedido = m ? m[1].trim() : '';
+  if (!pedido) return null;
+
+  return (
+    candidatos[tipo].find((e) => {
+      const n = catalogo.normalizar(e.nombre);
+      return n && (pedido.includes(n) || n.split(' ').every((p) => p.length < 4 || pedido.includes(p)));
+    }) || null
+  );
 };
 
 /** Ejercicio nuevo con los mismos series/descanso/duración que el que reemplaza. */
@@ -360,15 +495,18 @@ const proponerCambios = async ({ mensaje, perfil = {}, rutina, restricciones = {
     }
   }
 
-  const porRef = new Map(items.map((it) => [it.ref, it]));
+  /* Pedido explícito del usuario: sirve de respaldo si la IA falla o no acierta. */
+  const objetivo = objetivoExplicito(mensaje, items);
+  const reemplazo = objetivo.item ? reemplazoPedido(mensaje, objetivo.item.tipo, candidatos) : null;
+
   const aceptados = new Map();
   const usados = new Set();
 
   const propuestaIA = ia && Array.isArray(ia.cambios) ? ia.cambios : [];
   propuestaIA.forEach((p) => {
     if (aceptados.size >= MAX_CAMBIOS) return;
-    const item = porRef.get(String((p && p.ejercicio) || '').toUpperCase());
-    const candidato = item && candidatos[item.tipo].find((e) => e.id === String((p && p.nuevo) || ''));
+    const item = buscarItem(items, p && p.ejercicio);
+    const candidato = item && buscarCandidato(candidatos[item.tipo], p && p.nuevo);
     if (!item || !candidato) return;
     if (aceptados.has(item.ref) || usados.has(candidato.id)) return;
     if (!grupoCompatible(item, candidato)) return;
@@ -376,15 +514,31 @@ const proponerCambios = async ({ mensaje, perfil = {}, rutina, restricciones = {
     usados.add(candidato.id);
   });
 
-  /* Red de seguridad: lo obligatorio se cambia aunque la IA se lo haya saltado. */
+  /* Red de seguridad sin IA: se cambia lo obligatorio (equipo que perdió o zona
+     con dolor) y el ejercicio que el usuario nombró explícitamente. Así, aunque
+     la IA devuelva 429 o un JSON inválido, la tarjeta igual aparece. */
   const sinAlternativa = [];
-  items.forEach((it) => {
-    if (!obligatorios.has(it.ref) || aceptados.has(it.ref)) return;
+  const pendientes = items.filter((it) => {
+    if (aceptados.has(it.ref)) return false;
+    if (obligatorios.has(it.ref)) return true;
+    return Boolean(objetivo.item && objetivo.item.ref === it.ref);
+  });
+
+  pendientes.forEach((it) => {
     if (aceptados.size >= MAX_CAMBIOS) {
       sinAlternativa.push(it.ejercicio.nombre);
       return;
     }
-    const candidato = esCircuito(it.ejercicio.nombre) ? null : elegirReemplazo(it, candidatos, usados);
+    if (esCircuito(it.ejercicio.nombre)) {
+      sinAlternativa.push(it.ejercicio.nombre);
+      return;
+    }
+    const pedido =
+      reemplazo && objetivo.item && objetivo.item.ref === it.ref &&
+      !usados.has(reemplazo.id) && grupoCompatible(it, reemplazo)
+        ? reemplazo
+        : null;
+    const candidato = pedido || elegirReemplazo(it, candidatos, usados);
     if (!candidato) {
       sinAlternativa.push(it.ejercicio.nombre);
       return;
@@ -410,9 +564,11 @@ const proponerCambios = async ({ mensaje, perfil = {}, rutina, restricciones = {
       };
     });
 
-  /* Texto para el chat. */
+  /* Texto para el chat. Nunca se repite una confirmación de la IA: Geko solo
+     propone y el cambio ocurre cuando el usuario acepta la tarjeta. */
   let texto = ia ? limpiarMensajeGeko(ia.mensaje) : '';
-  if (texto && cambios.length && DICE_QUE_YA_LO_HIZO.test(plano(texto))) texto = '';
+  if (texto && reclamaCambioAplicado(texto)) texto = '';
+
   if (cambios.length) {
     if (!texto) {
       texto = 'Claro, te propongo estos cambios en tu rutina. Si te parecen bien, acéptalos y los aplico.';
@@ -420,12 +576,14 @@ const proponerCambios = async ({ mensaje, perfil = {}, rutina, restricciones = {
     if (sinAlternativa.length) {
       texto += ` No encontré una alternativa segura para: ${sinAlternativa.join(', ')}. Ese lo dejo como está.`;
     }
-  } else if (!texto) {
-    texto = sinAlternativa.length
-      ? `No encontré una alternativa segura para: ${sinAlternativa.join(', ')}. Por ahora lo dejo como está.`
-      : usarIA && !ia && process.env.GROQ_API_KEY
-        ? 'Ahora mismo no pude preparar el cambio. Inténtalo de nuevo en un momento.'
-        : 'Cuéntame qué ejercicio quieres cambiar y por qué (por ejemplo, "no tengo mancuernas" o "me duele la rodilla") y te propongo una alternativa.';
+  } else if (sinAlternativa.length) {
+    texto = `No encontré una alternativa segura para: ${sinAlternativa.join(', ')}. Por ahora lo dejo como está.`;
+  } else if (objetivo.ambiguo) {
+    texto = 'Para no cambiar el ejercicio equivocado, dime cuál quieres cambiar exactamente (por ejemplo, "cambia el press de banca por flexiones").';
+  } else if (usarIA && !ia && process.env.GROQ_API_KEY) {
+    texto = 'Ahora mismo no pude preparar el cambio. Inténtalo de nuevo en un momento.';
+  } else {
+    texto = 'Cuéntame qué ejercicio quieres cambiar y por qué (por ejemplo, "no tengo mancuernas" o "me duele la rodilla") y te propongo una alternativa.';
   }
 
   return { texto, cambios, sinAlternativa, fuente: ia ? 'ia' : 'respaldo' };
@@ -488,5 +646,10 @@ module.exports = {
   nuevaPropuesta,
   construirPromptCambio,
   listarEjercicios,
+  reclamaCambioAplicado,
+  objetivoExplicito,
+  reemplazoPedido,
+  buscarItem,
+  buscarCandidato,
   MAX_CAMBIOS,
 };
